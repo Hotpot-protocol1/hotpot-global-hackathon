@@ -1,4 +1,38 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<!-- GETTING STARTED -->
+
+## Getting Started (Self-Hosted)
+
+### Prerequisites
+
+1. Install [Node.js and NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+2. Install [Yarn](https://classic.yarnpkg.com/en/docs/install)
+3. Request free [Reservoir API key](https://api.reservoir.tools/#/0.%20Auth/postApikeys)
+
+### Built With
+
+- [ReservoirKit](https://docs.reservoir.tools/docs/reservoir-kit)
+- [Reservoir Protocol and API](https://reservoirprotocol.github.io/)
+- [Next.js](https://nextjs.org/)
+- [React.js](https://reactjs.org/)
+- [Ethers.io](https://ethers.io/)
+- [WAGMI](https://wagmi.sh/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+### Installation
+
+Fork this repo and follow these instructions to install dependancies.
+
+With yarn:
+
+```bash
+$ yarn install
+```
+
+With NPM:
+
+```bash
+$ npm install
+```
 
 ### Configuration
 
