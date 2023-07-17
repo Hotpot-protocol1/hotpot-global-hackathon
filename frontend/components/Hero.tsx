@@ -13,14 +13,14 @@ const Hero: React.FC<HeroProps> = ({ variant }) => {
 
   return (
     <div
-      className="grid w-full grid-cols-1 overflow-hidden rounded-lg bg-cover bg-center md:max-h-[428px] md:grid-cols-2"
+      className="grid w-full grid-cols-1 overflow-hidden rounded-lg bg-cover bg-center md:max-h-[26rem] md:grid-cols-2"
       style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
     >
       <div>
-        <div className="flex flex-col items-center justify-center p-12">
+        <div className="flex flex-col items-center justify-center px-2 py-10">
           <img src="/pot-o-gold.svg" alt="pot-o-gold" />
           <h2
-            className={`mt-[-12px] text-base font-normal ${textColor} md:text-xl`}
+            className={`mt-[-0.75rem] text-base font-normal ${textColor} md:text-lg`}
           >
             Earn 1 raffle ticket for every 0.10 ETH bought or sold
           </h2>
@@ -35,11 +35,11 @@ const Hero: React.FC<HeroProps> = ({ variant }) => {
         </div>
       </div>
 
-      <div className="hidden flex-row items-end justify-center md:flex">
+      <div className="hidden items-end md:flex">
         <img
           src={bottomImageUrl}
           alt="rewards-image"
-          className="h-[500px] object-cover object-bottom"
+          className="h-[30rem] object-fill object-bottom"
         />
       </div>
     </div>
