@@ -5,12 +5,7 @@
  * @param width Desired image width
  * @returns The same image with an additional query param to resize it
  */
-export function optimizeImage(
-  imageHref: string | undefined,
-  // innerWidth: any,
-  // obj: { sm: number; md: number; lg: number; xl: number; '2xl': number }
-  width: number
-) {
+export function optimizeImage(imageHref: string | undefined, width: number) {
   if (!imageHref) return ''
 
   // const w =
@@ -24,8 +19,14 @@ export function optimizeImage(
   //     ? obj.xl
   //     : obj['2xl']
 
-  let url = new URL(imageHref)
-  // Optimize google images
+  let url: URL | null = null
+  try {
+    url = new URL(imageHref)
+  } catch (error) {
+    console.error('Invalid imageHref:', imageHref)
+    return imageHref
+  }
+  // Optimize Google images
   if (url.host === 'lh3.googleusercontent.com') {
     if (imageHref.includes('=s') || imageHref.includes('=w')) {
       let newImage = imageHref.split('=')
@@ -33,5 +34,6 @@ export function optimizeImage(
     }
     return `${imageHref}=w${width}`
   }
+
   return imageHref
 }

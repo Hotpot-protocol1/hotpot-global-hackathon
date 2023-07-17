@@ -7,7 +7,7 @@
 # ACTIVE
 
 NEXT_PUBLIC_CHAIN_ID=11155111
-NEXT_PUBLIC_RESERVOIR_API_BASE=https://api.reservoir.tools
+NEXT_PUBLIC_RESERVOIR_API_BASE=https://api-sepolia.reservoir.tools
 NEXT_PUBLIC_PROXY_API_BASE=/api/reservoir
 NEXT_PUBLIC_EXTERNAL_LINKS=Discover::/,Rewards::/rewards
 
