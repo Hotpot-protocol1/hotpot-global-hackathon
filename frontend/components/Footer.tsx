@@ -18,7 +18,7 @@ const Footer = () => {
             <FaDiscord className="h-[19px] w-[25px] text-[#845CFF]" />
           </a>
         </Link>
-        <Link href="https://twitter.com/hotpot" legacyBehavior={true}>
+        <Link href="https://twitter.com/hotpot_gg" legacyBehavior={true}>
           <a className="" target="_blank" rel="noreferrer">
             <FaTwitter className="h-[20px] w-[25px] text-[#845CFF]" />
           </a>

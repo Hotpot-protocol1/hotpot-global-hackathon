@@ -52,7 +52,7 @@ const ActivityTable: FC<Props> = ({
   onTypesChange,
   emptyPlaceholder,
 }) => {
-  const headings = ['Event', 'Item', 'Amount', 'From', 'To', 'Time']
+  const headings = ['Event', 'Item', 'Amount', 'From', 'To', 'Rewards', 'Time']
   const isMobile = useMediaQuery('only screen and (max-width : 730px)')
   const filters = ['Sales', 'Listings', 'Transfer', 'Mints']
   const enabledFilters: typeof filters = []
@@ -62,9 +62,6 @@ const ActivityTable: FC<Props> = ({
   }
   if (types?.includes('ask')) {
     enabledFilters.push('Listings')
-  }
-  if (types?.includes('bid')) {
-    enabledFilters.push('Offers')
   }
   if (types?.includes('transfer')) {
     enabledFilters.push('Transfer')
@@ -109,7 +106,6 @@ const ActivityTable: FC<Props> = ({
                   let activityType:
                     | 'sale'
                     | 'ask'
-                    | 'bid'
                     | 'transfer'
                     | 'mint'
                     | undefined = undefined
@@ -118,8 +114,6 @@ const ActivityTable: FC<Props> = ({
                     activityType = 'sale'
                   } else if (filter === 'Listings') {
                     activityType = 'ask'
-                  } else if (filter === 'Offers') {
-                    activityType = 'bid'
                   } else if (filter === 'Transfer') {
                     activityType = 'transfer'
                   } else if (filter === 'Mints') {
@@ -262,9 +256,6 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
     listing_canceled: (
       <FiXSquare className="mr-1 h-4 w-4 text-neutral-400 md:mr-[10px] md:h-5 md:w-5" />
     ),
-    offer_canceled: (
-      <FiXSquare className="mr-1 h-4 w-4 text-neutral-400 md:mr-[10px] md:h-5 md:w-5" />
-    ),
     ask: null,
     bid: null,
   }
@@ -274,20 +265,12 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
       activityDescription = 'Listing Canceled'
       break
     }
-    case 'bid_cancel': {
-      activityDescription = 'Offer Canceled'
-      break
-    }
     case 'mint': {
       activityDescription = 'Mint'
       break
     }
     case 'ask': {
       activityDescription = 'Listing'
-      break
-    }
-    case 'bid': {
-      activityDescription = 'Offer'
       break
     }
     case 'transfer': {
@@ -485,6 +468,19 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         ) : (
           <span className="ml-2.5 mr-2.5 font-light">-</span>
         )}
+      </td>
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-2 whitespace-nowrap text-right font-light text-neutral-600 dark:text-neutral-300">
+          {activity.type === 'ask' ? (
+            <>
+              <div className="rounded border border-[#0FA46E] bg-[#DBF1E4] px-1 text-sm text-[#0FA46E]">
+                +15 Tickets
+              </div>
+            </>
+          ) : (
+            '-'
+          )}
+        </div>
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2 whitespace-nowrap font-light text-neutral-600 dark:text-neutral-300">
