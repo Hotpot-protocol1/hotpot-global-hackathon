@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic'
 import { paths } from '@reservoir0x/reservoir-sdk'
 import setParams from 'lib/params'
 import NavbarLogo from 'components/navbar/NavbarLogo'
-import ThemeSwitcher from './ThemeSwitcher'
 import CartMenu from './CartMenu'
 import SearchMenu from './SearchMenu'
 import { useMediaQuery } from '@react-hookz/web'
@@ -159,7 +158,6 @@ const Navbar: FC = () => {
             <Ticket />
             <CartMenu />
             <ConnectWallet />
-            <ThemeSwitcher />
           </div>
         </div>
       )}

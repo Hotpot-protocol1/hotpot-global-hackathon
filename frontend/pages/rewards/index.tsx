@@ -7,6 +7,10 @@ import toast from 'react-hot-toast'
 import { ComponentProps } from 'react'
 import Hero from 'components/Hero'
 import useMounted from 'hooks/useMounted'
+import TicketsGrid from 'components/TicketsGrid'
+import Leaderboard from 'components/Leaderboard'
+import Faq from 'components/Faq'
+import Footer from 'components/Footer'
 
 const Rewards: NextPage = () => {
   const { address, isConnected } = useAccount()
@@ -20,24 +24,27 @@ const Rewards: NextPage = () => {
     data
   ) => toast.custom((t) => <Toast t={t} toast={toast} data={data} />)
 
+  const leaderboardData = [
+    {
+      rank: 133,
+      name: 'You',
+      boost: '1x',
+      tickets24h: 628,
+      totalTickets: 8080,
+    },
+    { rank: 1, name: 'John', boost: 'Yes', tickets24h: 10, totalTickets: 50 },
+  ]
+
   return (
     <Layout navbar={{}}>
       <div className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
         <Hero variant="rewards" />
-        {isConnected ? (
-          <></>
-        ) : (
-          <div className="flex flex-col items-center gap-y-6 py-16 text-center md:py-32">
-            <h3 className="mb-2 text-2xl font-semibold dark:text-white sm:text-3xl">
-              Rewards
-            </h3>
-
-            <ConnectWalletButton>
-              <span className="w-40">Connect Wallet</span>
-            </ConnectWalletButton>
-          </div>
-        )}
+        <TicketsGrid />
+        <Leaderboard />
+        {isConnected ? <></> : <div className=""></div>}
+        <Faq />
       </div>
+      <Footer />
     </Layout>
   )
 }
