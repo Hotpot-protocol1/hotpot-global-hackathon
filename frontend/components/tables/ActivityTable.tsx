@@ -471,7 +471,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2 whitespace-nowrap text-right font-light text-neutral-600 dark:text-neutral-300">
-          {activity.type === 'ask' ? (
+          {activity.type === 'mint' ? (
             <>
               <div className="rounded border border-[#0FA46E] bg-[#DBF1E4] px-1 text-sm text-[#0FA46E]">
                 +15 Tickets
