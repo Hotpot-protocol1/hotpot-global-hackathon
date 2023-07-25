@@ -7,6 +7,7 @@ const MONO_FONT_FAMILY =
 const PRIMARY_COLOR = process.env.NEXT_PUBLIC_PRIMARY_COLOR || 'default'
 
 const primaryColors = require('./colors')
+const { blackA } = require('@radix-ui/colors');
 
 module.exports = {
   presetColors: primaryColors,
@@ -35,17 +36,28 @@ module.exports = {
           '0%': { opacity: 0, transform: 'translateY(-10px)' },
           '100%': { opacity: 1, transform: 'translateY(0)' },
         },
+        overlayShow: {
+          from: { opacity: 0 },
+          to: { opacity: 1 },
+        },
+        contentShow: {
+          from: { opacity: 0, transform: 'translate(-50%, -48%) scale(0.96)' },
+          to: { opacity: 1, transform: 'translate(-50%, -50%) scale(1)' },
+        },
       },
       animation: {
         'spin-loading': 'spin 1s cubic-bezier(0.76, 0.35, 0.2, 0.7) infinite',
         'slide-down': 'slide-down 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         'spin-reverse': 'spin 1s reverse linear infinite',
+        overlayShow: 'overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+        contentShow: 'contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)',
       },
 
       colors: {
         primary: primaryColors[PRIMARY_COLOR],
         'dark-backdrop': 'rgba(0, 0, 0, 0.8)',
         backdrop: 'rgba(255, 255, 255, 0.8)',
+        ...blackA,
       },
     },
   },

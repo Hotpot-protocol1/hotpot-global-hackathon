@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 const Footer = () => {
   return (
-    <footer className="col-span-full flex flex-col items-center justify-between px-6 pb-12 sm:flex-row md:px-16">
+    <footer className="col-span-full flex flex-col items-center justify-between px-6 pb-4 sm:flex-row md:px-16">
       <div className="mb-6 flex flex-row flex-wrap items-center justify-between gap-x-6 text-xs sm:mb-0 sm:gap-x-8 sm:text-sm">
         <Link href="/" legacyBehavior={true}>
           <img src="/hotpot.png" alt="hotpot-logo" className="h-8 w-8" />

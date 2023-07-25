@@ -172,15 +172,19 @@ const CartMenu: FC = () => {
                       {name || `#${tokenId}`}
                     </div>
                     <div className="reservoir-label-s">{collection?.name}</div>
-                    <div className="reservoir-h6">
+                    <div className="reservoir-h6 flex flex-row items-center justify-between gap-4">
                       <FormatCrypto
                         amount={price?.amount?.decimal}
                         address={price?.currency?.contract}
                         decimals={price?.currency?.decimals}
                       />
+                      <div className="rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm text-[#0FA46E]">
+                        +1 TIX
+                      </div>
                     </div>
                   </div>
                 </div>
+
                 <button
                   onClick={() => {
                     const newCartTokens = [...cartTokens]

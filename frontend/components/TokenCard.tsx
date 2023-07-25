@@ -7,6 +7,7 @@ import React, {
   Dispatch,
   FC,
   SetStateAction,
+  useState,
 } from 'react'
 import FormatCrypto from 'components/FormatCrypto'
 import BuyNow from 'components/BuyNow'
@@ -15,13 +16,19 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { getCartCurrency, getTokensMap } from 'recoil/cart'
 import { useAccount, useNetwork, useSigner } from 'wagmi'
 import recoilCartTokens, { getPricingPools } from 'recoil/cart'
-import { ListModal, useReservoirClient } from '@reservoir0x/reservoir-kit-ui'
+import {
+  ListModal,
+  Modal,
+  useReservoirClient,
+} from '@reservoir0x/reservoir-kit-ui'
 import { setToast } from './token/setToast'
 import { MutatorCallback } from 'swr'
 import { useMediaQuery } from '@react-hookz/web'
 import RarityTooltip from './RarityTooltip'
 import { Collection } from 'types/reservoir'
 import { getPricing } from 'lib/token/pricing'
+import * as Dialog from '@radix-ui/react-dialog'
+import ListModal2 from './modal/ListModal'
 
 const SOURCE_ICON = process.env.NEXT_PUBLIC_SOURCE_ICON
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
@@ -105,16 +112,21 @@ const TokenCard: FC<Props> = ({
       >
         <a className="mb-[85px]">
           {token?.token?.image ? (
-            <Image
-              loader={({ src }) => src}
-              src={optimizeImage(token?.token?.image, imageSize)}
-              alt={`${token?.token?.name}`}
-              className="w-full"
-              width={imageSize}
-              height={imageSize}
-              objectFit="cover"
-              layout="responsive"
-            />
+            <div className="max-w-15 relative">
+              <div className="absolute top-4 left-4 z-10 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
+                +1 TIX
+              </div>
+              <Image
+                loader={({ src }) => src}
+                src={optimizeImage(token?.token?.image, imageSize)}
+                alt={`${token?.token?.name}`}
+                className="w-full"
+                width={imageSize}
+                height={imageSize}
+                objectFit="cover"
+                layout="responsive"
+              />
+            </div>
           ) : (
             <div className="relative w-full">
               <div className="absolute inset-0 grid place-items-center backdrop-blur-lg">
@@ -203,7 +215,36 @@ const TokenCard: FC<Props> = ({
         </div>
         {isOwner && (
           <div className="grid">
-            <ListModal
+            <ListModal2
+              trigger={
+                <button className="btn-primary-fill reservoir-subtitle flex h-[40px] items-center justify-center whitespace-nowrap rounded-none text-white focus:ring-0">
+                  {price?.amount?.decimal
+                    ? 'Create New Listing'
+                    : 'List for Sale'}
+                </button>
+              }
+              collectionId={token.token?.contract}
+              tokenId={token.token?.tokenId}
+              onListingComplete={() => {
+                mutate()
+              }}
+              onListingError={(err: any) => {
+                if (err?.code === 4001) {
+                  setToast({
+                    kind: 'error',
+                    message: 'You have canceled the transaction.',
+                    title: 'User canceled transaction',
+                  })
+                  return
+                }
+                setToast({
+                  kind: 'error',
+                  message: 'The transaction was not completed.',
+                  title: 'Could not list token',
+                })
+              }}
+            />
+            {/* <ListModal
               trigger={
                 <button className="btn-primary-fill reservoir-subtitle flex h-[40px] items-center justify-center whitespace-nowrap rounded-none text-white focus:ring-0">
                   {price?.amount?.decimal
@@ -232,7 +273,7 @@ const TokenCard: FC<Props> = ({
                   title: 'Could not list token',
                 })
               }}
-            />
+            /> */}
           </div>
         )}
         {price?.amount?.decimal != null &&

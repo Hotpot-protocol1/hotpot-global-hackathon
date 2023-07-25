@@ -157,11 +157,11 @@ const CancelListing: FC<Props> = ({
         ) : (
           <Dialog.Trigger disabled={triggerDisabled} onClick={onTriggerClick}>
             {waitingTx ? (
-              <p className="btn-primary-outline dark:border-neutral-600  dark:text-white dark:ring-primary-900 dark:focus:ring-4">
+              <p className="btn-primary-outline dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4">
                 <CgSpinner className="h-4 w-4 animate-spin" />
               </p>
             ) : (
-              <p className="btn-primary-outline dark:border-neutral-600  dark:text-white dark:ring-primary-900 dark:focus:ring-4">
+              <p className="btn-primary-outline dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4">
                 Cancel Listing
               </p>
             )}
