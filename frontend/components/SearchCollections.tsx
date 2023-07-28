@@ -13,6 +13,8 @@ import setParams from 'lib/params'
 import debounce from 'lodash.debounce'
 import { FiSearch, FiXCircle } from 'react-icons/fi'
 import { paths } from '@reservoir0x/reservoir-sdk'
+import LoadingIcon from './LoadingIcon'
+import { CgSpinner } from 'react-icons/cg'
 
 export type SearchCollectionsAPISuccessResponse =
   paths['/search/collections/v1']['get']['responses']['200']['schema']
@@ -38,6 +40,7 @@ const SearchCollections: FC<Props> = ({
   const [results, setResults] = useState<SearchCollectionsAPISuccessResponse>(
     {}
   )
+  const [loading, setLoading] = useState<boolean>(false)
 
   function getHref(search?: string) {
     const pathname = `${PROXY_API_BASE}/search/collections/v1`
@@ -87,6 +90,7 @@ const SearchCollections: FC<Props> = ({
         setResults(data)
       } catch (err) {
         console.error(err)
+      } finally {
       }
     }, 100),
     []
@@ -115,13 +119,19 @@ const SearchCollections: FC<Props> = ({
           onBlur={() => setFocused(false)}
           className="relative"
         >
-          {!isMobile && (
-            <FiSearch
-              className={`absolute  top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[#6A3CF5] dark:text-neutral-300 ${
-                focused ? 'text-[#9CA3AF]' : ''
-              }`}
-            />
-          )}
+          {!isMobile &&
+            // Conditionally render FiSearch or LoadingIcon based on the loading state
+            (loading ? (
+              <div className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[#6A3CF5] dark:text-neutral-300">
+                <CgSpinner className="animate-spin" />
+              </div>
+            ) : (
+              <FiSearch
+                className={`absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[#6A3CF5] dark:text-neutral-300 ${
+                  focused ? 'text-[#9CA3AF]' : ''
+                }`}
+              />
+            ))}
           <input
             type="text"
             tabIndex={isMobile ? 1 : -1}
@@ -179,6 +189,7 @@ const SearchCollections: FC<Props> = ({
                         onClick={() => {
                           reset()
                           setFocused(false)
+
                           setOpen && setOpen(false)
                         }}
                         className={`flex items-center py-4 px-6 hover:bg-[#F3F4F6] dark:hover:bg-neutral-600 ${

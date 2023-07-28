@@ -76,30 +76,45 @@ const TokenInfo: FC<Props> = ({ token }) => {
           Token Info
         </div>
         <div className="flex items-center gap-2">
-          <a
-            className="reservoir-h6 font-headings"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={`https://looksrare.org/collections/${token?.contract}/${token?.tokenId}`}
-          >
-            <img
-              src="/icons/LooksRare.svg"
-              alt="LooksRare Icon"
-              className="h-6 w-6"
-            />
-          </a>
-          <a
-            className="reservoir-h6 font-headings"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={`https://opensea.io/assets/${token?.contract}/${token?.tokenId}`}
-          >
-            <img
-              src="/icons/OpenSea.svg"
-              alt="OpenSea Icon"
-              className="h-6 w-6"
-            />
-          </a>
+          {token?.owner?.trim() ==
+          '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0' ? (
+            <a
+              className="reservoir-h6 font-headings"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`/${token?.contract}/${token?.tokenId}`}
+            >
+              <img src="/hotpot.png" alt="Hotpot Icon" className="h-6 w-6" />
+            </a>
+          ) : (
+            <>
+              <a
+                className="reservoir-h6 font-headings"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={`https://looksrare.org/collections/${token?.contract}/${token?.tokenId}`}
+              >
+                {' '}
+                <img
+                  src="/icons/LooksRare.svg"
+                  alt="LooksRare Icon"
+                  className="h-6 w-6"
+                />
+              </a>
+              <a
+                className="reservoir-h6 font-headings"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={`https://opensea.io/assets/${token?.contract}/${token?.tokenId}`}
+              >
+                <img
+                  src="/icons/OpenSea.svg"
+                  alt="OpenSea Icon"
+                  className="h-6 w-6"
+                />
+              </a>
+            </>
+          )}
         </div>
       </div>
       {token?.contract && (

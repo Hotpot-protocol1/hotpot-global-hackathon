@@ -6,20 +6,19 @@ import React, {
   useState,
   useRef,
 } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
-import Modal from './Modal'
-import * as Switch from '@radix-ui/react-switch'
-import InfoTooltip from 'components/InfoTooltip'
+import { ethers } from 'ethers'
 import { useContract, useProvider, useSigner } from 'wagmi'
+import * as Switch from '@radix-ui/react-switch'
+import * as Dialog from '@radix-ui/react-dialog'
+import { CgMore, CgSpinner } from 'react-icons/cg'
+import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
+import InfoTooltip from 'components/InfoTooltip'
+import Modal from './Modal'
 import {
   abi,
   ERC721abi,
   NFTMarketplace_CONTRACT_SEP,
 } from '../../contracts/index'
-import { CgSpinner } from 'react-icons/cg'
-import { ethers } from 'ethers'
-import Toast from 'components/Toast'
 
 type ListingCallbackData = {
   tokenId?: string
@@ -357,7 +356,9 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
             </h1>
             <div className="flex flex-row items-center justify-center gap-5">
               <img src="/hotpot.png" className="h-14 w-14" />
-              <div>...</div>
+              <div>
+                <CgMore className="h-4 w-4 animate-ping" />
+              </div>
               <img src="/hotpot.png" className="h-14 w-14" />
             </div>
             <div className="text-sm font-light text-gray-500">

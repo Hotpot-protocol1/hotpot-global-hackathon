@@ -49,7 +49,7 @@ const infuraId = process.env.NEXT_PUBLIC_INFURA_ID
 
 // API key for Ethereum node
 // Two popular services are Alchemy (alchemy.com) and Infura (infura.io)
-const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID || ''
+const alchemyId = 'process.env.NEXT_PUBLIC_ALCHEMY_ID'
 
 const THEME_SWITCHING_ENABLED = process.env.NEXT_PUBLIC_THEME_SWITCHING_ENABLED
 const DARK_MODE_ENABLED = process.env.NEXT_PUBLIC_DARK_MODE
@@ -58,8 +58,6 @@ const RESERVOIR_API_KEY = process.env.NEXT_PUBLIC_RESERVOIR_API_KEY
 const BODY_FONT_FAMILY = 'Quicksand'
 const FONT_FAMILY = process.env.NEXT_PUBLIC_FONT_FAMILY || 'Quicksand'
 const PRIMARY_COLOR = process.env.NEXT_PUBLIC_PRIMARY_COLOR || 'default'
-const DISABLE_POWERED_BY_RESERVOIR =
-  process.env.NEXT_PUBLIC_DISABLE_POWERED_BY_RESERVOIR
 import presetColors from '../colors'
 
 const FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
@@ -73,13 +71,18 @@ const envChain = Object.values(allChains).find(
   (chain) => chain.id === +(CHAIN_ID || allChains.mainnet)
 )
 
+if (!alchemyId) {
+  console.log('Alchemy Id is missing')
+  throw new Error('Alchemy Id is missing')
+}
+
 const { chains, provider } = configureChains(
   envChain ? [envChain] : [allChains.mainnet],
   [alchemyProvider({ apiKey: alchemyId }), publicProvider()]
 )
 
 const { connectors } = getDefaultWallets({
-  appName: SOURCE_NAME || 'Reservoir Market',
+  appName: SOURCE_NAME || 'Hotpot',
   chains,
 })
 
@@ -163,9 +166,6 @@ const App: FC<AppProps & { baseUrl: string }> = ({
       typeof window !== 'undefined'
         ? `${window.location.origin}${PROXY_API_BASE}`
         : `${baseUrl}${PROXY_API_BASE}`,
-    disablePoweredByReservoir:
-      DISABLE_POWERED_BY_RESERVOIR != undefined &&
-      DISABLE_POWERED_BY_RESERVOIR != null,
     source: SOURCE_DOMAIN,
     normalizeRoyalties: true,
   }

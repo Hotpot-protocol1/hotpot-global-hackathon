@@ -258,16 +258,15 @@ const UserListingsTableRow = ({
       {/* MARKETPLACE */}
       <td className="whitespace-nowrap px-6 py-4">
         <a
-          href={source.link || '#'}
+          href={'/'}
           target="_blank"
           rel="noreferrer"
           className="flex gap-1 font-light text-primary-700 dark:text-primary-300"
         >
-          {source.icon && (
-            <img className="h-6 w-6" alt="Source Icon" src={source.icon} />
-          )}
+          <img className="h-6 w-6" alt="Source Icon" src="/hotpot.png" />
+
           <span className="max-w-[200px] overflow-hidden text-ellipsis">
-            {source.name}
+            Hotpot
           </span>
         </a>
       </td>

@@ -1,14 +1,10 @@
-# INSTRUCTIONS
-
-# Visit the docs to see full list of available environment variables and descriptions 
-# https://docs.reservoir.tools/docs/getting-started-self-hosted
-
 
 # ACTIVE
 
 NEXT_PUBLIC_CHAIN_ID=1
 NEXT_PUBLIC_RESERVOIR_API_BASE=https://api.reservoir.tools
 NEXT_PUBLIC_PROXY_API_BASE=/api/reservoir
+NEXT_PUBLIC_ALCHEMY_ID=""
 
 
 # BAYC MARKET EXAMPLE

@@ -7,8 +7,6 @@ import FormatNativeCrypto from 'components/FormatNativeCrypto'
 import Link from 'next/link'
 
 const DARK_MODE = process.env.NEXT_PUBLIC_DARK_MODE
-const DISABLE_POWERED_BY_RESERVOIR =
-  process.env.NEXT_PUBLIC_DISABLE_POWERED_BY_RESERVOIR
 
 type Props = {
   loading: boolean

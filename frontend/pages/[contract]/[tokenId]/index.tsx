@@ -186,6 +186,7 @@ const Index: NextPage<Props> = ({ collectionId, tokenDetails }) => {
           collection={collection}
         />
         <PriceData
+          tokenDetails={token?.token}
           details={tokenData}
           collection={collection}
           isOwner={isOwner}

@@ -1,14 +1,17 @@
 import BuyNow from 'components/BuyNow'
-import CancelListing from 'components/CancelListing'
-import CancelOffer from 'components/CancelOffer'
+import { TokenDetails } from 'types/reservoir'
 import {
   ListModal,
-  BidModal,
   useReservoirClient,
-  AcceptBidModal,
   useTokens,
 } from '@reservoir0x/reservoir-kit-ui'
-import React, { ComponentPropsWithoutRef, FC, ReactNode, useState } from 'react'
+import React, {
+  ComponentPropsWithoutRef,
+  FC,
+  ReactNode,
+  useEffect,
+  useState,
+} from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { useAccount, useNetwork, useSigner } from 'wagmi'
 import { setToast } from './setToast'
@@ -27,6 +30,12 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import useMounted from 'hooks/useMounted'
 import { useRouter } from 'next/router'
 import { getPricing } from 'lib/token/pricing'
+import { useContract } from 'wagmi'
+import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
+import getListedNFTs from 'lib/getListedNFTs'
+import { CgSpinner } from 'react-icons/cg'
+import getTotalPrice from 'lib/getTotalPrice'
+import BuyModal from 'components/modal/BuyModal'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const SOURCE_ID = process.env.NEXT_PUBLIC_SOURCE_ID
@@ -34,11 +43,18 @@ const SOURCE_ICON = process.env.NEXT_PUBLIC_SOURCE_ICON
 const API_BASE =
   process.env.NEXT_PUBLIC_RESERVOIR_API_BASE || 'https://api.reservoir.tools'
 const CURRENCIES = process.env.NEXT_PUBLIC_LISTING_CURRENCIES
+const HOTPOT_CONTRACT = process.env.NEXT_HOTPOT_MARKETPLACE_CONTRACT_SEP
 
 type Props = {
   details: ReturnType<typeof useTokens>
   collection?: Collection
   isOwner: boolean
+  tokenDetails?: TokenDetails
+}
+
+type ItemInfo = {
+  itemId: number
+  price: string
 }
 
 type ListingCurrencies = ComponentPropsWithoutRef<
@@ -50,7 +66,12 @@ if (CURRENCIES) {
   listingCurrencies = JSON.parse(CURRENCIES)
 }
 
-const PriceData: FC<Props> = ({ details, collection, isOwner }) => {
+const PriceData: FC<Props> = ({
+  details,
+  collection,
+  isOwner,
+  tokenDetails,
+}) => {
   const router = useRouter()
   const isMounted = useMounted()
   const [cartTokens, setCartTokens] = useRecoilState(recoilCartTokens)
@@ -64,21 +85,45 @@ const PriceData: FC<Props> = ({ details, collection, isOwner }) => {
   const [clearCartOpen, setClearCartOpen] = useState(false)
   const [cartToSwap, setCartToSwap] = useState<undefined | typeof cartTokens>()
   const account = useAccount()
-  const bidOpenState = useState(true)
-
-  const queryBidId = router.query.bidId as string
-  const deeplinkToAcceptBid = router.query.acceptBid === 'true'
-
+  const { listedNFTs, loading } = getListedNFTs()
+  const [currentNFT, setCurrentNFT] = useState<ItemInfo | null>(null)
   const token = details.data ? details.data[0] : undefined
   const tokenId = token?.token?.tokenId
   const contract = token?.token?.contract
 
+  const findItem = (
+    contractToFind: string,
+    tokenIdToFind: string
+  ): ItemInfo | null => {
+    if (!listedNFTs) {
+      return null
+    }
+
+    for (const item of listedNFTs) {
+      const { itemId, nft, tokenId: tokenIdInArray, price } = item
+
+      if (
+        nft.toLowerCase() === contractToFind.toLowerCase() &&
+        tokenIdInArray === tokenIdToFind
+      ) {
+        return { itemId, price }
+      }
+    }
+
+    return null
+  }
+
+  // useEffect hook to call the function on load once listedNFTs data is available
+  useEffect(() => {
+    if (listedNFTs && contract && tokenId) {
+      const currentNFT = findItem(contract, tokenId)
+      console.log('Corresponding itemId:', currentNFT)
+      setCurrentNFT(currentNFT)
+    }
+  }, [listedNFTs, contract, tokenId])
+
   let floorAskPrice = getPricing(cartPools, token)
   let canAddToCart = true
-
-  if (!floorAskPrice && token?.market?.floorAsk?.dynamicPricing?.data?.pool) {
-    canAddToCart = false
-  }
 
   // Disabling the rules of hooks here due to erroneous error message,
   //  the linter is likely confused due to two custom hook calls of the same name
@@ -160,54 +205,82 @@ const PriceData: FC<Props> = ({ details, collection, isOwner }) => {
     listSourceDomain || listSourceName
   }/tokens/${contract}:${tokenId}/link/v2`
 
-  const offerSourceRedirect = `${API_BASE}/redirect/sources/${
-    offerSourceDomain || offerSourceName
-  }/tokens/${contract}:${tokenId}/link/v2`
-
   const isInCart = Boolean(tokensMap[`${contract}:${tokenId}`])
 
-  const showAcceptOffer =
-    token?.market?.topBid?.id !== null &&
-    token?.market?.topBid?.id !== undefined &&
-    isOwner
-      ? true
-      : false
+  const isHotpot =
+    currentNFT &&
+    tokenDetails?.owner == '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
 
   return (
     <div className="col-span-full md:col-span-4 lg:col-span-5 lg:col-start-2">
       <article className="col-span-full rounded-2xl border border-gray-300 bg-white p-6 dark:border-neutral-600 dark:bg-black">
-        <div className="grid grid-cols-1 gap-6">
-          <Price
-            title="List Price"
-            source={
-              listSourceName && (
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={listSourceRedirect}
-                  className="reservoir-body flex items-center gap-2 dark:text-white"
-                >
-                  on {listSourceName}
-                  <img
-                    className="h-6 w-6"
-                    src={listSourceLogo}
-                    alt="Source Logo"
+        {loading ? (
+          <CgSpinner className="flex h-10 w-10 animate-spin items-center justify-center" />
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            {isHotpot ? (
+              <div className="flex flex-row">
+                <div className="flex-grow">
+                  <div className="reservoir-h5 font-headings dark:text-white">
+                    List Price
+                  </div>
+                  <div className="justify-left my-1 flex flex-row items-center gap-2">
+                    <img
+                      src="/hotpot.png"
+                      alt="hotpot-marketplace"
+                      className="h-5 w-5"
+                    />
+                    <p className="text-xs font-light"> Hotpot Marketplace</p>
+                  </div>
+                </div>
+                <div className="reservoir-h3 font-headings dark:text-white">
+                  <div className="flex flex-row items-center">
+                    <img
+                      src="/eth.svg"
+                      alt="hotpot-marketplace"
+                      className="mr-1 h-5 w-5"
+                    />{' '}
+                    {currentNFT?.price}
+                  </div>
+                  <div className="text-sm text-neutral-600 dark:text-neutral-300">
+                    {/* {formatDollar(usdPrice)} */}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Price
+                title="List Price"
+                source={
+                  listSourceName && (
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={listSourceRedirect}
+                      className="reservoir-body flex items-center gap-2 dark:text-white"
+                    >
+                      on {listSourceName}
+                      <img
+                        className="h-6 w-6"
+                        src={listSourceLogo}
+                        alt="Source Logo"
+                      />
+                    </a>
+                  )
+                }
+                price={
+                  <FormatCrypto
+                    amount={floorAskPrice?.amount?.decimal}
+                    address={floorAskPrice?.currency?.contract}
+                    decimals={floorAskPrice?.currency?.decimals}
+                    logoWidth={30}
+                    maximumFractionDigits={8}
                   />
-                </a>
-              )
-            }
-            price={
-              <FormatCrypto
-                amount={floorAskPrice?.amount?.decimal}
-                address={floorAskPrice?.currency?.contract}
-                decimals={floorAskPrice?.currency?.decimals}
-                logoWidth={30}
-                maximumFractionDigits={8}
+                }
+                usdPrice={floorAskUsdPrice}
               />
-            }
-            usdPrice={floorAskUsdPrice}
-          />
-        </div>
+            )}
+          </div>
+        )}
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
           {account.isDisconnected ? (
             <ConnectWalletButton className="w-full">
@@ -258,6 +331,19 @@ const PriceData: FC<Props> = ({ details, collection, isOwner }) => {
                   mutate={details.mutate}
                 />
               )}
+              {isHotpot && !isOwner && (
+                <BuyModal
+                  trigger={
+                    <button className="btn-primary-fill col-span-1">
+                      Buy Now
+                    </button>
+                  }
+                  itemId={currentNFT?.itemId}
+                  price={currentNFT?.price}
+                  tokenDetails={tokenDetails}
+                />
+              )}
+
               {isInCart && !isOwner && (
                 <button
                   onClick={() => {
@@ -311,10 +397,46 @@ const PriceData: FC<Props> = ({ details, collection, isOwner }) => {
                   <FaShoppingCart className="ml-[10px] h-[18px] w-[18px] text-primary-700 dark:text-primary-100" />
                 </button>
               )}
+
+              {isHotpot && canAddToCart && (
+                <button
+                  disabled={!floorAskPrice || !currentNFT}
+                  onClick={() => {
+                    if (token?.token && token.market) {
+                      if (
+                        !cartCurrency ||
+                        floorAskPrice?.currency?.contract ===
+                          cartCurrency?.contract
+                      ) {
+                        setCartTokens([
+                          ...cartTokens,
+                          {
+                            token: token.token,
+                            market: token.market,
+                          },
+                        ])
+                      } else {
+                        setCartToSwap([
+                          {
+                            token: token.token,
+                            market: token.market,
+                          },
+                        ])
+                        setClearCartOpen(true)
+                      }
+                    }
+                  }}
+                  className="btn-primary-outline w-full dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
+                >
+                  Add to Cart
+                  <FaShoppingCart className="ml-[10px] h-[18px] w-[18px] text-primary-700 dark:text-primary-100" />
+                </button>
+              )}
             </>
           )}
         </div>
       </article>
+
       <SwapCartModal
         open={clearCartOpen}
         setOpen={setClearCartOpen}
