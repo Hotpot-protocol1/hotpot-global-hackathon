@@ -36,6 +36,7 @@ import getListedNFTs from 'lib/getListedNFTs'
 import { CgSpinner } from 'react-icons/cg'
 import getTotalPrice from 'lib/getTotalPrice'
 import BuyModal from 'components/modal/BuyModal'
+import ListModal2 from '../../components/modal/ListModal'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const SOURCE_ID = process.env.NEXT_PUBLIC_SOURCE_ID
@@ -289,7 +290,7 @@ const PriceData: FC<Props> = ({
           ) : (
             <>
               {isOwner && (
-                <ListModal
+                <ListModal2
                   trigger={
                     <button className="w-full btn-primary-fill dark:ring-primary-900 dark:focus:ring-4">
                       {floorAskPrice?.amount?.decimal
@@ -299,7 +300,6 @@ const PriceData: FC<Props> = ({
                   }
                   collectionId={contract}
                   tokenId={tokenId}
-                  currencies={listingCurrencies}
                   onListingComplete={() => {
                     details && details.mutate()
                   }}
