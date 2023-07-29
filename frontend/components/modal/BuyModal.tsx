@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { ethers } from 'ethers'
 import { useContract, useProvider, useSigner } from 'wagmi'
 import * as Dialog from '@radix-ui/react-dialog'
@@ -41,11 +41,22 @@ const BuyModal: React.FC<Props> = ({
   const [priceValue, setPriceValue] = useState<number>(0)
   const [toast, setToast] = useState(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
-  const totalPrice = itemId ? getTotalPrice(itemId) : null
+  const [totalPrice, setTotalPrice] = useState<string | null>(null)
 
   useEffect(() => {
     setIsMounted(true)
-  }, [])
+    setIsLoading(true)
+
+    const fetchTotalPrice = async () => {
+      if (itemId) {
+        const price = await getTotalPrice(itemId)
+        setTotalPrice(price)
+        setIsLoading(false)
+      }
+    }
+
+    fetchTotalPrice()
+  }, [itemId])
 
   const NftMarketplace = useContract({
     address: NFTMarketplace_CONTRACT_SEP,
@@ -79,6 +90,7 @@ const BuyModal: React.FC<Props> = ({
       setError('Oops, something went wrong. Please try again')
     }
   }
+
   const onClose = () => {
     setError(null)
     setIsSuccess(false)
@@ -110,86 +122,93 @@ const BuyModal: React.FC<Props> = ({
             </button>
           </Dialog.Close>
         </div>
-        <div className="m-2 flex min-h-[200px] flex-row md:flex-grow md:flex-col">
-          {isSuccess ? (
-            <div className="relative flex flex-col items-center justify-center gap-5 mt-4">
-              <div className="absolute inset-0 z-10 flex items-center justify-center mt-6 transform scale-125">
-                <img src="/success.gif" className="object-cover" />
-              </div>
-              <HiCheckCircle className=" h-[80px] w-[80px] items-center justify-center text-green-700" />
-              <h1 className="text-xl font-semibold">
-                NFT Purchase Successful! 🎉
-              </h1>
-              <div className="text-sm font-light text-gray-500 ">
-                Your NFT has been sent to your wallet
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="flex flex-col gap-1 p-2">
-                {error && (
-                  <div className="flex flex-row items-center justify-center gap-2 px-5 py-2 text-xs font-light text-gray-700 bg-gray-100 border rounded-sm">
-                    <HiExclamationCircle className="w-4 h-4 text-red-500" />
-                    {error}
-                  </div>
-                )}
-                <div className="mb-2 text-sm text-gray-500">Item</div>
-                <div className="flex flex-row justify-between">
-                  <div className="flex flex-row items-center justify-center gap-2">
-                    {' '}
-                    <img
-                      src="/hotpot.png"
-                      className="w-[50px] rounded-sm object-fill"
-                    />
-                    <div className="flex flex-col justify-center">
-                      <h1 className="font-semibold truncate">NFT Name</h1>
-                      <p className="text-sm text-gray-500 truncate">
-                        Collection
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex flex-row items-center justify-center gap-1">
-                    <img src="/eth.svg" alt="eth" className="w-4 h-4" />
-                    <div className="text-sm font-semibold">{price}</div>
-                  </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40">
+            <CgSpinner className="w-6 h-6 mr-3 animate-spin" />
+            <p>Loading...</p>
+          </div>
+        ) : (
+          <div className="m-2 flex min-h-[200px] flex-row md:flex-grow md:flex-col">
+            {isSuccess ? (
+              <div className="relative flex flex-col items-center justify-center gap-5 mt-4">
+                <div className="absolute inset-0 z-10 flex items-center justify-center mt-6 transform scale-125">
+                  <img src="/success.gif" className="object-cover" />
+                </div>
+                <HiCheckCircle className=" h-[80px] w-[80px] items-center justify-center text-green-700" />
+                <h1 className="text-xl font-semibold">
+                  NFT Purchase Successful! 🎉
+                </h1>
+                <div className="text-sm font-light text-gray-500 ">
+                  Your NFT has been sent to your wallet
                 </div>
               </div>
-              <main className="flex flex-col justify-between px-4 mt-8">
-                <div className="flex flex-row items-center justify-between">
-                  <div className="text-base font-medium text-gray-900">
-                    Total
-                  </div>
-
-                  <div className="flex flex-row items-center justify-center gap-1">
-                    <img src="/eth.svg" className="w-5 h-5" />
-                    <div className="font-semibold text-black text-md">
-                      {totalPrice}
+            ) : (
+              <>
+                <div className="flex flex-col gap-1 p-2">
+                  {error && (
+                    <div className="flex flex-row items-center justify-center gap-2 px-5 py-2 text-xs font-light text-gray-700 bg-gray-100 border rounded-sm">
+                      <HiExclamationCircle className="w-4 h-4 text-red-500" />
+                      {error}
+                    </div>
+                  )}
+                  <div className="mb-2 text-sm text-gray-500">Item</div>
+                  <div className="flex flex-row justify-between">
+                    <div className="flex flex-row items-center justify-center gap-2">
+                      {' '}
+                      <img
+                        src="/hotpot.png"
+                        className="w-[50px] rounded-sm object-fill"
+                      />
+                      <div className="flex flex-col justify-center">
+                        <h1 className="font-semibold truncate">NFT Name</h1>
+                        <p className="text-sm text-gray-500 truncate">
+                          Collection
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-row items-center justify-center gap-1">
+                      <img src="/eth.svg" alt="eth" className="w-4 h-4" />
+                      <div className="text-sm font-semibold">{price}</div>
                     </div>
                   </div>
                 </div>
+                <main className="flex flex-col justify-between px-4 mt-8">
+                  <div className="flex flex-row items-center justify-between">
+                    <div className="text-base font-medium text-gray-900">
+                      Total
+                    </div>
 
-                <div className="mt-[25px] flex justify-end gap-4">
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isLoading}
-                    className="w-full rounded bg-[#7000FF] py-2 text-white hover:bg-[#430099]"
-                  >
-                    {isLoading ? (
-                      <>
-                        <CgSpinner className="inline-block w-6 h-6 mr-2 animate-spin" />
-                        Waiting for approval
-                      </>
-                    ) : error ? (
-                      'Retry'
-                    ) : (
-                      'Checkout'
-                    )}
-                  </button>
-                </div>
-              </main>
-            </>
-          )}
-        </div>
+                    <div className="flex flex-row items-center justify-center gap-1">
+                      <img src="/eth.svg" className="w-5 h-5" />
+                      <div className="font-semibold text-black text-md">
+                        {totalPrice}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-[25px] flex justify-end gap-4">
+                    <button
+                      onClick={handleSubmit}
+                      disabled={isLoading}
+                      className="w-full rounded bg-[#7000FF] py-2 text-white hover:bg-[#430099]"
+                    >
+                      {isLoading ? (
+                        <>
+                          <CgSpinner className="inline-block w-6 h-6 mr-2 animate-spin" />
+                          Waiting for approval
+                        </>
+                      ) : error ? (
+                        'Retry'
+                      ) : (
+                        'Checkout'
+                      )}
+                    </button>
+                  </div>
+                </main>
+              </>
+            )}
+          </div>
+        )}
       </Dialog.Content>
     </Modal>
   )

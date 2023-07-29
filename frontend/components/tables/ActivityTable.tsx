@@ -20,6 +20,7 @@ import { useInView } from 'react-intersection-observer'
 import MobileActivityFilter from 'components/filter/MobileActivityFilter'
 
 const RESERVOIR_API_BASE = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
+const HOTPOT_CONTRACT = process.env.NEXT_PUBLIC_ALCHEMY_ID
 type CollectionActivityResponse = ReturnType<typeof useCollectionActivity>
 type CollectionActivity = CollectionActivityResponse['data'][0]
 export type CollectionActivityTypes = NonNullable<
@@ -89,7 +90,7 @@ const ActivityTable: FC<Props> = ({
           types={types}
         />
       ) : (
-        <div className="mt-2 flex flex-wrap gap-2 md:m-5 md:gap-4">
+        <div className="flex flex-wrap gap-2 mt-2 md:m-5 md:gap-4">
           {filters.map((filter, i) => {
             const isSelected = enabledFilters.includes(filter)
             return (
@@ -150,7 +151,7 @@ const ActivityTable: FC<Props> = ({
                 {headings.map((name, i) => (
                   <th
                     key={i}
-                    className="px-6 py-3 text-left text-sm font-medium text-neutral-600 dark:text-white"
+                    className="px-6 py-3 text-sm font-medium text-left text-neutral-600 dark:text-white"
                   >
                     {name}
                   </th>
@@ -176,7 +177,7 @@ const ActivityTable: FC<Props> = ({
       )}
 
       {data.isValidating && (
-        <div className="my-20 flex justify-center">
+        <div className="flex justify-center my-20">
           <LoadingIcon />
         </div>
       )}
@@ -294,12 +295,12 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         className="h-24 border-b border-gray-300 dark:border-[#525252]"
       >
         <td className="flex flex-col gap-3">
-          <div className="mt-6 flex items-center">
+          <div className="flex items-center mt-6">
             {/* @ts-ignore */}
             {activity.type && logos[activity.type]}
             {!!activity.order?.source?.icon && (
               <img
-                className="mr-2 inline h-3 w-3"
+                className="inline w-3 h-3 mr-2"
                 // @ts-ignore
                 src={activity.order?.source?.icon || ''}
                 alt={`${activity.order?.source?.name} Source`}
@@ -313,14 +314,14 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
             <Link href={href} passHref legacyBehavior={true}>
               <a className="flex items-center">
                 <Image
-                  className="rounded object-cover"
+                  className="object-cover rounded"
                   loader={({ src }) => src}
                   src={imageSrc}
                   alt={`${activity.token?.tokenName} Token Image`}
                   width={48}
                   height={48}
                 />
-                <div className="ml-2 grid truncate">
+                <div className="grid ml-2 truncate">
                   <div className="reservoir-h6 dark:text-white">
                     {activity.token?.tokenName ||
                       activity.token?.tokenId ||
@@ -371,7 +372,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
               ) : (
                 <span className="font-light">-</span>
               )}
-              <div className="mb-4 flex items-center justify-between gap-2 font-light text-neutral-600 dark:text-neutral-300 md:justify-start">
+              <div className="flex items-center justify-between gap-2 mb-4 font-light text-neutral-600 dark:text-neutral-300 md:justify-start">
                 {timeAgo}
               </div>
             </div>
@@ -383,9 +384,9 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mb-4 flex items-center justify-between gap-2 font-light text-neutral-600 dark:text-neutral-300 md:justify-start"
+                  className="flex items-center justify-between gap-2 mb-4 font-light text-neutral-600 dark:text-neutral-300 md:justify-start"
                 >
-                  <FiExternalLink className="h-4 w-4 text-primary-700 dark:text-primary-300" />
+                  <FiExternalLink className="w-4 h-4 text-primary-700 dark:text-primary-300" />
                 </a>
               </Link>
             )}
@@ -406,7 +407,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
           {activity.type && logos[activity.type]}
           {!!activity.order?.source?.icon && (
             <img
-              className="mr-2 h-6 w-6"
+              className="w-6 h-6 mr-2"
               // @ts-ignore
               src={activity.order?.source?.icon || ''}
               alt={`${activity.order?.source?.name} Source`}
@@ -421,14 +422,14 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         <Link href={href} passHref legacyBehavior={true}>
           <a className="mr-2.5 flex items-center">
             <Image
-              className="rounded object-cover"
+              className="object-cover rounded"
               loader={({ src }) => src}
               src={imageSrc}
               alt={`${activity.token?.tokenName} Token Image`}
               width={48}
               height={48}
             />
-            <div className="ml-2 grid truncate">
+            <div className="grid ml-2 truncate">
               <div className="reservoir-h6 dark:text-white">
                 {activity.token?.tokenName ||
                   activity.token?.tokenId ||
@@ -470,11 +471,11 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         )}
       </td>
       <td className="px-6 py-4">
-        <div className="flex items-center gap-2 whitespace-nowrap text-right font-light text-neutral-600 dark:text-neutral-300">
-          {activity.type === 'mint' ? (
+        <div className="flex items-center gap-2 font-light text-right whitespace-nowrap text-neutral-600 dark:text-neutral-300">
+          {activity.type === 'transfer' ? (
             <>
               <div className="rounded border border-[#0FA46E] bg-[#DBF1E4] px-1 text-sm text-[#0FA46E]">
-                +15 Tickets
+                +1 Tickets
               </div>
             </>
           ) : (
@@ -483,7 +484,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         </div>
       </td>
       <td className="px-6 py-4">
-        <div className="flex items-center gap-2 whitespace-nowrap font-light text-neutral-600 dark:text-neutral-300">
+        <div className="flex items-center gap-2 font-light whitespace-nowrap text-neutral-600 dark:text-neutral-300">
           {timeAgo}
           {activity.txHash && (
             <Link
@@ -491,7 +492,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
               legacyBehavior={true}
             >
               <a target="_blank" rel="noopener noreferrer">
-                <FiExternalLink className="h-4 w-4 text-primary-700 dark:text-primary-300" />
+                <FiExternalLink className="w-4 h-4 text-primary-700 dark:text-primary-300" />
               </a>
             </Link>
           )}

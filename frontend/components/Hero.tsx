@@ -1,10 +1,15 @@
 import React from 'react'
 
+type Item = {
+  currentPotSize?: string
+  potLimit?: string
+}
 interface HeroProps {
   variant?: string
+  prizePool?: Item | null
 }
 
-const Hero: React.FC<HeroProps> = ({ variant }) => {
+const Hero: React.FC<HeroProps> = ({ variant, prizePool }) => {
   const backgroundImageUrl =
     variant === 'rewards' ? '/banner-rewards.svg' : '/banner-home.svg'
   const bottomImageUrl =
@@ -29,13 +34,14 @@ const Hero: React.FC<HeroProps> = ({ variant }) => {
               The Prize Pool:
             </div>
             <div className="text-2xl md:text-3xl">
-              27.1 ETH / <span className="text-purple-600">100 ETH</span>
+              {prizePool?.currentPotSize} ETH /{' '}
+              <span className="text-purple-600">{prizePool?.potLimit} ETH</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="hidden items-end md:flex">
+      <div className="items-end hidden md:flex">
         <img
           src={bottomImageUrl}
           alt="rewards-image"

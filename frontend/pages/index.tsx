@@ -81,14 +81,14 @@ const Home: NextPage<Props> = ({ fallback }) => {
         {image}
       </Head>
 
-      <header className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
+      <header className="px-2 mt-4 mb-12 col-span-full md:mt-5 lg:px-12">
         <Hero />
-        <h1 className="reservoir-h1 mt-14 text-center dark:text-white">
+        <h1 className="text-center reservoir-h1 mt-14 dark:text-white">
           {tagline}
         </h1>
       </header>
-      <div className="col-span-full px-6 md:px-16">
-        <div className="mb-9 flex w-full items-center justify-between">
+      <div className="px-6 col-span-full md:px-16">
+        <div className="flex items-center justify-between w-full mb-9">
           <div className="reservoir-h4 dark:text-white">
             Trending Collections
           </div>
