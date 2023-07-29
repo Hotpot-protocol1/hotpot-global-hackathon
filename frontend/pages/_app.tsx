@@ -40,9 +40,6 @@ import {
   lightTheme as rainbowKitLightTheme,
 	connectorsForWallets
 } from '@rainbow-me/rainbowkit'
-import {
-	injectedWallet,
-} from '@rainbow-me/rainbowkit/wallets'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 
@@ -66,6 +63,7 @@ const DISABLE_POWERED_BY_RESERVOIR =
   process.env.NEXT_PUBLIC_DISABLE_POWERED_BY_RESERVOIR
 import presetColors from '../colors'
 import { apothemChain } from 'lib/apothemChain'
+import { XdcWalletOptions, xdcPayWalletConfig } from 'lib/xdcPayWalletConfig'
 
 const FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
 const FEE_RECIPIENT = process.env.NEXT_PUBLIC_FEE_RECIPIENT
@@ -73,21 +71,22 @@ const SOURCE_DOMAIN = process.env.NEXT_PUBLIC_SOURCE_DOMAIN
 const API_BASE = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
 const SOURCE_NAME = process.env.NEXT_PUBLIC_SOURCE_NAME
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
+const projectId = "Hotpot.gg";
 
 const { chains, provider } = configureChains(
   [apothemChain],
   [alchemyProvider({ apiKey: alchemyId }), publicProvider()]
 )
 
-/* const { connectors } = getDefaultWallets({
-  appName: SOURCE_NAME || 'Reservoir Market',
-  chains,
-}) */
+const xdcOptions: XdcWalletOptions = {
+	projectId: projectId,
+	chains: chains
+}
 const connectors = connectorsForWallets([
   {
-    groupName: 'XdcPay',
+    groupName: 'Choose Xdc Pay, dont be a fool',
     wallets: [
-      injectedWallet({ chains }),
+			xdcPayWalletConfig(xdcOptions)
     ],
   },
 ]);
