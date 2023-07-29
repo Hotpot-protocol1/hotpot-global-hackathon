@@ -38,7 +38,11 @@ import {
   RainbowKitProvider,
   darkTheme as rainbowKitDarkTheme,
   lightTheme as rainbowKitLightTheme,
+	connectorsForWallets
 } from '@rainbow-me/rainbowkit'
+import {
+	injectedWallet,
+} from '@rainbow-me/rainbowkit/wallets'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 
@@ -61,6 +65,7 @@ const PRIMARY_COLOR = process.env.NEXT_PUBLIC_PRIMARY_COLOR || 'default'
 const DISABLE_POWERED_BY_RESERVOIR =
   process.env.NEXT_PUBLIC_DISABLE_POWERED_BY_RESERVOIR
 import presetColors from '../colors'
+import { apothemChain } from 'lib/apothemChain'
 
 const FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
 const FEE_RECIPIENT = process.env.NEXT_PUBLIC_FEE_RECIPIENT
@@ -69,19 +74,23 @@ const API_BASE = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
 const SOURCE_NAME = process.env.NEXT_PUBLIC_SOURCE_NAME
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 
-const envChain = Object.values(allChains).find(
-  (chain) => chain.id === +(CHAIN_ID || allChains.mainnet)
-)
-
 const { chains, provider } = configureChains(
-  envChain ? [envChain] : [allChains.mainnet],
+  [apothemChain],
   [alchemyProvider({ apiKey: alchemyId }), publicProvider()]
 )
 
-const { connectors } = getDefaultWallets({
+/* const { connectors } = getDefaultWallets({
   appName: SOURCE_NAME || 'Reservoir Market',
   chains,
-})
+}) */
+const connectors = connectorsForWallets([
+  {
+    groupName: 'XdcPay',
+    wallets: [
+      injectedWallet({ chains }),
+    ],
+  },
+]);
 
 const wagmiClient = createClient({
   autoConnect: true,
