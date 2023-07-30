@@ -21,12 +21,12 @@ const getPrizePool = async (): Promise<Item | null> => {
     const currentPotSize = ethers.utils.formatEther(currentPotSizeWei)
     const potLimit = ethers.utils.formatEther(potLimitWei)
 
-    const formattedPrizePool: Item = {
+    const prizePool: Item = {
       currentPotSize,
       potLimit,
     }
 
-    return formattedPrizePool
+    return prizePool
   } catch (err) {
     console.error('Error:', err)
     return null

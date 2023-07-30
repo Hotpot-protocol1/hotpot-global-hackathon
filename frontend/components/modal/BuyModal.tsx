@@ -34,6 +34,7 @@ const BuyModal: React.FC<Props> = ({
   tokenDetails,
 }) => {
   const [isLoading, setIsLoading] = useState(false)
+  const [priceLoading, setPriceLoading] = useState(false)
   const provider = useProvider()
   const { data: signer } = useSigner()
   const [isMounted, setIsMounted] = useState<boolean>(false)
@@ -45,13 +46,13 @@ const BuyModal: React.FC<Props> = ({
 
   useEffect(() => {
     setIsMounted(true)
-    setIsLoading(true)
+    setPriceLoading(true)
 
     const fetchTotalPrice = async () => {
       if (itemId) {
         const price = await getTotalPrice(itemId)
         setTotalPrice(price)
-        setIsLoading(false)
+        setPriceLoading(false)
       }
     }
 
@@ -122,7 +123,7 @@ const BuyModal: React.FC<Props> = ({
             </button>
           </Dialog.Close>
         </div>
-        {isLoading ? (
+        {priceLoading ? (
           <div className="flex items-center justify-center h-40">
             <CgSpinner className="w-6 h-6 mr-3 animate-spin" />
             <p>Loading...</p>
