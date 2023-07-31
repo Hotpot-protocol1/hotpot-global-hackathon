@@ -1,7 +1,7 @@
 // alchemy setup
 // import { Network, Alchemy } from "alchemy-sdk";
 //commonjs module setup of alchemy
-const { Network, Alchemy } = require("alchemy-sdk");
+const { Network, Alchemy, Utils } = require("alchemy-sdk");
 
 const settings = {
     apiKey: process.env.ALCHEMY_API_KEY, // Replace with your Alchemy API Key.
@@ -14,13 +14,18 @@ const Web3 = require('web3');
 require('dotenv').config();
 console.log('hotpot contract: ' + process.env.HOTPOT_CONTRACT_ADDRESS);
 
-const marketplaceContractAddress = process.env.HOTPOT_CONTRACT_ADDRESS;
+const marketplaceContractAddress = process.env.MARKETPLACE_CONTRACT_ADDRESS;
 //
-const eventName = 'GenerateRaffleTickets(address,address,uint32,uint32,uint32,uint32,uint256,uint256)';
+// generate raffle tickets event setup
+let eventName = 'GenerateRaffleTickets(address,address,uint32,uint32,uint32,uint32,uint256,uint256)';
 const generateRaffleTicketsTopic = Web3.utils.keccak256(eventName);
 console.log('generated raffletickets topic: ' + generateRaffleTicketsTopic);
-//
-
+// end
+// 'offered' event setup
+eventName = 'Offered(uint256,address,uint256,uint256,address)';
+const offeredTopic = Web3.utils.keccak256(eventName);
+console.log('generated offered topic: ' + offeredTopic);
+// end
 
 const pgp = require('pg-promise')();
 console.log(process.env.DATABASE_URL);
@@ -35,12 +40,40 @@ const hotpotGenerateRaffleTicketsEvents = {
     address: marketplaceContractAddress,
     topics: [generateRaffleTicketsTopic],
 };
-
+// Create the offered log options object.
+const offeredEvents = {
+    address: marketplaceContractAddress,
+    topics: [offeredTopic],
+};
 // TODO: Add whatever logic you want to run upon mint events.
 const doSomethingWithTxn = (txn) => console.log(txn);
 
 // Open the websocket and listen for events!
 alchemy.ws.on(hotpotGenerateRaffleTicketsEvents, doSomethingWithTxn);
+
+// Open the websocket and listen for 'offered' events!
+alchemy.ws.on(offeredEvents, doSomethingWithTxn);
+
+alchemy.ws.on("block", (blockNumber) =>
+  console.log("The latest block number is", blockNumber)
+);
+
+
+
+
+const filter = {
+    address: marketplaceContractAddress,
+    topics: [
+      Utils.id("Offered(uint256,address,uint256,uint256,address)")
+    ]
+  }
+  alchemy.ws.on(filter, (log, event) => {
+    console.log(event)
+    console.log(log)
+  })
+
+
+
 
 // how to get event signature:
 // const Web3 = require('web3');
