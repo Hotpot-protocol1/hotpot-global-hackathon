@@ -52,7 +52,7 @@ const getListedNFTs = () => {
     fetchNFTs()
   }, [])
 
-  return { listedNFTs, loading }
+  return { listedNFTs }
 }
 
 export default getListedNFTs

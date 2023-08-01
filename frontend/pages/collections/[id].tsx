@@ -25,6 +25,7 @@ import CollectionActivityTab from 'components/tables/CollectionActivityTab'
 import RefreshButton from 'components/RefreshButton'
 import SortTokens from 'components/SortTokens'
 import MobileTokensFilter from 'components/filter/MobileTokensFilter'
+import getAllListedNFTs, { Item } from '../../lib/getAllListedNFTs'
 
 // Environment variables
 // For more information about these variables
@@ -49,9 +50,11 @@ const COLLECTION = process.env.NEXT_PUBLIC_COLLECTION
 const COMMUNITY = process.env.NEXT_PUBLIC_COMMUNITY
 const COLLECTION_SET_ID = process.env.NEXT_PUBLIC_COLLECTION_SET_ID
 
-type Props = InferGetStaticPropsType<typeof getStaticProps>
+type Props = InferGetStaticPropsType<typeof getStaticProps> & {
+  listedNFTs: Item[] | null
+}
 
-const Home: NextPage<Props> = ({ fallback, id }) => {
+const Home: NextPage<Props> = ({ fallback, id, listedNFTs }) => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -197,6 +200,7 @@ const Home: NextPage<Props> = ({ fallback, id }) => {
                   collectionSize={stats.data?.stats?.tokenCount}
                   collectionAttributes={attributes}
                   isLoading={isLoading}
+                  listedNFTs={listedNFTs}
                 />
               </div>
               <MobileTokensFilter
@@ -300,6 +304,8 @@ export const getStaticProps: GetStaticProps<{
 
   const id = params?.id?.toString()
 
+  const listedNFTs = await getAllListedNFTs()
+
   // COLLECTION
   const collectionUrl = new URL(`${RESERVOIR_API_BASE}/collections/v5`)
 
@@ -346,7 +352,7 @@ export const getStaticProps: GetStaticProps<{
     (await attributesRes.json()) as Props['fallback']['attributes']
 
   return {
-    props: { fallback: { collection, tokens, attributes }, id },
+    props: { fallback: { collection, tokens, attributes }, id, listedNFTs },
     revalidate: 20,
   }
 }

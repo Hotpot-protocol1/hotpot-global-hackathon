@@ -86,11 +86,12 @@ const PriceData: FC<Props> = ({
   const [clearCartOpen, setClearCartOpen] = useState(false)
   const [cartToSwap, setCartToSwap] = useState<undefined | typeof cartTokens>()
   const account = useAccount()
-  const { listedNFTs, loading } = getListedNFTs()
+  const { listedNFTs } = getListedNFTs()
   const [currentNFT, setCurrentNFT] = useState<ItemInfo | null>(null)
   const token = details.data ? details.data[0] : undefined
   const tokenId = token?.token?.tokenId
   const contract = token?.token?.contract
+  const [loading, setLoading] = useState(true)
 
   const findItem = (
     contractToFind: string,
@@ -120,6 +121,7 @@ const PriceData: FC<Props> = ({
       const currentNFT = findItem(contract, tokenId)
       console.log('Corresponding itemId:', currentNFT)
       setCurrentNFT(currentNFT)
+      setLoading(false)
     }
   }, [listedNFTs, contract, tokenId])
 
@@ -214,9 +216,9 @@ const PriceData: FC<Props> = ({
 
   return (
     <div className="col-span-full md:col-span-4 lg:col-span-5 lg:col-start-2">
-      <article className="p-6 bg-white border border-gray-300 col-span-full rounded-2xl dark:border-neutral-600 dark:bg-black">
+      <article className="col-span-full rounded-2xl border border-gray-300 bg-white p-6 dark:border-neutral-600 dark:bg-black">
         {loading ? (
-          <CgSpinner className="flex items-center justify-center w-10 h-10 animate-spin" />
+          <CgSpinner className="flex h-10 w-10 animate-spin items-center justify-center" />
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {isHotpot ? (
@@ -225,11 +227,11 @@ const PriceData: FC<Props> = ({
                   <div className="reservoir-h5 font-headings dark:text-white">
                     List Price
                   </div>
-                  <div className="flex flex-row items-center gap-2 my-1 justify-left">
+                  <div className="justify-left my-1 flex flex-row items-center gap-2">
                     <img
                       src="/hotpot.png"
                       alt="hotpot-marketplace"
-                      className="w-5 h-5"
+                      className="h-5 w-5"
                     />
                     <p className="text-xs font-light"> Hotpot Marketplace</p>
                   </div>
@@ -239,7 +241,7 @@ const PriceData: FC<Props> = ({
                     <img
                       src="/eth.svg"
                       alt="hotpot-marketplace"
-                      className="w-5 h-5 mr-1"
+                      className="mr-1 h-5 w-5"
                     />{' '}
                     {currentNFT?.price}
                   </div>
@@ -257,11 +259,11 @@ const PriceData: FC<Props> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       href={listSourceRedirect}
-                      className="flex items-center gap-2 reservoir-body dark:text-white"
+                      className="reservoir-body flex items-center gap-2 dark:text-white"
                     >
                       on {listSourceName}
                       <img
-                        className="w-6 h-6"
+                        className="h-6 w-6"
                         src={listSourceLogo}
                         alt="Source Logo"
                       />
@@ -282,7 +284,7 @@ const PriceData: FC<Props> = ({
             )}
           </div>
         )}
-        <div className="grid grid-cols-1 gap-3 mt-6 md:grid-cols-2">
+        <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
           {account.isDisconnected ? (
             <ConnectWalletButton className="w-full">
               <span>Connect Wallet</span>
@@ -292,7 +294,7 @@ const PriceData: FC<Props> = ({
               {isOwner && (
                 <ListModal2
                   trigger={
-                    <button className="w-full btn-primary-fill dark:ring-primary-900 dark:focus:ring-4">
+                    <button className="btn-primary-fill w-full dark:ring-primary-900 dark:focus:ring-4">
                       {floorAskPrice?.amount?.decimal
                         ? 'Create New Listing'
                         : 'List for Sale'}
@@ -334,7 +336,7 @@ const PriceData: FC<Props> = ({
               {isHotpot && !isOwner && (
                 <BuyModal
                   trigger={
-                    <button className="col-span-1 btn-primary-fill">
+                    <button className="btn-primary-fill col-span-1">
                       Buy Now
                     </button>
                   }
@@ -356,7 +358,7 @@ const PriceData: FC<Props> = ({
                     newCartTokens.splice(index, 1)
                     setCartTokens(newCartTokens)
                   }}
-                  className="w-full btn-primary-outline dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
+                  className="btn-primary-outline w-full dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
                 >
                   Remove from Cart
                   <FaShoppingCart className="ml-[10px] h-[18px] w-[18px] text-[#FF3B3B] dark:text-[#FF9A9A]" />
@@ -391,7 +393,7 @@ const PriceData: FC<Props> = ({
                       }
                     }
                   }}
-                  className="w-full btn-primary-outline dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
+                  className="btn-primary-outline w-full dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
                 >
                   Add to Cart
                   <FaShoppingCart className="ml-[10px] h-[18px] w-[18px] text-primary-700 dark:text-primary-100" />
@@ -426,7 +428,7 @@ const PriceData: FC<Props> = ({
                       }
                     }
                   }}
-                  className="w-full btn-primary-outline dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
+                  className="btn-primary-outline w-full dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
                 >
                   Add to Cart
                   <FaShoppingCart className="ml-[10px] h-[18px] w-[18px] text-primary-700 dark:text-primary-100" />

@@ -107,7 +107,7 @@ const BuyModal: React.FC<Props> = ({
         <div className="flex flex-row justify-between rounded bg-[#F8F8F8] p-4">
           {' '}
           <Dialog.Title>
-            <h2 className="items-center justify-center m-0 font-semibold text-gray-900 text-md">
+            <h2 className="text-md m-0 items-center justify-center font-semibold text-gray-900">
               {isSuccess
                 ? 'Your purchase has been processed!'
                 : 'Complete Checkout'}
@@ -124,15 +124,15 @@ const BuyModal: React.FC<Props> = ({
           </Dialog.Close>
         </div>
         {priceLoading ? (
-          <div className="flex items-center justify-center h-40">
-            <CgSpinner className="w-6 h-6 mr-3 animate-spin" />
+          <div className="flex h-40 items-center justify-center">
+            <CgSpinner className="mr-3 h-6 w-6 animate-spin" />
             <p>Loading...</p>
           </div>
         ) : (
           <div className="m-2 flex min-h-[200px] flex-row md:flex-grow md:flex-col">
             {isSuccess ? (
-              <div className="relative flex flex-col items-center justify-center gap-5 mt-4">
-                <div className="absolute inset-0 z-10 flex items-center justify-center mt-6 transform scale-125">
+              <div className="relative mt-4 flex flex-col items-center justify-center gap-5">
+                <div className="absolute inset-0 z-10 mt-6 flex scale-125 transform items-center justify-center">
                   <img src="/success.gif" className="object-cover" />
                 </div>
                 <HiCheckCircle className=" h-[80px] w-[80px] items-center justify-center text-green-700" />
@@ -145,10 +145,10 @@ const BuyModal: React.FC<Props> = ({
               </div>
             ) : (
               <>
-                <div className="flex flex-col gap-1 p-2">
+                <div className="flex flex-col gap-1 p-2 ">
                   {error && (
-                    <div className="flex flex-row items-center justify-center gap-2 px-5 py-2 text-xs font-light text-gray-700 bg-gray-100 border rounded-sm">
-                      <HiExclamationCircle className="w-4 h-4 text-red-500" />
+                    <div className="flex flex-row items-center justify-center gap-2 rounded-sm border bg-gray-100 px-5 py-2 text-xs font-light text-gray-700">
+                      <HiExclamationCircle className="h-4 w-4 text-red-500" />
                       {error}
                     </div>
                   )}
@@ -161,27 +161,28 @@ const BuyModal: React.FC<Props> = ({
                         className="w-[50px] rounded-sm object-fill"
                       />
                       <div className="flex flex-col justify-center">
-                        <h1 className="font-semibold truncate">NFT Name</h1>
-                        <p className="text-sm text-gray-500 truncate">
+                        <h1 className="truncate font-semibold">NFT Name</h1>
+                        <p className="truncate text-sm text-gray-500">
                           Collection
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-row items-center justify-center gap-1">
-                      <img src="/eth.svg" alt="eth" className="w-4 h-4" />
+                    <div className="flex flex-row items-center justify-center gap-1 ">
+                      <img src="/eth.svg" alt="eth" className="h-4 w-4" />
                       <div className="text-sm font-semibold">{price}</div>
                     </div>
                   </div>
                 </div>
-                <main className="flex flex-col justify-between px-4 mt-8">
+                <div className="my-2 border-t"></div>
+                <main className="mt-4 flex flex-col justify-between px-4">
                   <div className="flex flex-row items-center justify-between">
                     <div className="text-base font-medium text-gray-900">
                       Total
                     </div>
 
                     <div className="flex flex-row items-center justify-center gap-1">
-                      <img src="/eth.svg" className="w-5 h-5" />
-                      <div className="font-semibold text-black text-md">
+                      <img src="/eth.svg" className="h-5 w-5" />
+                      <div className="text-md font-semibold text-black">
                         {totalPrice}
                       </div>
                     </div>
@@ -195,7 +196,7 @@ const BuyModal: React.FC<Props> = ({
                     >
                       {isLoading ? (
                         <>
-                          <CgSpinner className="inline-block w-6 h-6 mr-2 animate-spin" />
+                          <CgSpinner className="mr-2 inline-block h-6 w-6 animate-spin" />
                           Waiting for approval
                         </>
                       ) : error ? (

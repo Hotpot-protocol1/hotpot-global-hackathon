@@ -11,6 +11,7 @@ import { Collection } from 'types/reservoir'
 import { useRouter } from 'next/router'
 import { useRecoilValue } from 'recoil'
 import { getPricing } from 'lib/token/pricing'
+import { Item } from '../lib/getAllListedNFTs'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 
@@ -21,6 +22,7 @@ type Props = {
   collectionAttributes?: Collection['attributes']
   viewRef: ReturnType<typeof useInView>['ref']
   isLoading: boolean
+  listedNFTs: Item[] | null
 }
 
 const TokensGrid: FC<Props> = ({
@@ -30,6 +32,7 @@ const TokensGrid: FC<Props> = ({
   collectionSize,
   collectionAttributes,
   isLoading,
+  listedNFTs,
 }) => {
   const { data, mutate } = tokens
   const [clearCartOpen, setClearCartOpen] = useState(false)
@@ -78,10 +81,10 @@ const TokensGrid: FC<Props> = ({
         key="tokensGridMasonry"
         breakpointCols={{
           default: 5,
-          1900: 4,
-          1536: 4,
-          1280: 3,
-          1024: 2,
+          1900: 5,
+          1536: 5,
+          1280: 4,
+          1024: 3,
           768: 2,
           640: 2,
           500: 1,
@@ -100,6 +103,7 @@ const TokensGrid: FC<Props> = ({
                   collectionImage={collectionImage}
                   collectionSize={collectionSize}
                   collectionAttributes={collectionAttributes}
+                  listedNFTs={listedNFTs}
                   mutate={mutate}
                   setClearCartOpen={setClearCartOpen}
                   setCartToSwap={setCartToSwap}

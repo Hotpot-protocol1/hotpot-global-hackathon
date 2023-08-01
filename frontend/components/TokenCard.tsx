@@ -7,6 +7,7 @@ import React, {
   Dispatch,
   FC,
   SetStateAction,
+  useEffect,
   useState,
 } from 'react'
 import FormatCrypto from 'components/FormatCrypto'
@@ -29,6 +30,9 @@ import { Collection } from 'types/reservoir'
 import { getPricing } from 'lib/token/pricing'
 import * as Dialog from '@radix-ui/react-dialog'
 import ListModal2 from './modal/ListModal'
+import { Item } from '../lib/getAllListedNFTs'
+import { CgSpinner } from 'react-icons/cg'
+import BuyModal from './modal/BuyModal'
 
 const SOURCE_ICON = process.env.NEXT_PUBLIC_SOURCE_ICON
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
@@ -45,6 +49,11 @@ if (CURRENCIES) {
   listingCurrencies = JSON.parse(CURRENCIES)
 }
 
+type ItemInfo = {
+  itemId: number
+  price: string
+}
+
 type Props = {
   token?: ReturnType<typeof useTokens>['tokens']['data'][0]
   collectionImage: string | undefined
@@ -53,6 +62,7 @@ type Props = {
   mutate: MutatorCallback
   setClearCartOpen?: Dispatch<SetStateAction<boolean>>
   setCartToSwap?: Dispatch<SetStateAction<any | undefined>>
+  listedNFTs: Item[] | null
 }
 
 const TokenCard: FC<Props> = ({
@@ -63,6 +73,7 @@ const TokenCard: FC<Props> = ({
   mutate,
   setClearCartOpen,
   setCartToSwap,
+  listedNFTs,
 }) => {
   const account = useAccount()
   const { data: signer } = useSigner()
@@ -72,7 +83,8 @@ const TokenCard: FC<Props> = ({
   const cartCurrency = useRecoilValue(getCartCurrency)
   const [cartTokens, setCartTokens] = useRecoilState(recoilCartTokens)
   const cartPools = useRecoilValue(getPricingPools)
-
+  const [loading, setLoading] = useState(true)
+  const [currentNFT, setCurrentNFT] = useState<ItemInfo | null>(null)
   const reservoirClient = useReservoirClient()
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
 
@@ -93,6 +105,45 @@ const TokenCard: FC<Props> = ({
   if (!price && token.market?.floorAsk?.dynamicPricing?.data?.pool) {
     canAddToCart = false
   }
+
+  const id = token?.token?.tokenId
+  const contract = token?.token?.contract
+
+  const findItem = (
+    contractToFind: string,
+    tokenIdToFind: string
+  ): ItemInfo | null => {
+    if (!listedNFTs) {
+      return null
+    }
+
+    for (const item of listedNFTs) {
+      const { itemId, nft, tokenId: tokenIdInArray, price } = item
+
+      if (
+        nft.toLowerCase() === contractToFind.toLowerCase() &&
+        tokenIdInArray === tokenIdToFind
+      ) {
+        return { itemId, price }
+      }
+    }
+
+    return null
+  }
+
+  // useEffect hook to call the function on load once listedNFTs data is available
+  useEffect(() => {
+    if (listedNFTs && contract && id) {
+      const currentNFT = findItem(contract, id)
+      console.log('Corresponding itemId:', currentNFT)
+      setCurrentNFT(currentNFT)
+      setLoading(false)
+    }
+  }, [listedNFTs, contract, tokenId])
+
+  const isHotpot =
+    token?.token?.owner?.toLowerCase() ==
+    '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
 
   return (
     <div
@@ -116,6 +167,7 @@ const TokenCard: FC<Props> = ({
               <div className="absolute top-4 left-4 z-10 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
                 +1 TIX
               </div>
+
               <Image
                 loader={({ src }) => src}
                 src={optimizeImage(token?.token?.image, imageSize)}
@@ -156,7 +208,7 @@ const TokenCard: FC<Props> = ({
       </Link>
       <div
         className={`absolute bottom-[0px] w-full bg-white transition-all  dark:bg-neutral-800 md:-bottom-[41px] ${
-          !isOwner && !price ? '' : 'group-hover:bottom-[0px]'
+          !isOwner && !price && !isHotpot ? '' : 'group-hover:bottom-[0px]'
         }`}
       >
         <div className="flex items-center justify-between">
@@ -178,41 +230,57 @@ const TokenCard: FC<Props> = ({
               />
             )}
         </div>
+
         <div className="flex items-center justify-between px-4 pb-4 lg:pb-3">
-          {price?.amount?.decimal != null &&
-          price?.amount?.decimal != undefined ? (
+          {isHotpot && currentNFT ? (
             <>
-              <div className="reservoir-h6">
-                <FormatCrypto
-                  amount={price?.amount?.decimal}
-                  address={price?.currency?.contract}
-                  decimals={price?.currency?.decimals}
-                  maximumFractionDigits={4}
-                />
+              <div className="reservoir-h6 flex flex-row items-center gap-1">
+                <img src="/eth.svg" alt="currency" className="h-4 w-4" />
+                {currentNFT.price}
               </div>
               <div className="text-right">
-                {token?.market?.floorAsk?.source && (
-                  <img
-                    className="h-6 w-6"
-                    src={
-                      reservoirClient?.source &&
-                      reservoirClient.source ===
-                        token.market.floorAsk.source.domain &&
-                      SOURCE_ICON
-                        ? SOURCE_ICON
-                        : `${API_BASE}/redirect/sources/${token?.market.floorAsk.source.domain}/logo/v2`
-                    }
-                    alt=""
-                  />
-                )}
+                <img className="h-6 w-6" src="/hotpot.png" alt="" />
               </div>
             </>
-          ) : !isOwner ? (
-            <div className="h-[64px]"></div>
           ) : (
-            <div className="h-6"></div>
+            <>
+              {price?.amount?.decimal != null &&
+              price?.amount?.decimal != undefined ? (
+                <>
+                  <div className="reservoir-h6">
+                    <FormatCrypto
+                      amount={price?.amount?.decimal}
+                      address={price?.currency?.contract}
+                      decimals={price?.currency?.decimals}
+                      maximumFractionDigits={4}
+                    />
+                  </div>
+                  <div className="text-right">
+                    {token?.market?.floorAsk?.source && (
+                      <img
+                        className="h-6 w-6"
+                        src={
+                          reservoirClient?.source &&
+                          reservoirClient.source ===
+                            token.market.floorAsk.source.domain &&
+                          SOURCE_ICON
+                            ? SOURCE_ICON
+                            : `${API_BASE}/redirect/sources/${token?.market.floorAsk.source.domain}/logo/v2`
+                        }
+                        alt=""
+                      />
+                    )}
+                  </div>
+                </>
+              ) : !isOwner ? (
+                <div className="h-[64px]"></div>
+              ) : (
+                <div className="h-6"></div>
+              )}
+            </>
           )}
         </div>
+
         {isOwner && (
           <div className="grid">
             <ListModal2
@@ -244,36 +312,73 @@ const TokenCard: FC<Props> = ({
                 })
               }}
             />
-            {/* <ListModal
+          </div>
+        )}
+
+        {isHotpot && !isOwner && !isOwner && (
+          <div
+            className={`grid ${isInCart || canAddToCart ? 'grid-cols-2' : ''}`}
+          >
+            <BuyModal
               trigger={
                 <button className="btn-primary-fill reservoir-subtitle flex h-[40px] items-center justify-center whitespace-nowrap rounded-none text-white focus:ring-0">
-                  {price?.amount?.decimal
-                    ? 'Create New Listing'
-                    : 'List for Sale'}
+                  Buy Now
                 </button>
               }
-              collectionId={token.token?.contract}
-              tokenId={token.token?.tokenId}
-              currencies={listingCurrencies}
-              onListingComplete={() => {
-                mutate()
-              }}
-              onListingError={(err: any) => {
-                if (err?.code === 4001) {
-                  setToast({
-                    kind: 'error',
-                    message: 'You have canceled the transaction.',
-                    title: 'User canceled transaction',
-                  })
-                  return
-                }
-                setToast({
-                  kind: 'error',
-                  message: 'The transaction was not completed.',
-                  title: 'Could not list token',
-                })
-              }}
-            /> */}
+              itemId={currentNFT?.itemId}
+              price={currentNFT?.price}
+              tokenDetails={token?.token}
+            />
+            {isInCart && (
+              <button
+                onClick={() => {
+                  const newCartTokens = [...cartTokens]
+                  const index = newCartTokens.findIndex(
+                    (newCartToken) =>
+                      newCartToken.token.contract === token?.token?.contract &&
+                      newCartToken.token.tokenId === token?.token?.tokenId
+                  )
+                  newCartTokens.splice(index, 1)
+                  setCartTokens(newCartTokens)
+                }}
+                className="reservoir-subtitle flex h-[40px] items-center justify-center border-t border-neutral-300 text-[#FF3B3B] disabled:cursor-not-allowed dark:border-neutral-600 dark:text-red-300"
+              >
+                Remove
+              </button>
+            )}
+            {!isInCart && canAddToCart && (
+              <button
+                disabled={isInTheWrongNetwork}
+                onClick={() => {
+                  if (token && token.token && token.market) {
+                    if (
+                      !cartCurrency ||
+                      price?.currency?.contract === cartCurrency?.contract
+                    ) {
+                      setCartTokens([
+                        ...cartTokens,
+                        {
+                          token: token.token,
+                          market: token.market,
+                        },
+                      ])
+                    } else {
+                      setCartToSwap &&
+                        setCartToSwap([
+                          {
+                            token: token.token,
+                            market: token.market,
+                          },
+                        ])
+                      setClearCartOpen && setClearCartOpen(true)
+                    }
+                  }
+                }}
+                className="reservoir-subtitle flex h-[40px] items-center justify-center border-t border-neutral-300 disabled:cursor-not-allowed dark:border-neutral-600"
+              >
+                Add to Cart
+              </button>
+            )}
           </div>
         )}
         {price?.amount?.decimal != null &&
