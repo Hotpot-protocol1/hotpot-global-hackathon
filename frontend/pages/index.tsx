@@ -10,6 +10,7 @@ import { useMediaQuery } from '@react-hookz/web'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Hero from 'components/Hero'
+import getPrizePool, { Item } from '../lib/getPrizePool'
 
 // Environment variables
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
@@ -26,7 +27,9 @@ const COLLECTION = process.env.NEXT_PUBLIC_COLLECTION
 const COMMUNITY = process.env.NEXT_PUBLIC_COMMUNITY
 const COLLECTION_SET_ID = process.env.NEXT_PUBLIC_COLLECTION_SET_ID
 
-type Props = InferGetStaticPropsType<typeof getStaticProps>
+type Props = InferGetStaticPropsType<typeof getStaticProps> & {
+  prizePool: Item | null
+}
 
 const metadata = {
   title: (title: string) => <title>{title}</title>,
@@ -49,7 +52,7 @@ const metadata = {
   },
 }
 
-const Home: NextPage<Props> = ({ fallback }) => {
+const Home: NextPage<Props> = ({ fallback, prizePool }) => {
   const isSmallDevice = useMediaQuery('only screen and (max-width : 600px)')
   const router = useRouter()
 
@@ -81,14 +84,14 @@ const Home: NextPage<Props> = ({ fallback }) => {
         {image}
       </Head>
 
-      <header className="px-2 mt-4 mb-12 col-span-full md:mt-5 lg:px-12">
-        <Hero />
-        <h1 className="text-center reservoir-h1 mt-14 dark:text-white">
+      <header className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
+        <Hero prizePool={prizePool} />
+        <h1 className="reservoir-h1 mt-14 text-center dark:text-white">
           {tagline}
         </h1>
       </header>
-      <div className="px-6 col-span-full md:px-16">
-        <div className="flex items-center justify-between w-full mb-9">
+      <div className="col-span-full px-6 md:px-16">
+        <div className="mb-9 flex w-full items-center justify-between">
           <div className="reservoir-h4 dark:text-white">
             Trending Collections
           </div>
@@ -118,6 +121,8 @@ export const getStaticProps: GetStaticProps<{
 
   const url = new URL('/collections/v5', RESERVOIR_API_BASE)
 
+  const prizePool = await getPrizePool()
+
   let query: paths['/collections/v5']['get']['parameters']['query'] = {
     limit: 20,
     sortBy: '1DayVolume',
@@ -138,6 +143,7 @@ export const getStaticProps: GetStaticProps<{
       fallback: {
         collections,
       },
+      prizePool,
     },
   }
 }

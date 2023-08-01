@@ -1,6 +1,6 @@
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import Layout from 'components/Layout'
-import { NextPage } from 'next'
+import type { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
 import { useAccount } from 'wagmi'
 import Toast from 'components/Toast'
 import toast from 'react-hot-toast'
@@ -11,8 +11,13 @@ import TicketsGrid from 'components/TicketsGrid'
 import Leaderboard from 'components/Leaderboard'
 import Faq from 'components/Faq'
 import Footer from 'components/Footer'
+import getPrizePool, { Item } from '../../lib/getPrizePool'
 
-const Rewards: NextPage = () => {
+type Props = InferGetStaticPropsType<typeof getStaticProps> & {
+  prizePool: Item | null
+}
+
+const Rewards: NextPage<Props> = ({ prizePool }) => {
   const { address, isConnected } = useAccount()
   const isMounted = useMounted()
 
@@ -38,7 +43,7 @@ const Rewards: NextPage = () => {
   return (
     <Layout navbar={{}}>
       <div className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
-        <Hero variant="rewards" />
+        <Hero variant="rewards" prizePool={prizePool} />
         <TicketsGrid />
         <Leaderboard />
         {isConnected ? <></> : <div className=""></div>}
@@ -50,3 +55,12 @@ const Rewards: NextPage = () => {
 }
 
 export default Rewards
+
+export const getStaticProps: GetStaticProps<{}> = async () => {
+  const prizePool = await getPrizePool()
+
+  return {
+    props: { prizePool },
+    revalidate: 20,
+  }
+}

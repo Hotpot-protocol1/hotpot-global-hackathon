@@ -32,11 +32,11 @@ import { useRouter } from 'next/router'
 import { getPricing } from 'lib/token/pricing'
 import { useContract } from 'wagmi'
 import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
-import getListedNFTs from 'lib/getListedNFTs'
 import { CgSpinner } from 'react-icons/cg'
 import getTotalPrice from 'lib/getTotalPrice'
 import BuyModal from 'components/modal/BuyModal'
 import ListModal2 from '../../components/modal/ListModal'
+import { Item } from '../../lib/getAllListedNFTs'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const SOURCE_ID = process.env.NEXT_PUBLIC_SOURCE_ID
@@ -51,6 +51,7 @@ type Props = {
   collection?: Collection
   isOwner: boolean
   tokenDetails?: TokenDetails
+  listedNFTs: Item[] | null
 }
 
 type ItemInfo = {
@@ -72,6 +73,7 @@ const PriceData: FC<Props> = ({
   collection,
   isOwner,
   tokenDetails,
+  listedNFTs,
 }) => {
   const router = useRouter()
   const isMounted = useMounted()
@@ -86,12 +88,10 @@ const PriceData: FC<Props> = ({
   const [clearCartOpen, setClearCartOpen] = useState(false)
   const [cartToSwap, setCartToSwap] = useState<undefined | typeof cartTokens>()
   const account = useAccount()
-  const { listedNFTs } = getListedNFTs()
   const [currentNFT, setCurrentNFT] = useState<ItemInfo | null>(null)
   const token = details.data ? details.data[0] : undefined
   const tokenId = token?.token?.tokenId
   const contract = token?.token?.contract
-  const [loading, setLoading] = useState(true)
 
   const findItem = (
     contractToFind: string,
@@ -121,7 +121,6 @@ const PriceData: FC<Props> = ({
       const currentNFT = findItem(contract, tokenId)
       console.log('Corresponding itemId:', currentNFT)
       setCurrentNFT(currentNFT)
-      setLoading(false)
     }
   }, [listedNFTs, contract, tokenId])
 
@@ -211,79 +210,75 @@ const PriceData: FC<Props> = ({
   const isInCart = Boolean(tokensMap[`${contract}:${tokenId}`])
 
   const isHotpot =
-    currentNFT &&
     tokenDetails?.owner == '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
 
   return (
     <div className="col-span-full md:col-span-4 lg:col-span-5 lg:col-start-2">
       <article className="col-span-full rounded-2xl border border-gray-300 bg-white p-6 dark:border-neutral-600 dark:bg-black">
-        {loading ? (
-          <CgSpinner className="flex h-10 w-10 animate-spin items-center justify-center" />
-        ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {isHotpot ? (
-              <div className="flex flex-row">
-                <div className="flex-grow">
-                  <div className="reservoir-h5 font-headings dark:text-white">
-                    List Price
-                  </div>
-                  <div className="justify-left my-1 flex flex-row items-center gap-2">
-                    <img
-                      src="/hotpot.png"
-                      alt="hotpot-marketplace"
-                      className="h-5 w-5"
-                    />
-                    <p className="text-xs font-light"> Hotpot Marketplace</p>
-                  </div>
+        <div className="grid grid-cols-1 gap-6">
+          {isHotpot && currentNFT ? (
+            <div className="flex flex-row">
+              <div className="flex-grow">
+                <div className="reservoir-h5 font-headings dark:text-white">
+                  List Price
                 </div>
-                <div className="reservoir-h3 font-headings dark:text-white">
-                  <div className="flex flex-row items-center">
-                    <img
-                      src="/eth.svg"
-                      alt="hotpot-marketplace"
-                      className="mr-1 h-5 w-5"
-                    />{' '}
-                    {currentNFT?.price}
-                  </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-300">
-                    {/* {formatDollar(usdPrice)} */}
-                  </div>
+                <div className="justify-left my-1 flex flex-row items-center gap-2">
+                  <img
+                    src="/hotpot.png"
+                    alt="hotpot-marketplace"
+                    className="h-5 w-5"
+                  />
+                  <p className="text-xs font-light"> Hotpot Marketplace</p>
                 </div>
               </div>
-            ) : (
-              <Price
-                title="List Price"
-                source={
-                  listSourceName && (
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={listSourceRedirect}
-                      className="reservoir-body flex items-center gap-2 dark:text-white"
-                    >
-                      on {listSourceName}
-                      <img
-                        className="h-6 w-6"
-                        src={listSourceLogo}
-                        alt="Source Logo"
-                      />
-                    </a>
-                  )
-                }
-                price={
-                  <FormatCrypto
-                    amount={floorAskPrice?.amount?.decimal}
-                    address={floorAskPrice?.currency?.contract}
-                    decimals={floorAskPrice?.currency?.decimals}
-                    logoWidth={30}
-                    maximumFractionDigits={8}
-                  />
-                }
-                usdPrice={floorAskUsdPrice}
-              />
-            )}
-          </div>
-        )}
+              <div className="reservoir-h3 font-headings dark:text-white">
+                <div className="flex flex-row items-center">
+                  <img
+                    src="/eth.svg"
+                    alt="hotpot-marketplace"
+                    className="mr-1 h-5 w-5"
+                  />{' '}
+                  {currentNFT?.price}
+                </div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-300">
+                  {/* {formatDollar(usdPrice)} */}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Price
+              title="List Price"
+              source={
+                listSourceName && (
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={listSourceRedirect}
+                    className="reservoir-body flex items-center gap-2 dark:text-white"
+                  >
+                    on {listSourceName}
+                    <img
+                      className="h-6 w-6"
+                      src={listSourceLogo}
+                      alt="Source Logo"
+                    />
+                  </a>
+                )
+              }
+              price={
+                <FormatCrypto
+                  amount={floorAskPrice?.amount?.decimal}
+                  address={floorAskPrice?.currency?.contract}
+                  decimals={floorAskPrice?.currency?.decimals}
+                  logoWidth={30}
+                  maximumFractionDigits={8}
+                />
+              }
+              usdPrice={floorAskUsdPrice}
+            />
+          )}
+        </div>
+
         <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
           {account.isDisconnected ? (
             <ConnectWalletButton className="w-full">

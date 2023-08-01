@@ -20,6 +20,7 @@ import {
   useUserTokens,
 } from '@reservoir0x/reservoir-kit-ui'
 import { useAccount } from 'wagmi'
+import getAllListedNFTs, { Item } from '../../../lib/getAllListedNFTs'
 
 // Environment variables
 // For more information about these variables
@@ -41,6 +42,7 @@ const COLLECTION_SET_ID = process.env.NEXT_PUBLIC_COLLECTION_SET_ID
 const PROXY_API_BASE = process.env.NEXT_PUBLIC_PROXY_API_BASE
 
 type Props = {
+  listedNFTs: Item[] | null
   collectionId: string
   tokenDetails?: TokenDetails
 }
@@ -71,7 +73,7 @@ const metadata = {
   ),
 }
 
-const Index: NextPage<Props> = ({ collectionId, tokenDetails }) => {
+const Index: NextPage<Props> = ({ collectionId, tokenDetails, listedNFTs }) => {
   const [tokenOpenSea] = useState<any>({
     animation_url: null,
     extension: null,
@@ -175,8 +177,12 @@ const Index: NextPage<Props> = ({ collectionId, tokenDetails }) => {
           <TokenMedia token={token.token} />
         </div>
         <div className="hidden space-y-4 md:block">
-          <CollectionInfo collection={collection} token={token.token} />
           <TokenInfo token={token.token} />
+          <TokenAttributes
+            token={token?.token}
+            collection={collection}
+            isOwner={isOwner}
+          />
         </div>
       </div>
       <div className="col-span-full mb-4 space-y-4 px-2 pt-0 md:col-span-4 md:col-start-5 md:pt-4 lg:col-span-5 lg:col-start-7 lg:px-0 2xl:col-span-5 2xl:col-start-7 3xl:col-start-9 4xl:col-start-11">
@@ -190,12 +196,10 @@ const Index: NextPage<Props> = ({ collectionId, tokenDetails }) => {
           details={tokenData}
           collection={collection}
           isOwner={isOwner}
+          listedNFTs={listedNFTs}
         />
-        <TokenAttributes
-          token={token?.token}
-          collection={collection}
-          isOwner={isOwner}
-        />
+        <CollectionInfo collection={collection} token={token.token} />
+
         {token.token?.kind === 'erc1155' && (
           <Listings
             token={`${router.query?.contract?.toString()}:${router.query?.tokenId?.toString()}`}
@@ -246,7 +250,7 @@ export const getStaticProps: GetStaticProps<{
       'x-api-key': RESERVOIR_API_KEY,
     }
   }
-
+  const listedNFTs = await getAllListedNFTs()
   const url = new URL('/tokens/v5', RESERVOIR_API_BASE)
 
   const query: paths['/tokens/v5']['get']['parameters']['query'] = {
@@ -274,6 +278,6 @@ export const getStaticProps: GetStaticProps<{
   }
 
   return {
-    props: { collectionId, tokenDetails: data?.tokens?.[0]?.token },
+    props: { collectionId, tokenDetails: data?.tokens?.[0]?.token, listedNFTs },
   }
 }

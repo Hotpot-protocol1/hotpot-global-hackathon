@@ -83,7 +83,6 @@ const TokenCard: FC<Props> = ({
   const cartCurrency = useRecoilValue(getCartCurrency)
   const [cartTokens, setCartTokens] = useRecoilState(recoilCartTokens)
   const cartPools = useRecoilValue(getPricingPools)
-  const [loading, setLoading] = useState(true)
   const [currentNFT, setCurrentNFT] = useState<ItemInfo | null>(null)
   const reservoirClient = useReservoirClient()
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
@@ -137,7 +136,6 @@ const TokenCard: FC<Props> = ({
       const currentNFT = findItem(contract, id)
       console.log('Corresponding itemId:', currentNFT)
       setCurrentNFT(currentNFT)
-      setLoading(false)
     }
   }, [listedNFTs, contract, tokenId])
 
