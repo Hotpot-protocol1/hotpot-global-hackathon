@@ -37,6 +37,7 @@ import getTotalPrice from 'lib/getTotalPrice'
 import BuyModal from 'components/modal/BuyModal'
 import ListModal2 from '../../components/modal/ListModal'
 import { Item } from '../../lib/getAllListedNFTs'
+import useTix from 'lib/tix'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const SOURCE_ID = process.env.NEXT_PUBLIC_SOURCE_ID
@@ -119,7 +120,6 @@ const PriceData: FC<Props> = ({
   useEffect(() => {
     if (listedNFTs && contract && tokenId) {
       const currentNFT = findItem(contract, tokenId)
-      console.log('Corresponding itemId:', currentNFT)
       setCurrentNFT(currentNFT)
     }
   }, [listedNFTs, contract, tokenId])
@@ -212,6 +212,8 @@ const PriceData: FC<Props> = ({
   const isHotpot =
     tokenDetails?.owner == '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
 
+  const tix = useTix(currentNFT?.price ?? '0')
+
   return (
     <div className="col-span-full md:col-span-4 lg:col-span-5 lg:col-start-2">
       <article className="col-span-full rounded-2xl border border-gray-300 bg-white p-6 dark:border-neutral-600 dark:bg-black">
@@ -233,6 +235,11 @@ const PriceData: FC<Props> = ({
               </div>
               <div className="reservoir-h3 font-headings dark:text-white">
                 <div className="flex flex-row items-center">
+                  {tix > 0 && (
+                    <div className="z-10 mx-2 flex items-center justify-center truncate rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
+                      +{tix} TIX
+                    </div>
+                  )}
                   <img
                     src="/eth.svg"
                     alt="hotpot-marketplace"
@@ -360,7 +367,7 @@ const PriceData: FC<Props> = ({
                 </button>
               )}
 
-              {!isInCart && !isOwner && isListed && canAddToCart && (
+              {!isInCart && !isOwner && isHotpot && canAddToCart && (
                 <button
                   disabled={!floorAskPrice}
                   onClick={() => {
@@ -375,6 +382,9 @@ const PriceData: FC<Props> = ({
                           {
                             token: token.token,
                             market: token.market,
+                            itemId: currentNFT?.itemId ?? 0,
+                            hotpotPrice: currentNFT?.price ?? '0',
+                            tix: tix ?? 0,
                           },
                         ])
                       } else {
@@ -382,6 +392,9 @@ const PriceData: FC<Props> = ({
                           {
                             token: token.token,
                             market: token.market,
+                            itemId: currentNFT?.itemId ?? 0,
+                            hotpotPrice: currentNFT?.price ?? '0',
+                            tix: tix ?? 0,
                           },
                         ])
                         setClearCartOpen(true)
@@ -395,7 +408,7 @@ const PriceData: FC<Props> = ({
                 </button>
               )}
 
-              {isHotpot && canAddToCart && (
+              {/* {isHotpot && canAddToCart && (
                 <button
                   disabled={!floorAskPrice || !currentNFT}
                   onClick={() => {
@@ -410,6 +423,9 @@ const PriceData: FC<Props> = ({
                           {
                             token: token.token,
                             market: token.market,
+                            itemId: currentNFT?.itemId ?? 0,
+                            hotpotPrice: currentNFT?.price ?? '0',
+                            tix: tix ?? 0,
                           },
                         ])
                       } else {
@@ -417,18 +433,21 @@ const PriceData: FC<Props> = ({
                           {
                             token: token.token,
                             market: token.market,
+                            itemId: currentNFT?.itemId ?? 0,
+                            hotpotPrice: currentNFT?.price ?? '0',
+                            tix: tix ?? 0,
                           },
                         ])
                         setClearCartOpen(true)
                       }
                     }
                   }}
-                  className="btn-primary-outline w-full dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
+                  className="w-full btn-primary-outline dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
                 >
                   Add to Cart
                   <FaShoppingCart className="ml-[10px] h-[18px] w-[18px] text-primary-700 dark:text-primary-100" />
                 </button>
-              )}
+              )} */}
             </>
           )}
         </div>

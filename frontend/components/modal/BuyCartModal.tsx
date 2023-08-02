@@ -7,32 +7,49 @@ import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
 import { TokenDetails } from 'types/reservoir'
 import Modal from './Modal'
 import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
-import getTotalPrice from 'lib/getTotalPrice'
 import useTix from 'lib/tix'
+import { useTokens } from '@reservoir0x/reservoir-kit-ui'
 
 type BuyCallbackData = {
   tokenId?: string
   collectionId?: string
 }
 
+type UseTokensReturnType = ReturnType<typeof useTokens>
+
+export type Token = {
+  token: NonNullable<
+    NonNullable<NonNullable<UseTokensReturnType['data']>[0]>['token']
+  >
+  market: NonNullable<
+    NonNullable<NonNullable<UseTokensReturnType['data']>[0]>['market']
+  >
+  itemId: number
+  hotpotPrice: string
+  tix: number
+}
+
 type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   openState?: [boolean, Dispatch<SetStateAction<boolean>>]
-  itemId?: number
-  price?: string
+  itemIds?: number[]
+  totalPrice?: string
   loading?: boolean
-  totalPrice?: number
   tokenDetails?: TokenDetails
   onGoToToken?: () => any
   onBuyComplete?: (data: BuyCallbackData) => void
   onBuyError?: (error: Error, data: BuyCallbackData) => void
   onClose?: () => void
+  onWaitingTxChange?: (waitingTx: boolean) => void
+  cartTokens: Token[]
 }
 
-const BuyModal: React.FC<Props> = ({
+const BuyCartModal: React.FC<Props> = ({
   trigger,
-  itemId,
-  price,
+  cartTokens,
+  totalPrice,
   tokenDetails,
+  onBuyComplete = () => {}, // Provide default empty functions
+  onWaitingTxChange = () => {},
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [priceLoading, setPriceLoading] = useState(false)
@@ -42,22 +59,11 @@ const BuyModal: React.FC<Props> = ({
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
-  const [totalPrice, setTotalPrice] = useState<string | null>(null)
+  const [waitingTx, setWaitingTx] = useState<boolean>(false)
 
   useEffect(() => {
     setIsMounted(true)
-    setPriceLoading(true)
-
-    const fetchTotalPrice = async () => {
-      if (itemId) {
-        const price = await getTotalPrice(itemId)
-        setTotalPrice(price)
-        setPriceLoading(false)
-      }
-    }
-
-    fetchTotalPrice()
-  }, [itemId])
+  }, [])
 
   const NftMarketplace = useContract({
     address: NFTMarketplace_CONTRACT_SEP,
@@ -66,29 +72,60 @@ const BuyModal: React.FC<Props> = ({
   })
 
   const handleSubmit = async () => {
+    setWaitingTx(true)
     setIsLoading(true)
     setError(null)
 
     try {
       if (!NftMarketplace) {
-        console.log('NftMarketplace contract instance is not available.')
+        setError('NftMarketplace contract instance is not available.')
+        setIsLoading(false)
         return
       }
       if (!totalPrice) {
         console.log('Wait for total price to load')
         return
       }
-      const priceInWei = ethers.utils.parseEther(totalPrice)
-      const buyNFT = await NftMarketplace.purchaseItem(itemId, {
-        value: priceInWei,
-      })
+
+      const priceInWei = ethers.utils.parseEther(totalPrice.toString())
+
+      const itemIds = cartTokens.map((tokenData) => tokenData.itemId)
+
+      for (const itemId of itemIds) {
+        const buyNFT = await NftMarketplace.purchaseItem(itemId, {
+          value: priceInWei,
+        })
+        console.log('Listing Transaction Hash:', buyNFT.hash)
+      }
+
       setIsLoading(false)
-      console.log('Listing Transaction Hash:', buyNFT.hash)
       setIsSuccess(true)
+
+      // Call the onBuyComplete callback with appropriate data
+      if (onBuyComplete) {
+        onBuyComplete({
+          tokenId: 'someTokenId',
+          collectionId: 'someCollectionId',
+        })
+      }
+
+      // Close the modal after successful purchase
+      if (onClose) {
+        onClose()
+      }
     } catch (error) {
       setIsLoading(false)
       console.log(error)
       setError('Oops, something went wrong. Please try again')
+
+      // Call the onBuyError callback with error and appropriate data
+    }
+
+    setWaitingTx(false)
+
+    // Call the onWaitingTxChange callback to update waitingTx in the parent component
+    if (onWaitingTxChange) {
+      onWaitingTxChange(false)
     }
   }
 
@@ -100,7 +137,7 @@ const BuyModal: React.FC<Props> = ({
   if (!isMounted) {
     return null
   }
-  const tix = useTix(price ?? '0')
+  const tix = useTix(totalPrice ?? '0')
   return (
     <Modal trigger={trigger}>
       <Dialog.Content className="fixed top-[50%] left-[50%] mt-10 w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-lg bg-white pb-4 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow">
@@ -174,7 +211,7 @@ const BuyModal: React.FC<Props> = ({
                         </div>
                       )}
                       <img src="/eth.svg" alt="eth" className="h-4 w-4" />
-                      <div className="text-sm font-semibold">{price}</div>
+                      <div className="text-sm font-semibold">{totalPrice}</div>
                     </div>
                   </div>
                 </div>
@@ -221,4 +258,4 @@ const BuyModal: React.FC<Props> = ({
   )
 }
 
-export default BuyModal
+export default BuyCartModal

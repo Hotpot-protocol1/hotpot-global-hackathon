@@ -17,22 +17,17 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { getCartCurrency, getTokensMap } from 'recoil/cart'
 import { useAccount, useNetwork, useSigner } from 'wagmi'
 import recoilCartTokens, { getPricingPools } from 'recoil/cart'
-import {
-  ListModal,
-  Modal,
-  useReservoirClient,
-} from '@reservoir0x/reservoir-kit-ui'
+import { ListModal, useReservoirClient } from '@reservoir0x/reservoir-kit-ui'
 import { setToast } from './token/setToast'
 import { MutatorCallback } from 'swr'
 import { useMediaQuery } from '@react-hookz/web'
 import RarityTooltip from './RarityTooltip'
 import { Collection } from 'types/reservoir'
 import { getPricing } from 'lib/token/pricing'
-import * as Dialog from '@radix-ui/react-dialog'
 import ListModal2 from './modal/ListModal'
 import { Item } from '../lib/getAllListedNFTs'
-import { CgSpinner } from 'react-icons/cg'
 import BuyModal from './modal/BuyModal'
+import useTix from '../lib/tix'
 
 const SOURCE_ICON = process.env.NEXT_PUBLIC_SOURCE_ICON
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
@@ -134,7 +129,6 @@ const TokenCard: FC<Props> = ({
   useEffect(() => {
     if (listedNFTs && contract && id) {
       const currentNFT = findItem(contract, id)
-      console.log('Corresponding itemId:', currentNFT)
       setCurrentNFT(currentNFT)
     }
   }, [listedNFTs, contract, tokenId])
@@ -142,6 +136,8 @@ const TokenCard: FC<Props> = ({
   const isHotpot =
     token?.token?.owner?.toLowerCase() ==
     '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
+
+  const tix = useTix(currentNFT?.price ?? '0')
 
   return (
     <div
@@ -162,10 +158,11 @@ const TokenCard: FC<Props> = ({
         <a className="mb-[85px]">
           {token?.token?.image ? (
             <div className="max-w-15 relative">
-              <div className="absolute top-4 left-4 z-10 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
-                +1 TIX
-              </div>
-
+              {isHotpot && tix > 0 && (
+                <div className="absolute top-4 left-4 z-10 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
+                  +{tix} TIX
+                </div>
+              )}
               <Image
                 loader={({ src }) => src}
                 src={optimizeImage(token?.token?.image, imageSize)}
@@ -358,6 +355,9 @@ const TokenCard: FC<Props> = ({
                         {
                           token: token.token,
                           market: token.market,
+                          itemId: currentNFT?.itemId ?? 0,
+                          hotpotPrice: currentNFT?.price ?? '0',
+                          tix: tix ?? 0,
                         },
                       ])
                     } else {
@@ -428,6 +428,9 @@ const TokenCard: FC<Props> = ({
                           {
                             token: token.token,
                             market: token.market,
+                            itemId: currentNFT?.itemId ?? 0,
+                            hotpotPrice: currentNFT?.price ?? '0',
+                            tix: tix ?? 0,
                           },
                         ])
                       } else {

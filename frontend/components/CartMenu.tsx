@@ -2,7 +2,7 @@ import { styled, keyframes } from '@stitches/react'
 import * as Popover from '@radix-ui/react-popover'
 import { FC, useState } from 'react'
 import { FaShoppingCart, FaTrashAlt } from 'react-icons/fa'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil' // Update import statement
 import { Execute } from '@reservoir0x/reservoir-sdk'
 import { Signer } from 'ethers'
 import { setToast } from './token/setToast'
@@ -17,6 +17,8 @@ import cartTokensAtom, {
 import FormatCrypto from 'components/FormatCrypto'
 import { getPricing } from 'lib/token/pricing'
 import { formatEther } from 'ethers/lib/utils'
+import { CgSpinner } from 'react-icons/cg'
+import BuyCartModal from './modal/BuyCartModal'
 type UseBalanceToken = NonNullable<Parameters<typeof useBalance>['0']>['token']
 
 const slideDown = keyframes({
@@ -39,7 +41,7 @@ const StyledContent = styled(Popover.Content, {
 
 const CartMenu: FC = () => {
   const cartCount = useRecoilValue(getCartCount)
-  const cartTotal = useRecoilValue(getCartTotalPrice)
+  const cartTotal = useRecoilValueLoadable(getCartTotalPrice)
   const cartCurrency = useRecoilValue(getCartCurrency)
   const pricingPools = useRecoilValue(getPricingPools)
   const [cartTokens, setCartTokens] = useRecoilState(cartTokensAtom)
@@ -56,7 +58,7 @@ const CartMenu: FC = () => {
         ? (cartCurrency?.contract as UseBalanceToken)
         : undefined,
   })
-
+  const formattedCartTotal = cartTotal.contents
   const execute = async (signer: Signer) => {
     setWaitingTx(true)
 
@@ -72,7 +74,7 @@ const CartMenu: FC = () => {
 
     await reservoirClient.actions
       .buyToken({
-        expectedPrice: cartTotal,
+        expectedPrice: cartTotal.contents,
         tokens: cartTokens.map((token) => token.token),
         signer,
         onProgress: setSteps,
@@ -99,7 +101,7 @@ const CartMenu: FC = () => {
           })
           return
         }
-        // Handle user rejection
+
         if (err?.code === 4001) {
           setOpen(false)
           setSteps(undefined)
@@ -118,6 +120,31 @@ const CartMenu: FC = () => {
       })
 
     setWaitingTx(false)
+  }
+
+  if (cartTotal.state === 'hasError') {
+    return (
+      <Popover.Root>
+        <Popover.Trigger>
+          <div className="relative z-10 grid h-8 w-8 items-center justify-center rounded-full">
+            {cartCount > 0 && (
+              <div className="reservoir-subtitle absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-700 text-white">
+                {cartCount}
+              </div>
+            )}
+            <FaShoppingCart className="h-[18px] w-[18px]" />
+          </div>
+        </Popover.Trigger>
+        <StyledContent
+          sideOffset={22}
+          className="z-[10000000] w-[367px] rounded-2xl bg-white p-6 shadow-lg dark:border dark:border-neutral-700 dark:bg-neutral-900"
+        >
+          <div className="mb-4 flex justify-center">
+            Error loading cart total
+          </div>
+        </StyledContent>
+      </Popover.Root>
+    )
   }
 
   return (
@@ -154,7 +181,7 @@ const CartMenu: FC = () => {
         </div>
         <div className="mb-6 grid max-h-[300px] gap-2 overflow-auto">
           {cartTokens.map((tokenData, index) => {
-            const { token } = tokenData
+            const { token, hotpotPrice, tix } = tokenData
             const { collection, contract, name, image, tokenId } = token
             const price = getPricing(pricingPools, tokenData)
 
@@ -172,14 +199,11 @@ const CartMenu: FC = () => {
                       {name || `#${tokenId}`}
                     </div>
                     <div className="reservoir-label-s">{collection?.name}</div>
-                    <div className="reservoir-h6 flex flex-row items-center justify-between gap-4">
-                      <FormatCrypto
-                        amount={price?.amount?.decimal}
-                        address={price?.currency?.contract}
-                        decimals={price?.currency?.decimals}
-                      />
-                      <div className="rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm text-[#0FA46E]">
-                        +1 TIX
+                    <div className="reservoir-h6 flex flex-row items-center justify-between gap-1">
+                      <img src="/eth.svg" alt="eth" className="h-3 w-3" />{' '}
+                      {hotpotPrice}
+                      <div className="ml-6 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm text-[#0FA46E]">
+                        +{tix} TIX
                       </div>
                     </div>
                   </div>
@@ -201,15 +225,17 @@ const CartMenu: FC = () => {
 
         <div className="mb-4 flex justify-between">
           <div className="reservoir-h6">You Pay</div>
-          <div className="reservoir-h6">
-            <FormatCrypto
-              amount={cartTotal}
-              address={cartCurrency?.contract}
-              decimals={cartCurrency?.decimals}
-            />
-          </div>
+          {cartTotal.state === 'loading' ? (
+            <CgSpinner className="h-5 w-5 animate-spin" />
+          ) : (
+            <div className="reservoir-h6 flex flex-row items-center justify-center gap-2">
+              {' '}
+              <img src="/eth.svg" alt="eth" className="h-3 w-3" />{' '}
+              {formattedCartTotal}
+            </div>
+          )}
         </div>
-        {balance?.formatted && +balance.formatted < cartTotal && (
+        {/* {balance?.formatted && +balance.formatted < cartTotal && (
           <div className="mb-2 text-center ">
             <span className="reservoir-headings text-[#FF6369]">
               Insufficient balance{' '}
@@ -220,18 +246,28 @@ const CartMenu: FC = () => {
               decimals={cartCurrency?.decimals}
             />
           </div>
-        )}
-        <button
-          onClick={() => signer && execute(signer)}
-          disabled={
-            cartCount === 0 ||
-            waitingTx ||
-            Boolean(balance?.formatted && +balance.formatted < cartTotal)
+        )} */}
+
+        <BuyCartModal
+          trigger={
+            <button className="btn-primary-fill w-full">
+              {waitingTx ? 'Waiting' : 'Purchase'}
+            </button>
           }
-          className="btn-primary-fill w-full"
+          cartTokens={cartTokens}
+          totalPrice={formattedCartTotal}
+        />
+        {/* <button
+          onClick={() => signer && execute(signer)}
+          // disabled={
+          //   cartCount === 0 ||
+          //   waitingTx ||
+          //   Boolean(balance?.formatted && +balance.formatted < cartTotal)
+          // }
+          className="w-full btn-primary-fill"
         >
           {waitingTx ? 'Waiting' : 'Purchase'}
-        </button>
+        </button> */}
       </StyledContent>
     </Popover.Root>
   )

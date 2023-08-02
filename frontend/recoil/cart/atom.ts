@@ -10,6 +10,9 @@ export type Token = {
   market: NonNullable<
     NonNullable<NonNullable<UseTokensReturnType['data']>[0]>['market']
   >
+  itemId: number
+  hotpotPrice: string
+  tix: number
 }
 
 export default atom<Token[]>({

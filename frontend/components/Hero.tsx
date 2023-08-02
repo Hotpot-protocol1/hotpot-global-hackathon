@@ -1,5 +1,4 @@
 import React from 'react'
-import LoadingNumber from './LoadingNumber'
 import { Item } from '../lib/getPrizePool'
 
 type HeroProps = {

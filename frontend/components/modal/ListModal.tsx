@@ -19,6 +19,7 @@ import {
   ERC721abi,
   NFTMarketplace_CONTRACT_SEP,
 } from '../../contracts/index'
+import useTix from 'lib/tix'
 
 type ListingCallbackData = {
   tokenId?: string
@@ -192,11 +193,11 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
   if (!isMounted) {
     return null
   }
-
+  const tix = useTix(priceValue ?? '0')
   let mainContent = (
     <div>
       <div className="mb-4 flex flex-row rounded border border-[#FFD027] bg-[#FFF1CC] py-2 px-2 text-sm font-normal">
-        <img src="/eth-gold.svg" className="w-8 h-8" />
+        <img src="/eth-gold.svg" className="h-8 w-8" />
         <div>
           {' '}
           To ensure you{' '}
@@ -210,9 +211,9 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
       </div>
       <div>
         <div className="mt-4 text-sm text-gray-500">Default</div>
-        <div className="flex flex-row justify-between mt-2 font-medium text-md">
+        <div className="text-md mt-2 flex flex-row justify-between font-medium">
           <div className="flex flex-row items-center justify-center gap-2 text-gray-700">
-            <img src="/hotpot.png" className="w-8 h-8" />
+            <img src="/hotpot.png" className="h-8 w-8" />
             <div>Hotpot</div>
           </div>
           <div
@@ -241,7 +242,7 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
   )
 
   let sideContent = (
-    <div className="grid gap-1 mt-2 grid-row">
+    <div className="grid-row mt-2 grid gap-1">
       <div className="flex flex-row justify-between rounded bg-[#F3F2F2] p-2">
         <div className="flex flex-row gap-1 text-sm text-gray-600">
           <div>Creator Royalties</div>
@@ -284,9 +285,14 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
             Set Your Price
           </div>
           <div>
-            <div className="flex flex-row justify-between mt-4 ">
+            <div className="mt-4 flex flex-row justify-between ">
               <div className="text-sm text-gray-500">List Price</div>
               <div className="flex flex-row items-center justify-center gap-2">
+                {tix > 0 && (
+                  <div className="z-10 flex items-center justify-center truncate rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
+                    +{tix} TIX
+                  </div>
+                )}
                 <div className="text-sm text-gray-500">Profit</div>
                 <InfoTooltip
                   side="top"
@@ -296,11 +302,11 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
               </div>
             </div>
 
-            <div className="flex flex-row justify-between mt-2 font-light text-md">
+            <div className="text-md mt-2 flex flex-row justify-between font-light">
               <div className="flex flex-row items-center gap-2 text-gray-700">
                 <div className="flex items-center">
-                  <img src="/hotpot.png" className="flex-none w-8 h-8 mr-4" />
-                  <img src="/eth.svg" className="w-4 h-4 mr-1" alt="price" />
+                  <img src="/hotpot.png" className="mr-4 h-8 w-8 flex-none" />
+                  <img src="/eth.svg" className="mr-1 h-4 w-4" alt="price" />
                   <div className="">SEP</div>
                 </div>
               </div>
@@ -309,16 +315,16 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
                 onChange={handleChange}
                 type="number"
                 placeholder="Enter a listing price"
-                className="px-4 py-2 mx-4 border rounded grow"
+                className="mx-2 grow rounded border px-4 py-2"
               />
 
               <div
                 className="flex items-center"
                 style={{ display: 'flex', alignItems: 'center' }}
               >
-                <img src="/eth.svg" className="w-3 h-3 mr-1" alt="price" />
+                <img src="/eth.svg" className="mr-1 h-3 w-3" alt="price" />
                 <label
-                  className="pr-[15px] text-[14px] font-medium leading-none text-gray-700"
+                  className="grow-0 truncate pr-[15px] text-[14px] font-medium leading-none text-gray-700"
                   htmlFor="hotpot-marketplace"
                 >
                   {priceValue}
@@ -339,25 +345,25 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
       <div>
         {' '}
         <div>
-          <div className="flex flex-wrap justify-between w-full my-4">
+          <div className="my-4 flex w-full flex-wrap justify-between">
             <div className="w-[48%] rounded border-2 border-[#7000FF]" />
             <div className="w-[48%] rounded border-2 border-gray-500" />
           </div>
 
-          <div className="flex flex-col items-center justify-center gap-10 mt-10">
+          <div className="mt-10 flex flex-col items-center justify-center gap-10">
             {error && (
-              <div className="flex flex-row items-center justify-center gap-2 px-10 py-2 mt-2 text-xs text-gray-600 bg-gray-100 border rounded-sm">
-                <HiExclamationCircle className="w-4 h-4 text-red-500" />
+              <div className="mt-2 flex flex-row items-center justify-center gap-2 rounded-sm border bg-gray-100 px-10 py-2 text-xs text-gray-600">
+                <HiExclamationCircle className="h-4 w-4 text-red-500" />
                 {error}
               </div>
             )}
-            <h1 className="font-semibold text-md">
+            <h1 className="text-md font-semibold">
               Confirm listing on Hotpot in your wallet
             </h1>
             <div className="flex flex-row items-center justify-center gap-5">
               <img src="/hotpot.png" className="h-14 w-14" />
               <div>
-                <CgMore className="w-4 h-4 animate-ping" />
+                <CgMore className="h-4 w-4 animate-ping" />
               </div>
               <img src="/hotpot.png" className="h-14 w-14" />
             </div>
@@ -369,17 +375,17 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
       </div>
     )),
       (sideContent = (
-        <div className="grid gap-1 mt-2 grid-row">
+        <div className="grid-row mt-2 grid gap-1">
           <div className="flex flex-row justify-between rounded bg-[#F3F2F2] p-2">
             <div className="flex flex-row gap-1 text-sm text-gray-600">
-              <div className="flex flex-col gap-1 items-left">
+              <div className="items-left flex flex-col gap-1">
                 <div className="flex flex-row items-center">
-                  <img src="/eth.svg" className="w-3 h-3 mr-2" alt="price" />
+                  <img src="/eth.svg" className="mr-2 h-3 w-3" alt="price" />
                   <div className="text-sm font-semibold">{priceValue}</div>
                 </div>
               </div>
             </div>
-            <img src="/hotpot.png" className="w-6 h-6" />
+            <img src="/hotpot.png" className="h-6 w-6" />
           </div>
         </div>
       ))
@@ -390,13 +396,13 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
       <div>
         {' '}
         <div>
-          <div className="flex flex-wrap justify-between w-full my-4">
+          <div className="my-4 flex w-full flex-wrap justify-between">
             <div className="w-[48%] rounded border-2 border-[#7000FF]" />
             <div className="w-[48%] rounded border-2 border-[#7000FF]" />
           </div>
 
-          <div className="relative flex flex-col items-center justify-center gap-5 mt-10">
-            <div className="absolute inset-0 z-10 flex items-center justify-center mt-6 transform scale-100">
+          <div className="relative mt-10 flex flex-col items-center justify-center gap-5">
+            <div className="absolute inset-0 z-10 mt-6 flex scale-100 transform items-center justify-center">
               <img src="/success.gif" className="object-cover" />
             </div>
             <HiCheckCircle className="h-[100px] w-[3100px] items-center justify-center text-green-700" />
@@ -411,17 +417,17 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
       </div>
     )),
       (sideContent = (
-        <div className="grid gap-1 mt-2 grid-row">
+        <div className="grid-row mt-2 grid gap-1">
           <div className="flex flex-row justify-between rounded bg-[#F3F2F2] p-2">
             <div className="flex flex-row gap-1 text-sm text-gray-600">
-              <div className="flex flex-col gap-1 items-left">
+              <div className="items-left flex flex-col gap-1">
                 <div className="flex flex-row items-center">
-                  <img src="/eth.svg" className="w-3 h-3 mr-2" alt="price" />
+                  <img src="/eth.svg" className="mr-2 h-3 w-3" alt="price" />
                   <div className="text-sm font-semibold">0.1</div>
                 </div>
               </div>
             </div>
-            <img src="/hotpot.png" className="w-6 h-6" />
+            <img src="/hotpot.png" className="h-6 w-6" />
           </div>
         </div>
       ))
@@ -433,7 +439,7 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
         <div className="flex flex-row justify-between rounded bg-[#F8F8F8] p-4">
           {' '}
           <Dialog.Title>
-            <h2 className="m-0 font-semibold text-gray-900 text-md">
+            <h2 className="text-md m-0 font-semibold text-gray-900">
               List Item for sale
             </h2>
           </Dialog.Title>
@@ -448,17 +454,17 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
           </Dialog.Close>
         </div>
         <div className="m-2 flex min-h-[400px] flex-col md:flex-grow md:flex-row">
-          <section className="flex flex-col w-1/3 gap-1 p-2 md:border-r">
+          <section className="flex w-1/3 flex-col gap-1 p-2 md:border-r">
             <div className="text-sm text-gray-500">Item</div>
             <img
               src="/hotpot.png"
               className="w-[180px] rounded-sm object-fill"
             />
-            <h1 className="font-semibold truncate">NFT Name</h1>
-            <p className="text-sm text-gray-500 truncate">Collection</p>
+            <h1 className="truncate font-semibold">NFT Name</h1>
+            <p className="truncate text-sm text-gray-500">Collection</p>
             {sideContent}
           </section>
-          <main className="flex flex-col justify-between w-2/3 px-4">
+          <main className="flex w-2/3 flex-col justify-between px-4">
             {mainContent}
             <div className="mt-[25px] flex justify-end gap-4">
               {!isLoading &&
@@ -467,7 +473,7 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
                 secondaryActionLabel && (
                   <button
                     onClick={onEdit}
-                    className="w-full py-2 text-black bg-white border border-black rounded hover:bg-gray-100"
+                    className="w-full rounded border border-black bg-white py-2 text-black hover:bg-gray-100"
                   >
                     Edit List
                   </button>
@@ -481,7 +487,7 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
                 >
                   {isLoading ? (
                     <>
-                      <CgSpinner className="inline-block w-6 h-6 mr-2 animate-spin" />
+                      <CgSpinner className="mr-2 inline-block h-6 w-6 animate-spin" />
                       Waiting for approval
                     </>
                   ) : error ? (
