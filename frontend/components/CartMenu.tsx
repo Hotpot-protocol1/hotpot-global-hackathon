@@ -250,7 +250,10 @@ const CartMenu: FC = () => {
 
         <BuyCartModal
           trigger={
-            <button className="btn-primary-fill w-full">
+            <button
+              className="btn-primary-fill w-full"
+              disabled={cartTotal.state === 'loading'}
+            >
               {waitingTx ? 'Waiting' : 'Purchase'}
             </button>
           }

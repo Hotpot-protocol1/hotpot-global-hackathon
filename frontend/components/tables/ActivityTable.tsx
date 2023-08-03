@@ -18,9 +18,11 @@ import {
 } from '@reservoir0x/reservoir-kit-ui'
 import { useInView } from 'react-intersection-observer'
 import MobileActivityFilter from 'components/filter/MobileActivityFilter'
+import { Item } from '../../lib/getAllListedNFTs'
+import useTix from 'lib/tix'
 
 const RESERVOIR_API_BASE = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
-const HOTPOT_CONTRACT = process.env.NEXT_PUBLIC_ALCHEMY_ID
+const MARKET_CONTRACT = '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
 type CollectionActivityResponse = ReturnType<typeof useCollectionActivity>
 type CollectionActivity = CollectionActivityResponse['data'][0]
 export type CollectionActivityTypes = NonNullable<
@@ -42,12 +44,14 @@ type ActivityTypes = Exclude<
 
 type Props = {
   data: ActivityResponse
+  listedNFTs: Item[] | null
   types: ActivityTypes
   onTypesChange: (types: ActivityTypes) => void
   emptyPlaceholder: ReactElement
 }
 
 const ActivityTable: FC<Props> = ({
+  listedNFTs,
   data,
   types,
   onTypesChange,
@@ -90,7 +94,7 @@ const ActivityTable: FC<Props> = ({
           types={types}
         />
       ) : (
-        <div className="flex flex-wrap gap-2 mt-2 md:m-5 md:gap-4">
+        <div className="mt-2 flex flex-wrap gap-2 md:m-5 md:gap-4">
           {filters.map((filter, i) => {
             const isSelected = enabledFilters.includes(filter)
             return (
@@ -151,7 +155,7 @@ const ActivityTable: FC<Props> = ({
                 {headings.map((name, i) => (
                   <th
                     key={i}
-                    className="px-6 py-3 text-sm font-medium text-left text-neutral-600 dark:text-white"
+                    className="px-6 py-3 text-left text-sm font-medium text-neutral-600 dark:text-white"
                   >
                     {name}
                   </th>
@@ -168,6 +172,7 @@ const ActivityTable: FC<Props> = ({
                 <ActivityTableRow
                   key={`${activity?.txHash}-${i}`}
                   activity={activity}
+                  listedNFTs={listedNFTs}
                 />
               )
             })}
@@ -177,7 +182,7 @@ const ActivityTable: FC<Props> = ({
       )}
 
       {data.isValidating && (
-        <div className="flex justify-center my-20">
+        <div className="my-20 flex justify-center">
           <LoadingIcon />
         </div>
       )}
@@ -187,11 +192,19 @@ const ActivityTable: FC<Props> = ({
 
 type ActivityTableRowProps = {
   activity: Activity
+  listedNFTs: Item[] | null
 }
-
-const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
+type ItemInfo = {
+  itemId: number
+  price: string
+}
+const ActivityTableRow: FC<ActivityTableRowProps> = ({
+  activity,
+  listedNFTs,
+}) => {
   const isMobile = useMediaQuery('only screen and (max-width : 730px)')
   const { address } = useAccount()
+  const [currentActivity, setCurrentActivity] = useState<ItemInfo | null>(null)
   const [toShortAddress, setToShortAddress] = useState<string>(
     activity?.toAddress || ''
   )
@@ -204,6 +217,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
   )
   const [timeAgo, setTimeAgo] = useState(activity?.timestamp || '')
   const envChain = useEnvChain()
+  const tix = useTix(currentActivity?.price ?? '0')
   const blockExplorerBaseUrl =
     envChain?.blockExplorers?.default?.url || 'https://etherscan.io'
   const href = activity?.token?.tokenId
@@ -219,6 +233,16 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
       }
       if (address?.toLowerCase() === activity?.fromAddress?.toLowerCase()) {
         fromShortAddress = 'You'
+      }
+      if (
+        MARKET_CONTRACT?.toLowerCase() === activity?.toAddress?.toLowerCase()
+      ) {
+        toShortAddress = 'Hotpot'
+      }
+      if (
+        MARKET_CONTRACT?.toLowerCase() === activity?.fromAddress?.toLowerCase()
+      ) {
+        fromShortAddress = 'Hotpot'
       }
     }
     setToShortAddress(toShortAddress)
@@ -261,32 +285,76 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
     bid: null,
   }
 
-  switch (activity?.type) {
-    case 'ask_cancel': {
-      activityDescription = 'Listing Canceled'
-      break
-    }
-    case 'mint': {
-      activityDescription = 'Mint'
-      break
-    }
-    case 'ask': {
-      activityDescription = 'Listing'
-      break
-    }
-    case 'transfer': {
-      activityDescription = 'Transfer'
-      break
-    }
-    case 'sale': {
-      activityDescription = 'Sale'
-      break
-    }
-    default: {
-      if (activity.type) activityDescription = activity.type
-      break
+  if (
+    activity.fromAddress?.toLowerCase() ===
+    '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
+  ) {
+    activityDescription = 'Sale'
+    logos.transfer = <img src="/hotpot.png" className="mr-2 h-6 w-6" />
+  } else if (
+    activity.toAddress?.toLowerCase() ===
+    '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
+  ) {
+    activityDescription = 'Listing'
+    logos.transfer = <img src="/hotpot.png" className="mr-2 h-6 w-6" />
+  } else {
+    switch (activity?.type) {
+      case 'ask_cancel': {
+        activityDescription = 'Listing Canceled'
+        break
+      }
+      case 'mint': {
+        activityDescription = 'Mint'
+        break
+      }
+      case 'ask': {
+        activityDescription = 'Listing'
+        break
+      }
+      case 'transfer': {
+        activityDescription = 'Transfer'
+        break
+      }
+      case 'sale': {
+        activityDescription = 'Sale'
+        break
+      }
+      default: {
+        if (activity.type) activityDescription = activity.type
+        break
+      }
     }
   }
+  const tokenId = activity?.token?.tokenId
+  const contract = activity?.collection?.collectionId
+  const findItem = (
+    contractToFind: string,
+    tokenIdToFind: string
+  ): ItemInfo | null => {
+    if (!listedNFTs) {
+      return null
+    }
+
+    for (const item of listedNFTs) {
+      const { itemId, nft, tokenId: tokenIdInArray, price } = item
+
+      if (
+        nft.toLowerCase() === contractToFind.toLowerCase() &&
+        tokenIdInArray === tokenIdToFind
+      ) {
+        return { itemId, price }
+      }
+    }
+
+    return null
+  }
+
+  useEffect(() => {
+    if (listedNFTs && contract && tokenId) {
+      const currentActivity = findItem(contract, tokenId)
+      setCurrentActivity(currentActivity)
+    }
+  }, [listedNFTs, contract, tokenId])
 
   if (isMobile) {
     return (
@@ -295,12 +363,12 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         className="h-24 border-b border-gray-300 dark:border-[#525252]"
       >
         <td className="flex flex-col gap-3">
-          <div className="flex items-center mt-6">
+          <div className="mt-6 flex items-center">
             {/* @ts-ignore */}
             {activity.type && logos[activity.type]}
             {!!activity.order?.source?.icon && (
               <img
-                className="inline w-3 h-3 mr-2"
+                className="mr-2 inline h-3 w-3"
                 // @ts-ignore
                 src={activity.order?.source?.icon || ''}
                 alt={`${activity.order?.source?.name} Source`}
@@ -314,14 +382,14 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
             <Link href={href} passHref legacyBehavior={true}>
               <a className="flex items-center">
                 <Image
-                  className="object-cover rounded"
+                  className="rounded object-cover"
                   loader={({ src }) => src}
                   src={imageSrc}
                   alt={`${activity.token?.tokenName} Token Image`}
                   width={48}
                   height={48}
                 />
-                <div className="grid ml-2 truncate">
+                <div className="ml-2 grid truncate">
                   <div className="reservoir-h6 dark:text-white">
                     {activity.token?.tokenName ||
                       activity.token?.tokenId ||
@@ -336,6 +404,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
             !['transfer', 'mint'].includes(activity.type) ? (
               <FormatNativeCrypto amount={activity.price} />
             ) : null}
+            {currentActivity?.price}
           </div>
 
           <div className="flex items-center justify-between">
@@ -357,7 +426,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
                 <span className="font-light">-</span>
               )}
               <span className="mx-1 font-light text-neutral-600 dark:text-neutral-300">
-                to
+                to{' '}
               </span>
               {activity.toAddress &&
               activity.toAddress !== constants.AddressZero ? (
@@ -372,7 +441,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
               ) : (
                 <span className="font-light">-</span>
               )}
-              <div className="flex items-center justify-between gap-2 mb-4 font-light text-neutral-600 dark:text-neutral-300 md:justify-start">
+              <div className="mb-4 flex items-center justify-between gap-2 font-light text-neutral-600 dark:text-neutral-300 md:justify-start">
                 {timeAgo}
               </div>
             </div>
@@ -384,9 +453,9 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between gap-2 mb-4 font-light text-neutral-600 dark:text-neutral-300 md:justify-start"
+                  className="mb-4 flex items-center justify-between gap-2 font-light text-neutral-600 dark:text-neutral-300 md:justify-start"
                 >
-                  <FiExternalLink className="w-4 h-4 text-primary-700 dark:text-primary-300" />
+                  <FiExternalLink className="h-4 w-4 text-primary-700 dark:text-primary-300" />
                 </a>
               </Link>
             )}
@@ -407,7 +476,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
           {activity.type && logos[activity.type]}
           {!!activity.order?.source?.icon && (
             <img
-              className="w-6 h-6 mr-2"
+              className="mr-2 h-6 w-6"
               // @ts-ignore
               src={activity.order?.source?.icon || ''}
               alt={`${activity.order?.source?.name} Source`}
@@ -422,14 +491,14 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         <Link href={href} passHref legacyBehavior={true}>
           <a className="mr-2.5 flex items-center">
             <Image
-              className="object-cover rounded"
+              className="rounded object-cover"
               loader={({ src }) => src}
               src={imageSrc}
               alt={`${activity.token?.tokenName} Token Image`}
               width={48}
               height={48}
             />
-            <div className="grid ml-2 truncate">
+            <div className="ml-2 grid truncate">
               <div className="reservoir-h6 dark:text-white">
                 {activity.token?.tokenName ||
                   activity.token?.tokenId ||
@@ -445,6 +514,12 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         activity.type &&
         !['transfer', 'mint'].includes(activity.type) ? (
           <FormatNativeCrypto amount={activity.price} />
+        ) : null}{' '}
+        {currentActivity?.price ? (
+          <div className="flex flex-row items-center justify-center gap-1 font-semibold">
+            <img src="/eth.svg" alt="price" className="h-3 w-3" />
+            {currentActivity.price}
+          </div>
         ) : null}
       </td>
       <td className="px-6 py-4">
@@ -471,11 +546,11 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         )}
       </td>
       <td className="px-6 py-4">
-        <div className="flex items-center gap-2 font-light text-right whitespace-nowrap text-neutral-600 dark:text-neutral-300">
-          {activity.type === 'transfer' ? (
+        <div className="flex items-center gap-2 whitespace-nowrap text-right font-light text-neutral-600 dark:text-neutral-300">
+          {currentActivity?.price ? (
             <>
               <div className="rounded border border-[#0FA46E] bg-[#DBF1E4] px-1 text-sm text-[#0FA46E]">
-                +1 Tickets
+                +{tix} Tickets
               </div>
             </>
           ) : (
@@ -484,7 +559,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
         </div>
       </td>
       <td className="px-6 py-4">
-        <div className="flex items-center gap-2 font-light whitespace-nowrap text-neutral-600 dark:text-neutral-300">
+        <div className="flex items-center gap-2 whitespace-nowrap font-light text-neutral-600 dark:text-neutral-300">
           {timeAgo}
           {activity.txHash && (
             <Link
@@ -492,7 +567,7 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({ activity }) => {
               legacyBehavior={true}
             >
               <a target="_blank" rel="noopener noreferrer">
-                <FiExternalLink className="w-4 h-4 text-primary-700 dark:text-primary-300" />
+                <FiExternalLink className="h-4 w-4 text-primary-700 dark:text-primary-300" />
               </a>
             </Link>
           )}

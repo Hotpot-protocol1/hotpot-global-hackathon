@@ -116,7 +116,6 @@ const PriceData: FC<Props> = ({
     return null
   }
 
-  // useEffect hook to call the function on load once listedNFTs data is available
   useEffect(() => {
     if (listedNFTs && contract && tokenId) {
       const currentNFT = findItem(contract, tokenId)
@@ -362,14 +361,14 @@ const PriceData: FC<Props> = ({
                   }}
                   className="btn-primary-outline w-full dark:border-neutral-600 dark:text-white dark:ring-primary-900 dark:focus:ring-4"
                 >
-                  Remove from Cart
+                  Remove
                   <FaShoppingCart className="ml-[10px] h-[18px] w-[18px] text-[#FF3B3B] dark:text-[#FF9A9A]" />
                 </button>
               )}
 
               {!isInCart && !isOwner && isHotpot && canAddToCart && (
                 <button
-                  disabled={!floorAskPrice}
+                  disabled={isInTheWrongNetwork}
                   onClick={() => {
                     if (token?.token && token.market) {
                       if (

@@ -310,7 +310,7 @@ const TokenCard: FC<Props> = ({
           </div>
         )}
 
-        {isHotpot && !isOwner && !isOwner && (
+        {isHotpot && !isOwner && (
           <div
             className={`grid ${isInCart || canAddToCart ? 'grid-cols-2' : ''}`}
           >
