@@ -4,9 +4,10 @@ import { Item } from '../lib/getPrizePool'
 type HeroProps = {
   variant?: string
   prizePool: Item | null
+  ticketCost: string | null
 }
 
-const Hero: React.FC<HeroProps> = ({ variant, prizePool }) => {
+const Hero: React.FC<HeroProps> = ({ variant, prizePool, ticketCost }) => {
   const backgroundImageUrl =
     variant === 'rewards' ? '/banner-rewards.svg' : '/banner-home.svg'
   const bottomImageUrl =
@@ -24,7 +25,7 @@ const Hero: React.FC<HeroProps> = ({ variant, prizePool }) => {
           <h2
             className={`mt-[-0.75rem] text-base font-normal ${textColor} md:text-lg`}
           >
-            Earn 1 raffle ticket for every 0.10 ETH bought or sold
+            Earn 1 raffle ticket for every {ticketCost} ETH bought or sold
           </h2>
 
           <div className="mt-11 flex w-[340px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-solid border-[#FFF06A] bg-gradient-to-b from-[#FFE179] to-[#FFB52E] px-10 py-4 text-black md:px-16">

@@ -12,12 +12,14 @@ import Leaderboard from 'components/Leaderboard'
 import Faq from 'components/Faq'
 import Footer from 'components/Footer'
 import getPrizePool, { Item } from '../../lib/getPrizePool'
+import getTicketCost from 'lib/getTicketCost'
 
 type Props = InferGetStaticPropsType<typeof getStaticProps> & {
   prizePool: Item | null
+  ticketCost: string | null
 }
 
-const Rewards: NextPage<Props> = ({ prizePool }) => {
+const Rewards: NextPage<Props> = ({ prizePool, ticketCost }) => {
   const { address, isConnected } = useAccount()
   const isMounted = useMounted()
 
@@ -43,7 +45,7 @@ const Rewards: NextPage<Props> = ({ prizePool }) => {
   return (
     <Layout navbar={{}}>
       <div className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
-        <Hero variant="rewards" prizePool={prizePool} />
+        <Hero variant="rewards" prizePool={prizePool} ticketCost={ticketCost} />
         <TicketsGrid />
         <Leaderboard />
         {isConnected ? <></> : <div className=""></div>}
@@ -58,9 +60,10 @@ export default Rewards
 
 export const getStaticProps: GetStaticProps<{}> = async () => {
   const prizePool = await getPrizePool()
+  const ticketCost = await getTicketCost()
 
   return {
-    props: { prizePool },
+    props: { prizePool, ticketCost },
     revalidate: 20,
   }
 }

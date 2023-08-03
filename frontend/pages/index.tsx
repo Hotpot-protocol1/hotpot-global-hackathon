@@ -11,6 +11,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Hero from 'components/Hero'
 import getPrizePool, { Item } from '../lib/getPrizePool'
+import getTicketCost from 'lib/getTicketCost'
 
 // Environment variables
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
@@ -29,6 +30,7 @@ const COLLECTION_SET_ID = process.env.NEXT_PUBLIC_COLLECTION_SET_ID
 
 type Props = InferGetStaticPropsType<typeof getStaticProps> & {
   prizePool: Item | null
+  ticketCost: string | null
 }
 
 const metadata = {
@@ -52,7 +54,7 @@ const metadata = {
   },
 }
 
-const Home: NextPage<Props> = ({ fallback, prizePool }) => {
+const Home: NextPage<Props> = ({ fallback, prizePool, ticketCost }) => {
   const isSmallDevice = useMediaQuery('only screen and (max-width : 600px)')
   const router = useRouter()
 
@@ -85,7 +87,7 @@ const Home: NextPage<Props> = ({ fallback, prizePool }) => {
       </Head>
 
       <header className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
-        <Hero prizePool={prizePool} />
+        <Hero prizePool={prizePool} ticketCost={ticketCost} />
         <h1 className="reservoir-h1 mt-14 text-center dark:text-white">
           {tagline}
         </h1>
@@ -122,6 +124,7 @@ export const getStaticProps: GetStaticProps<{
   const url = new URL('/collections/v5', RESERVOIR_API_BASE)
 
   const prizePool = await getPrizePool()
+  const ticketCost = await getTicketCost()
 
   let query: paths['/collections/v5']['get']['parameters']['query'] = {
     limit: 20,
@@ -144,6 +147,7 @@ export const getStaticProps: GetStaticProps<{
         collections,
       },
       prizePool,
+      ticketCost,
     },
   }
 }
