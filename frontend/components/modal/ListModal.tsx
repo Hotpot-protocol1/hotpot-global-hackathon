@@ -14,6 +14,10 @@ import { CgMore, CgSpinner } from 'react-icons/cg'
 import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
 import InfoTooltip from 'components/InfoTooltip'
 import Modal from './Modal'
+import { TokenDetails } from 'types/reservoir'
+import { optimizeImage } from 'lib/optmizeImage'
+import Image from 'next/legacy/image'
+import { useMediaQuery } from '@react-hookz/web'
 import {
   abi,
   ERC721abi,
@@ -47,6 +51,7 @@ const ModalCopy = {
 type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   openState?: [boolean, Dispatch<SetStateAction<boolean>>]
   tokenId?: string
+  tokenDetails?: TokenDetails
   collectionId?: string
   nativeOnly?: boolean
   normalizeRoyalties?: boolean
@@ -60,7 +65,12 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   onClose?: () => void
 }
 
-const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
+const ListModal: React.FC<Props> = ({
+  trigger,
+  tokenId,
+  tokenDetails,
+  collectionId,
+}) => {
   const [step, setStep] = useState(STEPS.SelectMarkets)
   const [isLoading, setIsLoading] = useState(false)
   const provider = useProvider()
@@ -69,6 +79,8 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
   const [error, setError] = useState<string | null>(null)
   const [priceValue, setPriceValue] = useState<number>(0)
   const [toast, setToast] = useState(null)
+  const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
+  const imageSize = singleColumnBreakpoint ? 533 : 250
 
   useEffect(() => {
     setIsMounted(true)
@@ -252,7 +264,7 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
             content="A fee on every order that goes to the collection creator."
           />
         </div>
-        <div className="text-sm ">0%</div>
+        <div className="text-sm ">-</div>
       </div>
       <div className="flex flex-row justify-between rounded bg-[#F3F2F2] p-2">
         <div className="text-sm text-gray-600">Last Sale</div>
@@ -260,7 +272,7 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
       </div>
       <div className="flex flex-row justify-between rounded bg-[#F3F2F2] p-2">
         <div className="text-sm text-gray-600">Collection Floor</div>
-        <div className="text-sm ">0</div>
+        <div className="text-sm ">-</div>
       </div>
       <div className="flex flex-row justify-between rounded bg-[#F3F2F2] p-2">
         <div className="flex flex-row gap-1 text-sm text-gray-600">
@@ -271,7 +283,7 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
             content="The floor price of the most valuable trait of a token."
           />
         </div>
-        <div className="text-sm ">0.1</div>
+        <div className="text-sm ">-</div>
       </div>
     </div>
   )
@@ -456,12 +468,34 @@ const ListModal: React.FC<Props> = ({ trigger, tokenId, collectionId }) => {
         <div className="m-2 flex min-h-[400px] flex-col md:flex-grow md:flex-row">
           <section className="flex w-1/3 flex-col gap-1 p-2 md:border-r">
             <div className="text-sm text-gray-500">Item</div>
-            <img
-              src="/hotpot.png"
-              className="w-[180px] rounded-sm object-fill"
-            />
-            <h1 className="truncate font-semibold">NFT Name</h1>
-            <p className="truncate text-sm text-gray-500">Collection</p>
+
+            {tokenDetails?.image ? (
+              <div className="w-[180px] rounded-sm object-fill">
+                <Image
+                  loader={({ src }) => src}
+                  src={optimizeImage(tokenDetails?.image, imageSize)}
+                  alt={`${tokenDetails?.name}`}
+                  className="w-full"
+                  width={imageSize}
+                  height={imageSize}
+                  objectFit="cover"
+                  layout="responsive"
+                />
+              </div>
+            ) : (
+              <img
+                src="/hotpot.png"
+                className="w-[180px] rounded-sm object-fill"
+              />
+            )}
+            <h1 className="truncate font-semibold">
+              {' '}
+              {tokenDetails?.name || tokenDetails?.tokenId}
+            </h1>
+            <p className="truncate text-sm text-gray-500">
+              {' '}
+              {tokenDetails?.collection?.name}
+            </p>
             {sideContent}
           </section>
           <main className="flex w-2/3 flex-col justify-between px-4">

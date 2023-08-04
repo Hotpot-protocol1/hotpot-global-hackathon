@@ -288,6 +288,7 @@ const TokenCard: FC<Props> = ({
               }
               collectionId={token.token?.contract}
               tokenId={token.token?.tokenId}
+              tokenDetails={token?.token}
               onListingComplete={() => {
                 mutate()
               }}
@@ -323,6 +324,7 @@ const TokenCard: FC<Props> = ({
               itemId={currentNFT?.itemId}
               price={currentNFT?.price}
               tokenDetails={token?.token}
+              collectionImage={collectionImage}
             />
             {isInCart && (
               <button

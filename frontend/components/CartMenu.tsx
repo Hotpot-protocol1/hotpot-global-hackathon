@@ -59,6 +59,15 @@ const CartMenu: FC = () => {
         : undefined,
   })
   const formattedCartTotal = cartTotal.contents
+
+  const handleWaitingTx = (isWaiting: boolean) => {
+    setWaitingTx(isWaiting)
+  }
+
+  const handleSuccess = () => {
+    setCartTokens([])
+  }
+
   const execute = async (signer: Signer) => {
     setWaitingTx(true)
 
@@ -251,14 +260,19 @@ const CartMenu: FC = () => {
         <BuyCartModal
           trigger={
             <button
+              onClick={() => setWaitingTx(true)}
               className="btn-primary-fill w-full"
-              disabled={cartTotal.state === 'loading'}
+              disabled={cartTotal.state === 'loading' || waitingTx}
             >
+              {waitingTx && <CgSpinner className="h-4 w-4 animate-spin" />}
               {waitingTx ? 'Waiting' : 'Purchase'}
             </button>
           }
           cartTokens={cartTokens}
           totalPrice={formattedCartTotal}
+          setWaitingTx={handleWaitingTx}
+          handleSuccess={handleSuccess}
+          cartCount={cartCount}
         />
         {/* <button
           onClick={() => signer && execute(signer)}

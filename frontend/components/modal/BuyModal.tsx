@@ -9,6 +9,9 @@ import Modal from './Modal'
 import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
 import getTotalPrice from 'lib/getTotalPrice'
 import useTix from 'lib/tix'
+import { optimizeImage } from 'lib/optmizeImage'
+import Image from 'next/legacy/image'
+import { useMediaQuery } from '@react-hookz/web'
 
 type BuyCallbackData = {
   tokenId?: string
@@ -22,6 +25,7 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   loading?: boolean
   totalPrice?: number
   tokenDetails?: TokenDetails
+  collectionImage: string | undefined
   onGoToToken?: () => any
   onBuyComplete?: (data: BuyCallbackData) => void
   onBuyError?: (error: Error, data: BuyCallbackData) => void
@@ -33,6 +37,7 @@ const BuyModal: React.FC<Props> = ({
   itemId,
   price,
   tokenDetails,
+  collectionImage,
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [priceLoading, setPriceLoading] = useState(false)
@@ -43,6 +48,8 @@ const BuyModal: React.FC<Props> = ({
   const [toast, setToast] = useState(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
   const [totalPrice, setTotalPrice] = useState<string | null>(null)
+  const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
+  const imageSize = singleColumnBreakpoint ? 533 : 250
 
   useEffect(() => {
     setIsMounted(true)
@@ -156,14 +163,47 @@ const BuyModal: React.FC<Props> = ({
                   <div className="flex flex-row justify-between">
                     <div className="flex flex-row items-center justify-center gap-2">
                       {' '}
-                      <img
-                        src="/hotpot.png"
-                        className="w-[50px] rounded-sm object-fill"
-                      />
+                      {tokenDetails?.image ? (
+                        <div className="w-[50px] rounded-sm object-fill">
+                          <Image
+                            loader={({ src }) => src}
+                            src={optimizeImage(tokenDetails?.image, imageSize)}
+                            alt={`${tokenDetails?.name}`}
+                            className="w-full"
+                            width={imageSize}
+                            height={imageSize}
+                            objectFit="cover"
+                            layout="responsive"
+                          />
+                        </div>
+                      ) : (
+                        <div className="relative w-full">
+                          <div className="absolute inset-0 grid place-items-center backdrop-blur-lg">
+                            <div>
+                              <img
+                                src={optimizeImage(collectionImage, imageSize)}
+                                alt={`${tokenDetails?.collection?.name}`}
+                                className="mx-auto mb-4 h-16 w-16 overflow-hidden rounded-full border-2 border-white"
+                                width="64"
+                                height="64"
+                              />
+                            </div>
+                          </div>
+                          <img
+                            src={optimizeImage(collectionImage, imageSize)}
+                            alt={`${tokenDetails?.collection?.name}`}
+                            className="aspect-square w-full object-cover"
+                            width="250"
+                            height="250"
+                          />
+                        </div>
+                      )}
                       <div className="flex flex-col justify-center">
-                        <h1 className="truncate font-semibold">NFT Name</h1>
+                        <h1 className="truncate font-semibold">
+                          {tokenDetails?.name || tokenDetails?.tokenId}
+                        </h1>
                         <p className="truncate text-sm text-gray-500">
-                          Collection
+                          {tokenDetails?.collection?.name}
                         </p>
                       </div>
                     </div>

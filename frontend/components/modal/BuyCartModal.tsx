@@ -4,7 +4,6 @@ import { useContract, useProvider, useSigner } from 'wagmi'
 import * as Dialog from '@radix-ui/react-dialog'
 import { CgSpinner } from 'react-icons/cg'
 import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
-import { TokenDetails } from 'types/reservoir'
 import Modal from './Modal'
 import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
 import useTix from 'lib/tix'
@@ -34,22 +33,24 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   itemIds?: number[]
   totalPrice?: string
   loading?: boolean
-  tokenDetails?: TokenDetails
   onGoToToken?: () => any
   onBuyComplete?: (data: BuyCallbackData) => void
   onBuyError?: (error: Error, data: BuyCallbackData) => void
   onClose?: () => void
-  onWaitingTxChange?: (waitingTx: boolean) => void
+  setWaitingTx: (isWaiting: boolean) => void
   cartTokens: Token[]
+  handleSuccess: () => void
+  cartCount?: number
 }
 
 const BuyCartModal: React.FC<Props> = ({
   trigger,
   cartTokens,
   totalPrice,
-  tokenDetails,
-  onBuyComplete = () => {}, // Provide default empty functions
-  onWaitingTxChange = () => {},
+  onBuyComplete = () => {},
+  setWaitingTx,
+  handleSuccess,
+  cartCount,
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [priceLoading, setPriceLoading] = useState(false)
@@ -59,7 +60,6 @@ const BuyCartModal: React.FC<Props> = ({
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
-  const [waitingTx, setWaitingTx] = useState<boolean>(false)
 
   useEffect(() => {
     setIsMounted(true)
@@ -100,38 +100,20 @@ const BuyCartModal: React.FC<Props> = ({
 
       setIsLoading(false)
       setIsSuccess(true)
-
-      // Call the onBuyComplete callback with appropriate data
-      if (onBuyComplete) {
-        onBuyComplete({
-          tokenId: 'someTokenId',
-          collectionId: 'someCollectionId',
-        })
-      }
-
-      // Close the modal after successful purchase
-      if (onClose) {
-        onClose()
-      }
+      handleSuccess()
     } catch (error) {
       setIsLoading(false)
       console.log(error)
       setError('Oops, something went wrong. Please try again')
-
-      // Call the onBuyError callback with error and appropriate data
+      setWaitingTx(false)
     }
-
     setWaitingTx(false)
-
-    // Call the onWaitingTxChange callback to update waitingTx in the parent component
-    if (onWaitingTxChange) {
-      onWaitingTxChange(false)
-    }
   }
 
   const onClose = () => {
     setError(null)
     setIsSuccess(false)
+    setWaitingTx(false)
   }
 
   if (!isMounted) {
@@ -160,6 +142,7 @@ const BuyCartModal: React.FC<Props> = ({
             </button>
           </Dialog.Close>
         </div>
+
         {priceLoading ? (
           <div className="flex h-40 items-center justify-center">
             <CgSpinner className="mr-3 h-6 w-6 animate-spin" />
@@ -192,17 +175,34 @@ const BuyCartModal: React.FC<Props> = ({
                   <div className="mb-2 text-sm text-gray-500">Item</div>
                   <div className="flex flex-row justify-between">
                     <div className="flex flex-row items-center justify-center gap-2">
-                      {' '}
-                      <img
-                        src="/hotpot.png"
-                        className="w-[50px] rounded-sm object-fill"
-                      />
-                      <div className="flex flex-col justify-center">
-                        <h1 className="truncate font-semibold">NFT Name</h1>
-                        <p className="truncate text-sm text-gray-500">
-                          Collection
-                        </p>
-                      </div>
+                      {cartTokens.length > 1 ? (
+                        <>
+                          <img
+                            src={cartTokens[0]?.token.collection?.image}
+                            className="w-[50px] rounded-sm object-fill"
+                          />
+                          <div className="flex flex-col justify-center">
+                            <p className="truncate text-sm">
+                              {cartCount} items
+                            </p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <img
+                            src={cartTokens[0]?.token?.image}
+                            className="w-[50px] rounded-sm object-fill"
+                          />
+                          <div className="flex flex-col justify-center">
+                            <h1 className="truncate font-semibold">
+                              {cartTokens[0]?.token?.tokenId}
+                            </h1>
+                            <p className="truncate text-sm">
+                              {cartTokens[0]?.token?.collection?.name}
+                            </p>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="flex flex-row items-center justify-center gap-1 ">
                       {tix > 0 && (
