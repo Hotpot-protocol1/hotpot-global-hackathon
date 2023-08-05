@@ -7,7 +7,9 @@ CREATE TABLE IF NOT EXISTS hotpot_user
     ticket_id bigint NOT NULL,
     pot_id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL default now(),
-    updated_at timestamp with time zone NOT NULL default now()
+    updated_at timestamp with time zone NOT NULL default now(),
+    is_winner boolean NOT NULL DEFAULT false,
+    UNIQUE(ticket_id, pot_id)
 );
 
 -- +migrate StatementBegin

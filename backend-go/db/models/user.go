@@ -9,4 +9,5 @@ type User struct {
 	PotID         uint16    `db:"pot_id" json:"pot_id"`
 	CreatedAt     time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt     time.Time `db:"updated_at" json:"updated_at"`
+	IsWinner      bool      `db:"is_winner" json:"is_winner"`
 }
