@@ -25,7 +25,7 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   loading?: boolean
   totalPrice?: number
   tokenDetails?: TokenDetails
-  collectionImage: string | undefined
+  collectionImage?: string | undefined
   onGoToToken?: () => any
   onBuyComplete?: (data: BuyCallbackData) => void
   onBuyError?: (error: Error, data: BuyCallbackData) => void

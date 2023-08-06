@@ -13,6 +13,7 @@ import Faq from 'components/Faq'
 import Footer from 'components/Footer'
 import getPrizePool, { Item } from '../../lib/getPrizePool'
 import getTicketCost from 'lib/getTicketCost'
+import PotResultBanner from 'components/PotResultBanner'
 
 type Props = InferGetStaticPropsType<typeof getStaticProps> & {
   prizePool: Item | null
@@ -44,6 +45,7 @@ const Rewards: NextPage<Props> = ({ prizePool, ticketCost }) => {
 
   return (
     <Layout navbar={{}}>
+      <PotResultBanner />
       <div className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
         <Hero variant="rewards" prizePool={prizePool} ticketCost={ticketCost} />
         <TicketsGrid />
