@@ -16,7 +16,7 @@ import (
 // DBHandler represent interface to implement for database handling
 type DBHandler interface {
 	DB() *sqlx.DB
-	User() User
+	UserTickets() UserTickets
 }
 
 // DB wraps dbx interface.

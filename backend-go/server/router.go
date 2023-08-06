@@ -6,7 +6,7 @@ import (
 
 	"github.com/Hotpot-protocol1/hotpot-global/config"
 	"github.com/Hotpot-protocol1/hotpot-global/db"
-	"github.com/Hotpot-protocol1/hotpot-global/server/handlers/user"
+	user "github.com/Hotpot-protocol1/hotpot-global/server/handlers/tickets"
 	eventservice "github.com/Hotpot-protocol1/hotpot-global/services/event"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
@@ -43,7 +43,7 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 	log := cfg.Log.New()
 	userHandler := user.New(db, log)
 	infura := eventservice.InitializeInfura(cfg.ProxyContract, cfg.Infura.BaseURLWS, cfg.Infura.APIKey)
-	infura.Start(db.User(), log)
+	infura.Start(db.UserTickets(), log)
 
 	// buyer := "0xB838b0b5Ff5f856b6defb75e843fd7D8d606f856"
 	// seller := "0xB203a89D86B6B0F8fa65b278A97D835DF1C58c96"
@@ -54,7 +54,8 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 	// }
 
 	// USER endpoints
-	router.GET("/user/:id", userHandler.GetUser)
+	router.GET("/user/:wallet_address/pot/:pot_id", userHandler.GetUserTicketsForPot)
+	router.GET("/user/:wallet_address/pot", userHandler.GetPotsWithRaffleTimestamp)
 
 	// DEBUG endpoints
 	router.GET("/status", func(c echo.Context) error {

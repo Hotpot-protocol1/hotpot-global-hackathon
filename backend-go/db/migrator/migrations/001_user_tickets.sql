@@ -1,6 +1,6 @@
 -- +migrate Up
 
-CREATE TABLE IF NOT EXISTS hotpot_user
+CREATE TABLE IF NOT EXISTS user_ticket
 (
     id SERIAL PRIMARY KEY,
     wallet_address TEXT NOT NULL,
@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS hotpot_user
     created_at timestamp with time zone NOT NULL default now(),
     updated_at timestamp with time zone NOT NULL default now(),
     is_winner boolean NOT NULL DEFAULT false,
+    raffle_timestamp timestamp with time zone,
     UNIQUE(ticket_id, pot_id)
 );
 
@@ -23,11 +24,11 @@ $$ LANGUAGE plpgsql;
 
 -- +migrate StatementEnd
 
-CREATE TRIGGER update_hotpot_user_updated_at_column
-    BEFORE UPDATE ON hotpot_user
+CREATE TRIGGER update_user_ticket_updated_at_column
+    BEFORE UPDATE ON user_ticket
     FOR EACH ROW
     EXECUTE PROCEDURE update_updated_at_column();
 
 -- +migrate Down
 
-DROP TABLE IF EXISTS hotpot_user;
+DROP TABLE IF EXISTS user_ticket;

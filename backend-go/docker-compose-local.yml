@@ -1,4 +1,4 @@
-version: "3"
+version: "2.1"
 
 networks:
   hotpot:
@@ -6,15 +6,11 @@ networks:
 services:
   hotpot-backend:
     container_name: hotpot-backend
-    image: 226144105235.dkr.ecr.ap-southeast-1.amazonaws.com/hotpot-global:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
 
     restart: always
-    logging:
-      driver: "awslogs"
-      options:
-        awslogs-region: "ap-southeast-1"
-        awslogs-group: "debugging"
-        awslogs-stream-prefix: "ecs"
     environment:
       - HOTPOT_API_HOST=
       - HOTPOT_API_PORT=8089
@@ -29,11 +25,36 @@ services:
       - HOTPOT_API_PROXY_CONTRACT_ADDRESS=0x8Dc5DfCED235d297d41FA932dBbF19F7aC20D990
       - HOTPOT_API_MARKETPLACE_CONTRACT_ADDRESS=0x4cFef2903d920069984D30e39Eb5D9a1c6e08Fc0
       - HOTPOT_API_DATABASE_NAME=hotpot
-      - HOTPOT_API_DATABASE_HOST=hotpot-db.clfopfxkucgt.ap-southeast-1.rds.amazonaws.com
+      - HOTPOT_API_DATABASE_HOST=hotpot-db
       - HOTPOT_API_DATABASE_PORT=5432
       - HOTPOT_API_DATABASE_USER=postgres
-      - HOTPOT_API_DATABASE_PASSWORD=FXI9U2PhqVZAtGQvpoi5
+      - HOTPOT_API_DATABASE_PASSWORD=pass1
       - HOTPOT_API_DATABASE_SSL=disable
     ports:
-      - 80:8089
+      - 8089:8089
     command: bash -c "./hotpot-backend run"
+    depends_on:
+      hotpot-db:
+        condition: service_healthy
+    networks:
+      - hotpot
+
+  hotpot-db:
+    container_name: hotpot-db
+    image: postgres:latest
+    ports:
+      - 5430:5432
+    environment:
+      - POSTGRES_DB=hotpot
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pass1
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d hotpot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data/hotpot-db:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - hotpot
