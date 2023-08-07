@@ -21,7 +21,7 @@ type Props = InferGetStaticPropsType<typeof getStaticProps> & {
 }
 
 const Rewards: NextPage<Props> = ({ prizePool, ticketCost }) => {
-  const { address, isConnected } = useAccount()
+  const { isConnected } = useAccount()
   const isMounted = useMounted()
 
   if (!isMounted) {
@@ -32,23 +32,12 @@ const Rewards: NextPage<Props> = ({ prizePool, ticketCost }) => {
     data
   ) => toast.custom((t) => <Toast t={t} toast={toast} data={data} />)
 
-  const leaderboardData = [
-    {
-      rank: 133,
-      name: 'You',
-      boost: '1x',
-      tickets24h: 628,
-      totalTickets: 8080,
-    },
-    { rank: 1, name: 'John', boost: 'Yes', tickets24h: 10, totalTickets: 50 },
-  ]
-
   return (
     <Layout navbar={{}}>
       <PotResultBanner />
       <div className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
         <Hero variant="rewards" prizePool={prizePool} ticketCost={ticketCost} />
-        <TicketsGrid />
+        <TicketsGrid prizePool={prizePool} />
         <Leaderboard />
         {isConnected ? <></> : <div className=""></div>}
         <Faq />

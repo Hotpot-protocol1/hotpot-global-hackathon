@@ -1,17 +1,17 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react'
-import { ethers } from 'ethers'
 import { useContract, useProvider, useSigner } from 'wagmi'
 import * as Dialog from '@radix-ui/react-dialog'
-import { CgSpinner } from 'react-icons/cg'
-import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
-import { TokenDetails } from 'types/reservoir'
 import Modal from './Modal'
 import { Hotpot_CONTRACT_SEP, hotpotAbi } from '../../contracts/index'
-import getTotalPrice from 'lib/getTotalPrice'
-import useTix from 'lib/tix'
-import { optimizeImage } from 'lib/optmizeImage'
-import Image from 'next/legacy/image'
-import { useMediaQuery } from '@react-hookz/web'
+import { useAccount } from 'wagmi'
+import { PotData, getRafflePot } from 'lib/getRafflePot'
+import { CgSpinner } from 'react-icons/cg'
+import { HiX } from 'react-icons/hi'
+
+type Ticket = {
+  ticket_id: number
+  is_winner: boolean
+}
 
 type ClaimCallbackData = {
   ticketId?: string
@@ -28,9 +28,9 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   onClose?: () => void
 }
 
-const ResultsModal: React.FC<Props> = ({ trigger, ticketId }) => {
+const ResultsModal: React.FC<Props> = ({ trigger }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const [priceLoading, setPriceLoading] = useState(false)
+  const [potData, setPotData] = useState<PotData | null>(null)
   const provider = useProvider()
   const { data: signer } = useSigner()
   const [isMounted, setIsMounted] = useState<boolean>(false)
@@ -38,12 +38,18 @@ const ResultsModal: React.FC<Props> = ({ trigger, ticketId }) => {
   const [toast, setToast] = useState(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
   const [totalPrice, setTotalPrice] = useState<string | null>(null)
-  const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
-  const imageSize = singleColumnBreakpoint ? 533 : 250
+  const { address } = useAccount()
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    const fetchPotData = async () => {
+      if (address) {
+        const potData = await getRafflePot(address)
+        setPotData(potData)
+        setIsMounted(true)
+      }
+    }
+    fetchPotData()
+  }, [address])
 
   const Hotpot = useContract({
     address: Hotpot_CONTRACT_SEP,
@@ -54,17 +60,14 @@ const ResultsModal: React.FC<Props> = ({ trigger, ticketId }) => {
   const handleSubmit = async () => {
     setIsLoading(true)
     setError(null)
+    setIsSuccess(false)
 
     try {
       if (!Hotpot) {
         console.log('NftMarketplace contract instance is not available.')
         return
       }
-      if (!totalPrice) {
-        console.log('Wait for total price to load')
-        return
-      }
-      const claimPrize = await Hotpot.claim
+      const claimPrize = await Hotpot.claim()
       setIsLoading(false)
       console.log('Listing Transaction Hash:', claimPrize.hash)
       setIsSuccess(true)
@@ -77,38 +80,58 @@ const ResultsModal: React.FC<Props> = ({ trigger, ticketId }) => {
 
   const onClose = () => {
     setError(null)
-    setIsSuccess(false)
+    setIsLoading(false)
   }
 
   if (!isMounted) {
     return null
   }
 
+  const winningTicketIds = potData?.tickets
+    ? potData.tickets
+        .filter((ticket: Ticket) => ticket.is_winner)
+        .map((ticket: Ticket) => ticket.ticket_id)
+    : []
+
   let win = (
     <div className="rounded-xl bg-gradient-to-r from-[#FEF0D6] to-[#FFECAC] pb-4">
       <div className="flex flex-row justify-between">
         {' '}
         <Dialog.Title></Dialog.Title>
-        {/* <Dialog.Close asChild>
+        <Dialog.Close asChild>
           <button
             onClick={onClose}
             className="m-3 inline-flex h-[20px] w-[20px] items-center justify-center text-gray-600 focus:outline-none"
             aria-label="Close"
           >
-            <HiX />
+            <HiX className="h-3 w-3" />
           </button>
-        </Dialog.Close> */}
+        </Dialog.Close>
       </div>
       <div className="mx-4 mt-6 flex flex-col items-center justify-center">
         <h1 className="reservoir-h1 mb-2 text-[40px] font-semibold text-[#101828]">
           Congratulations!
         </h1>
-        <p className="reservoir-subtitle font-medium">
-          You won 5 ETH with Golden Ticket #2354
-        </p>
+        {winningTicketIds.length > 0 && (
+          <p className="reservoir-subtitle font-medium">
+            You won 2 ETH with Golden
+            {winningTicketIds.length === 1 ? ' Ticket' : ' Tickets'} #
+            {winningTicketIds.join(winningTicketIds.length === 1 ? '' : ', #')}
+          </p>
+        )}
         <img src="/gold-chest.svg" className="my-4 w-[260px]" />
-        <button className="mb-4 rounded-full border border-[#FFF06A] bg-gradient-to-b from-[#FFE179] to-[#FFB52E] px-16  py-3 text-sm font-medium text-[#CD7100] hover:from-[#FFC269] hover:to-[#FFB82E] focus:outline-none">
-          CLAIM
+        <button
+          onClick={handleSubmit}
+          className="mb-4 flex items-center justify-center rounded-full border border-[#FFF06A] bg-gradient-to-b from-[#FFE179] to-[#FFB52E] px-16 py-3 text-sm font-medium text-[#CD7100] hover:from-[#FFC269] hover:to-[#FFB82E] focus:outline-none"
+          disabled={isLoading || isSuccess} // Disable the button while isLoading is true or isSuccess is true
+        >
+          {isLoading ? (
+            <CgSpinner className="mr-2 h-5 w-5 animate-spin"></CgSpinner>
+          ) : isSuccess ? (
+            'CLAIMED'
+          ) : (
+            'CLAIM'
+          )}
         </button>
       </div>
     </div>
@@ -141,10 +164,12 @@ const ResultsModal: React.FC<Props> = ({ trigger, ticketId }) => {
       </div>
     </div>
   )
+
+  const content = winningTicketIds.length > 0 ? win : result
   return (
     <Modal trigger={trigger}>
       <Dialog.Content className=" rounded-4xl fixed top-[50%] left-[50%] mt-10 w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] backdrop-blur-md focus:outline-none data-[state=open]:animate-contentShow">
-        {win}
+        {content}
       </Dialog.Content>
     </Modal>
   )
