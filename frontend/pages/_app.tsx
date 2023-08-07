@@ -38,6 +38,7 @@ import {
   RainbowKitProvider,
   darkTheme as rainbowKitDarkTheme,
   lightTheme as rainbowKitLightTheme,
+  connectorsForWallets,
 } from '@rainbow-me/rainbowkit'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
@@ -59,6 +60,8 @@ const BODY_FONT_FAMILY = 'Quicksand'
 const FONT_FAMILY = process.env.NEXT_PUBLIC_FONT_FAMILY || 'Quicksand'
 const PRIMARY_COLOR = process.env.NEXT_PUBLIC_PRIMARY_COLOR || 'default'
 import presetColors from '../colors'
+import { apothemChain } from 'lib/apothemChain'
+import { XdcWalletOptions, xdcPayWalletConfig } from 'lib/xdcPayWalletConfig'
 
 const FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
 const FEE_RECIPIENT = process.env.NEXT_PUBLIC_FEE_RECIPIENT
@@ -66,25 +69,23 @@ const SOURCE_DOMAIN = process.env.NEXT_PUBLIC_SOURCE_DOMAIN
 const API_BASE = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
 const SOURCE_NAME = process.env.NEXT_PUBLIC_SOURCE_NAME
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
-
-const envChain = Object.values(allChains).find(
-  (chain) => chain.id === +(CHAIN_ID || allChains.mainnet)
-)
-
-if (!alchemyId) {
-  console.log('Alchemy Id is missing')
-  throw new Error('Alchemy Id is missing')
-}
+const projectId = 'Hotpot.gg'
 
 const { chains, provider } = configureChains(
-  envChain ? [envChain] : [allChains.mainnet],
+  [apothemChain],
   [alchemyProvider({ apiKey: alchemyId }), publicProvider()]
 )
 
-const { connectors } = getDefaultWallets({
-  appName: SOURCE_NAME || 'Hotpot',
-  chains,
-})
+const xdcOptions: XdcWalletOptions = {
+  projectId: projectId,
+  chains: chains,
+}
+const connectors = connectorsForWallets([
+  {
+    groupName: 'Choose Xdc Pay, dont be a fool',
+    wallets: [xdcPayWalletConfig(xdcOptions)],
+  },
+])
 
 const wagmiClient = createClient({
   autoConnect: true,
