@@ -35,6 +35,7 @@ const getAllListedNFTs = async (): Promise<Item[] | null> => {
         sold,
       }
     })
+    console.log('ListedNFTs:', listedNFTs)
     return listedNFTs
   } catch (err) {
     console.error('Error:', err)

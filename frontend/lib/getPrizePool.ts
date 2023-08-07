@@ -26,7 +26,7 @@ const getPrizePool = async (): Promise<Item | null> => {
       currentPotSize,
       potLimit,
     }
-
+    console.log('prizepool:', prizePool)
     return prizePool
   } catch (err) {
     console.error('Error:', err)
