@@ -41,9 +41,10 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 	)
 
 	log := cfg.Log.New()
-	userHandler := user.New(db, log)
 	infura := eventservice.InitializeInfura(cfg.ProxyContract, cfg.Infura.BaseURLWS, cfg.Infura.APIKey)
 	infura.Start(db.UserTickets(), log)
+
+	userHandler := user.New(db, log, infura)
 
 	// buyer := "0xB838b0b5Ff5f856b6defb75e843fd7D8d606f856"
 	// seller := "0xB203a89D86B6B0F8fa65b278A97D835DF1C58c96"
@@ -55,7 +56,10 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 
 	// USER endpoints
 	router.GET("/user/:wallet_address/pot/:pot_id", userHandler.GetUserTicketsForPot)
+	router.GET("/user/:wallet_address/pot/current", userHandler.GetUserTicketsForCurrentPot)
 	router.GET("/user/:wallet_address/pot", userHandler.GetPotsWithRaffleTimestamp)
+	router.GET("/pot/latest_raffle", userHandler.GetLatestRafflePotID)
+	router.GET("/pot/latest_raffle/test", userHandler.GetLatestRafflePotIDSeconds)
 
 	// DEBUG endpoints
 	router.GET("/status", func(c echo.Context) error {

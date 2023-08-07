@@ -28,40 +28,66 @@ type Infura struct {
 	potID        uint16
 }
 
-func InitializeInfura(proxyAddress, rpcBaseURL, rpcApiKey string) Infura {
-	return Infura{proxyAddress: proxyAddress, baseURL: rpcBaseURL, apiKey: rpcApiKey, potID: 1}
+const (
+	ChainMainnet = iota
+	ChainSepolia
+	ChainXDC
+)
+
+// Marketplace: [xdcBE786989E194433365f34B45BdC9760c246c3f35](https://apothem.blocksscan.io/address/xdcbe786989e194433365f34b45bdc9760c246c3f35#transactions)
+
+// Hotpot implementation: [xdc6554bc9bcBa2bB6E4F957A6425B9038C70E29085](https://apothem.blocksscan.io/address/xdc6554bc9bcba2bb6e4f957a6425b9038c70e29085#transactions)
+
+// Hotpot Factory: [xdc4b5F283ecc3e609252caf1980D534Cf3779206a2](https://apothem.blocksscan.io/address/xdc4b5f283ecc3e609252caf1980d534cf3779206a2#transactions)
+
+// Hotpot: [xdc4B20b152C338Fa96F639BBc170270f544523b307](https://apothem.blocksscan.io/address/xdc4B20b152C338Fa96F639BBc170270f544523b307#transactions)
+
+// Operator: xdcaE789C29DF5de1d2B36D7ACD695fcBdb55be85ab
+
+func InitializeInfura(proxyAddress, rpcBaseURL, rpcApiKey string) *Infura {
+	return &Infura{proxyAddress: proxyAddress, baseURL: rpcBaseURL, apiKey: rpcApiKey, potID: 1}
 }
 
 func (i *Infura) Start(userDBHandle db.UserTickets, log *logrus.Entry) {
 	go func() {
 		defer RecoverFromPanic(log)
 
-		// for {
-		err := i.listen(userDBHandle)
-		if err != nil {
-			log.WithError(err).Error("Listening to WS failed")
+		for {
+			err := i.listen(userDBHandle)
+			if err != nil {
+				log.WithError(err).Error("Listening to WS failed")
+			}
 		}
-		// }
+	}()
+
+	go func() {
+		defer RecoverFromPanic(log)
+
+		for {
+			err := i.listenXDC(userDBHandle)
+			if err != nil {
+				log.WithError(err).Error("Listening to WS failed")
+			}
+		}
 	}()
 }
 
-func (i *Infura) listen(userDBHandle db.UserTickets) error {
-	dialURL := i.baseURL + i.apiKey
-	client, err := ethclient.Dial(dialURL)
+func (i *Infura) listenXDC(userDBHandle db.UserTickets) error {
+	client, err := ethclient.Dial("https://erpc.apothem.network")
 	if err != nil {
 		return fmt.Errorf("dial problem: %v", err)
 	}
 
-	addr := common.HexToAddress(i.proxyAddress)
+	addr := common.HexToAddress("xdc4B20b152C338Fa96F639BBc170270f544523b307")
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{addr},
 	}
 
-	logs, err := client.FilterLogs(context.Background(), query)
-	if err != nil {
-		return fmt.Errorf("logs problem: %v", err)
-	}
-	// logs := make(chan types.Log)
+	// logs, err := client.FilterLogs(context.Background(), query)
+	// if err != nil {
+	// 	return fmt.Errorf("logs problem: %v", err)
+	// }
+	logs := make(chan types.Log)
 
 	marketplaceAbiFile, err := os.Open("config/hotpot-abi.json")
 	if err != nil {
@@ -85,46 +111,123 @@ func (i *Infura) listen(userDBHandle db.UserTickets) error {
 	logRandomWordReqSigHash := crypto.Keccak256Hash(logRandomWordReqSig)
 	logRandomWordFulSigHash := crypto.Keccak256Hash(logRandomWordFulSig)
 
-	// sub, err := client.SubscribeFilterLogs(context.Background(), query, logs)
-	// if err != nil {
-	// 	return fmt.Errorf("subscribe to logs problem: %v", err)
-	// }
+	sub, err := client.SubscribeFilterLogs(context.Background(), query, logs)
+	if err != nil {
+		return fmt.Errorf("subscribe to logs problem: %v", err)
+	}
 
-	// for {
-	// 	select {
-	// 	case err := <-sub.Err():
-	// 		return fmt.Errorf("log sub problem %v", err)
-	// 	case vLog := <-logs:
-	// 		fmt.Println("TX HASH: ", vLog.TxHash.Hex())
-	for _, vLog := range logs {
-		switch vLog.Topics[0].Hex() {
-		case logGenerateTicketsSigHash.Hex():
-			fmt.Println("GENERATE TICKETS")
-			err = i.tryRaffleTicketsCatch(instance, userDBHandle, contractAbi, vLog)
-			if err != nil {
-				fmt.Printf("unpack raffle tickets catch problem: %v \n", err)
+	for {
+		select {
+		case err := <-sub.Err():
+			return fmt.Errorf("log sub problem %v", err)
+		case vLog := <-logs:
+			fmt.Println("TX HASH: ", vLog.TxHash.Hex())
+			// for _, vLog := range logs {
+			switch vLog.Topics[0].Hex() {
+			case logGenerateTicketsSigHash.Hex():
+				fmt.Println("GENERATE TICKETS")
+				err = i.tryRaffleTicketsCatch(ChainXDC, instance, userDBHandle, contractAbi, vLog)
+				if err != nil {
+					fmt.Printf("unpack raffle tickets catch problem: %v \n", err)
+				}
+			case logRandomWordReqSigHash.Hex():
+				fmt.Println("RANDOM WORD REQ")
+				err = i.tryRandomWordRequestedCatch(ChainXDC, instance, contractAbi, vLog)
+				if err != nil {
+					fmt.Printf("unpack random word requested catch problem: %v \n", err)
+				}
+			case logRandomWordFulSigHash.Hex():
+				fmt.Println("RANDOM WORD FUL")
+				err = i.tryRandomWordFulfilledCatch(ChainXDC, instance, userDBHandle, contractAbi, vLog)
+				if err != nil {
+					fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
+				}
 			}
-		case logRandomWordReqSigHash.Hex():
-			fmt.Println("RANDOM WORD REQ")
-			err = i.tryRandomWordRequestedCatch(instance, contractAbi, vLog)
-			if err != nil {
-				fmt.Printf("unpack random word requested catch problem: %v \n", err)
-			}
-		case logRandomWordFulSigHash.Hex():
-			fmt.Println("RANDOM WORD FUL")
-			err = i.tryRandomWordFulfilledCatch(instance, userDBHandle, contractAbi, vLog)
-			if err != nil {
-				fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
+		}
+	}
+}
+
+func (i *Infura) listen(userDBHandle db.UserTickets) error {
+	dialURL := i.baseURL + i.apiKey
+	client, err := ethclient.Dial(dialURL)
+	if err != nil {
+		return fmt.Errorf("dial problem: %v", err)
+	}
+
+	addr := common.HexToAddress(i.proxyAddress)
+	query := ethereum.FilterQuery{
+		Addresses: []common.Address{addr},
+	}
+
+	// logs, err := client.FilterLogs(context.Background(), query)
+	// if err != nil {
+	// 	return fmt.Errorf("logs problem: %v", err)
+	// }
+	logs := make(chan types.Log)
+
+	marketplaceAbiFile, err := os.Open("config/hotpot-abi.json")
+	if err != nil {
+		return fmt.Errorf("open file problem: %v", err)
+	}
+
+	contractAbi, err := abi.JSON(marketplaceAbiFile)
+	if err != nil {
+		return fmt.Errorf("abi json problem: %v", err)
+	}
+
+	instance, err := hotpot.NewHotpot(addr, client)
+	if err != nil {
+		return fmt.Errorf("instance error: %v", err)
+	}
+
+	logGenerateTicketsSig := []byte("GenerateRaffleTickets(address,address,uint32,uint32,uint32,uint32,uint256,uint256)")
+	logRandomWordReqSig := []byte("RandomWordRequested(uint256,uint32,uint32)")
+	logRandomWordFulSig := []byte("RandomnessFulfilled(uint16,uint256)")
+	logGenerateTicketsSigHash := crypto.Keccak256Hash(logGenerateTicketsSig)
+	logRandomWordReqSigHash := crypto.Keccak256Hash(logRandomWordReqSig)
+	logRandomWordFulSigHash := crypto.Keccak256Hash(logRandomWordFulSig)
+
+	sub, err := client.SubscribeFilterLogs(context.Background(), query, logs)
+	if err != nil {
+		return fmt.Errorf("subscribe to logs problem: %v", err)
+	}
+
+	for {
+		select {
+		case err := <-sub.Err():
+			return fmt.Errorf("log sub problem %v", err)
+		case vLog := <-logs:
+			fmt.Println("TX HASH: ", vLog.TxHash.Hex())
+			// for _, vLog := range logs {
+			switch vLog.Topics[0].Hex() {
+			case logGenerateTicketsSigHash.Hex():
+				fmt.Println("GENERATE TICKETS")
+				err = i.tryRaffleTicketsCatch(ChainSepolia, instance, userDBHandle, contractAbi, vLog)
+				if err != nil {
+					fmt.Printf("unpack raffle tickets catch problem: %v \n", err)
+				}
+			case logRandomWordReqSigHash.Hex():
+				fmt.Println("RANDOM WORD REQ")
+				err = i.tryRandomWordRequestedCatch(ChainSepolia, instance, contractAbi, vLog)
+				if err != nil {
+					fmt.Printf("unpack random word requested catch problem: %v \n", err)
+				}
+			case logRandomWordFulSigHash.Hex():
+				fmt.Println("RANDOM WORD FUL")
+				err = i.tryRandomWordFulfilledCatch(ChainSepolia, instance, userDBHandle, contractAbi, vLog)
+				if err != nil {
+					fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
+				}
 			}
 		}
 	}
 
-	return nil
+	// return nil
 }
 
 // }
 
-func (infura *Infura) tryRandomWordRequestedCatch(hotpot *hotpot.Hotpot, contractAbi abi.ABI, vLog types.Log) error {
+func (infura *Infura) tryRandomWordRequestedCatch(chain int, hotpot *hotpot.Hotpot, contractAbi abi.ABI, vLog types.Log) error {
 	_, err := contractAbi.Unpack("RandomWordRequested", vLog.Data)
 	if err != nil {
 		return err
@@ -136,7 +239,29 @@ func (infura *Infura) tryRandomWordRequestedCatch(hotpot *hotpot.Hotpot, contrac
 	return nil
 }
 
-func (infura *Infura) tryRandomWordFulfilledCatch(hotpot *hotpot.Hotpot, userDBHandle db.UserTickets, contractAbi abi.ABI, vLog types.Log) error {
+func (i *Infura) GetCurrentPot() (uint16, error) {
+	dialURL := i.baseURL + i.apiKey
+	client, err := ethclient.Dial(dialURL)
+	if err != nil {
+		return 0, fmt.Errorf("dial problem: %v", err)
+	}
+
+	addr := common.HexToAddress(i.proxyAddress)
+
+	instance, err := hotpot.NewHotpot(addr, client)
+	if err != nil {
+		return 0, fmt.Errorf("instance error: %v", err)
+	}
+
+	potID, err := instance.CurrentPotId(nil)
+	if err != nil {
+		return 0, err
+	}
+
+	return potID, nil
+}
+
+func (infura *Infura) tryRandomWordFulfilledCatch(chain int, hotpot *hotpot.Hotpot, userDBHandle db.UserTickets, contractAbi abi.ABI, vLog types.Log) error {
 	m := make(map[string]interface{})
 	err := contractAbi.UnpackIntoMap(m, "RandomnessFulfilled", vLog.Data)
 	if err != nil {
@@ -154,7 +279,7 @@ func (infura *Infura) tryRandomWordFulfilledCatch(hotpot *hotpot.Hotpot, userDBH
 		fmt.Println("There's an error from contract returning number less than 2 ", potID)
 	}
 
-	err = userDBHandle.SetPotRaffleTimestamp(potID)
+	err = userDBHandle.SetPotRaffleTimestamp(chain, potID)
 	if err != nil {
 		return err
 	}
@@ -166,7 +291,7 @@ func (infura *Infura) tryRandomWordFulfilledCatch(hotpot *hotpot.Hotpot, userDBH
 
 	for _, id := range winningTicketIds {
 		fmt.Println("Setting winner for ", potID, " ID ", id)
-		err = userDBHandle.SetWinnerForPot(potID, id)
+		err = userDBHandle.SetWinnerForPot(chain, potID, id)
 		if err != nil {
 			fmt.Println("Error while setting winner for pot ", potID, " and ticket ", id, " error ", err)
 		}
@@ -175,7 +300,7 @@ func (infura *Infura) tryRandomWordFulfilledCatch(hotpot *hotpot.Hotpot, userDBH
 	return nil
 }
 
-func (infura *Infura) tryRaffleTicketsCatch(hotpot *hotpot.Hotpot, userDBHandle db.UserTickets, contractAbi abi.ABI, vLog types.Log) error {
+func (infura *Infura) tryRaffleTicketsCatch(chain int, hotpot *hotpot.Hotpot, userDBHandle db.UserTickets, contractAbi abi.ABI, vLog types.Log) error {
 	event := struct {
 		Buyer                  string
 		Seller                 string
@@ -218,7 +343,7 @@ func (infura *Infura) tryRaffleTicketsCatch(hotpot *hotpot.Hotpot, userDBHandle 
 
 	if event.BuyerTicketIdStart > 0 && event.BuyerTicketIdEnd > 0 {
 		for i := event.BuyerTicketIdStart; i <= event.BuyerTicketIdEnd; i++ {
-			err = userDBHandle.Insert(models.UserTickets{WalletAddress: event.Buyer, TicketID: i, PotID: infura.potID})
+			err = userDBHandle.Insert(chain, models.UserTickets{WalletAddress: event.Buyer, TicketID: i, PotID: infura.potID})
 			if err != nil {
 				fmt.Printf("insert buyer tickets problem: %v \n", err)
 			}
@@ -227,7 +352,7 @@ func (infura *Infura) tryRaffleTicketsCatch(hotpot *hotpot.Hotpot, userDBHandle 
 
 	if event.SellerTicketIdStart > 0 && event.SellerTicketIdEnd > 0 {
 		for i := event.SellerTicketIdStart; i <= event.SellerTicketIdEnd; i++ {
-			err = userDBHandle.Insert(models.UserTickets{WalletAddress: event.Seller, TicketID: i, PotID: infura.potID})
+			err = userDBHandle.Insert(chain, models.UserTickets{WalletAddress: event.Seller, TicketID: i, PotID: infura.potID})
 			if err != nil {
 				fmt.Printf("insert seller tickets problem: %v \n", err)
 			}

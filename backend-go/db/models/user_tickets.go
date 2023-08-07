@@ -11,6 +11,7 @@ type UserTickets struct {
 	UpdatedAt       time.Time  `db:"updated_at" json:"updated_at"`
 	IsWinner        bool       `db:"is_winner" json:"is_winner"`
 	RaffleTimestamp *time.Time `db:"raffle_timestamp" json:"raffle_timestamp"`
+	Chain           int        `db:"chain" json:"chain"`
 }
 
 type UserPotTickets struct {

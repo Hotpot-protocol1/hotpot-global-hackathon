@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS user_ticket
     updated_at timestamp with time zone NOT NULL default now(),
     is_winner boolean NOT NULL DEFAULT false,
     raffle_timestamp timestamp with time zone,
+    chain int NOT NULL default 0,
     UNIQUE(ticket_id, pot_id)
 );
 

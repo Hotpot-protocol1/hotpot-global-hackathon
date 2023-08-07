@@ -6,4 +6,4 @@ docker build -t hotpot-global .
 docker tag hotpot-global:latest 226144105235.dkr.ecr.ap-southeast-1.amazonaws.com/hotpot-global:latest
 docker push 226144105235.dkr.ecr.ap-southeast-1.amazonaws.com/hotpot-global:latest
 
-ecs-cli compose --project-name hotpot-global service up --aws-profile hotpot --ecs-profile hotpot --cluster Hotpot --region ap-southeast-1
+# ecs-cli compose --project-name hotpot-global service up --aws-profile hotpot --ecs-profile hotpot --cluster Hotpot --region ap-southeast-1

@@ -27,12 +27,12 @@ func InitializeOperator(privateKey, baseURL, apiKey string) Operator {
 func (o *Operator) Execute(buyer, seller string, amount int64) error {
 	client, err := ethclient.Dial(o.baseURL + o.apiKey)
 	if err != nil {
-		return fmt.Errorf("Dial error: %v", err)
+		return fmt.Errorf("dial error: %v", err)
 	}
 
 	privateKey, err := crypto.HexToECDSA(o.privateKey)
 	if err != nil {
-		return fmt.Errorf("Hex error: %v", err)
+		return fmt.Errorf("hex error: %v", err)
 	}
 
 	publicKey := privateKey.Public()
@@ -44,17 +44,17 @@ func (o *Operator) Execute(buyer, seller string, amount int64) error {
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		return fmt.Errorf("Nonce error: %v", err)
+		return fmt.Errorf("nonce error: %v", err)
 	}
 
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		return fmt.Errorf("Gas error: %v", err)
+		return fmt.Errorf("gas error: %v", err)
 	}
 
 	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(11155111))
 	if err != nil {
-		return fmt.Errorf("Chain error: %v", err)
+		return fmt.Errorf("chain error: %v", err)
 	}
 
 	auth.Nonce = big.NewInt(int64(nonce))
@@ -70,7 +70,7 @@ func (o *Operator) Execute(buyer, seller string, amount int64) error {
 	address := common.HexToAddress("0x8Dc5DfCED235d297d41FA932dBbF19F7aC20D990")
 	instance, err := hotpot.NewHotpot(address, client)
 	if err != nil {
-		return fmt.Errorf("Instance error: %v", err)
+		return fmt.Errorf("instance error: %v", err)
 	}
 
 	tx, err := instance.ExecuteTrade(auth, amountInWei, buyerAddr, sellerAddr, pendingAmount, pendingAmount)
