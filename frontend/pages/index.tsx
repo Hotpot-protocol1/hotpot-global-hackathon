@@ -54,7 +54,7 @@ const metadata = {
   },
 }
 
-const Home: NextPage<Props> = ({ fallback, prizePool, ticketCost }) => {
+const Home: NextPage<Props> = ({ fallback }) => {
   const isSmallDevice = useMediaQuery('only screen and (max-width : 600px)')
   const router = useRouter()
 
@@ -87,7 +87,7 @@ const Home: NextPage<Props> = ({ fallback, prizePool, ticketCost }) => {
       </Head>
 
       <header className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
-        <Hero prizePool={prizePool} ticketCost={ticketCost} />
+        <Hero />
         <h1 className="reservoir-h1 mt-14 text-center dark:text-white">
           {tagline}
         </h1>
@@ -123,7 +123,6 @@ export const getStaticProps: GetStaticProps<{
 
   const url = new URL('/collections/v5', RESERVOIR_API_BASE)
 
-  const prizePool = await getPrizePool()
   const ticketCost = await getTicketCost()
 
   let query: paths['/collections/v5']['get']['parameters']['query'] = {
@@ -146,8 +145,6 @@ export const getStaticProps: GetStaticProps<{
       fallback: {
         collections,
       },
-      prizePool,
-      ticketCost,
     },
   }
 }

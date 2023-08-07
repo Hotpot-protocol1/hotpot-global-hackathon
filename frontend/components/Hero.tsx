@@ -1,13 +1,27 @@
-import React from 'react'
-import { Item } from '../lib/getPrizePool'
+import React, { useEffect, useState } from 'react'
+import getPrizePool, { Item } from '../lib/getPrizePool'
+import { CgSpinner } from 'react-icons/cg'
 
 type HeroProps = {
   variant?: string
-  prizePool: Item | null
-  ticketCost: string | null
 }
 
-const Hero: React.FC<HeroProps> = ({ variant, prizePool, ticketCost }) => {
+const Hero: React.FC<HeroProps> = ({ variant }) => {
+  const [loading, setLoading] = useState(true)
+  const [prizePool, setPrizePool] = useState<Item | null>(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const prizePoolData = await getPrizePool()
+      if (prizePoolData) {
+        setPrizePool(prizePoolData)
+        console.log(prizePoolData)
+      }
+      setLoading(false)
+    }
+    fetchData()
+  }, [])
+
   const backgroundImageUrl =
     variant === 'rewards' ? '/banner-rewards.svg' : '/banner-home.svg'
   const bottomImageUrl =
@@ -25,20 +39,26 @@ const Hero: React.FC<HeroProps> = ({ variant, prizePool, ticketCost }) => {
           <h2
             className={`mt-[-0.75rem] text-base font-normal ${textColor} md:text-lg`}
           >
-            Earn 1 raffle ticket for every {ticketCost} ETH bought or sold
+            Earn 1 raffle ticket for every 0.2 ETH bought or sold
           </h2>
 
           <div className="mt-11 flex w-[340px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-solid border-[#FFF06A] bg-gradient-to-b from-[#FFE179] to-[#FFB52E] px-10 py-4 text-black md:px-16">
             <div className="text-lg font-normal md:text-xl">Prize Pool</div>
             <div className="w-full text-xl md:w-auto md:text-2xl">
-              <div className="text-xl md:text-2xl">
-                {prizePool?.currentPotSize?.slice(0, 4)}{' '}
-                <span className="text-lg md:text-xl">ETH</span> /{' '}
-                <span className="text-purple-600">
-                  {prizePool?.potLimit?.slice(0, 4)}{' '}
-                  <span className="text-lg md:text-xl">ETH</span>
-                </span>
-              </div>
+              {loading ? (
+                <div>
+                  <CgSpinner className="h-6 w-6 animate-spin" />
+                </div>
+              ) : (
+                <div className="text-xl md:text-2xl">
+                  {prizePool?.currentPotSize?.slice(0, 4)}{' '}
+                  <span className="text-lg md:text-xl">ETH</span> /{' '}
+                  <span className="text-purple-600">
+                    {prizePool?.potLimit?.slice(0, 4)}{' '}
+                    <span className="text-lg md:text-xl">ETH</span>
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
