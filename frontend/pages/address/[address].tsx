@@ -154,7 +154,11 @@ const Address: NextPage<Props> = ({ address, fallback, listedNFTs }) => {
             </Tabs.List>
             <Tabs.Content value="portfolio">
               <div className="mt-6">
-                <UserTokensGrid fallback={fallback} owner={address || ''} />
+                <UserTokensGrid
+                  fallback={fallback}
+                  listedNFTs={listedNFTs}
+                  owner={address || ''}
+                />
               </div>
             </Tabs.Content>
             {isOwner && (

@@ -216,7 +216,7 @@ const Home: NextPage<Props> = ({ fallback, id, listedNFTs }) => {
             value="activity"
             className="mx-[25px] max-w-[1500px] pt-2 md:mx-auto md:w-full"
           >
-            <CollectionActivityTab collectionId={id} />
+            <CollectionActivityTab collectionId={id} listedNFTs={listedNFTs} />
           </Tabs.Content>
         </Tabs.Root>
       </>

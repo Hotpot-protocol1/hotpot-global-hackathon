@@ -119,8 +119,6 @@ const ListModal: React.FC<Props> = ({
       const nftPrice = nftPriceRef.current
       const nftPriceWei = ethers.utils.parseUnits(nftPrice.toString(), 18)
 
-      console.log('nftPrice:', nftPrice, nftPriceWei)
-
       if (!NftMarketplace) {
         console.log('NftMarketplace contract instance is not available.')
         return
