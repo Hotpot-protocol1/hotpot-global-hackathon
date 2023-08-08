@@ -11,7 +11,7 @@ export const getPotById = async (
 ): Promise<PotData | null> => {
   try {
     const userPotResponse = await fetch(
-      `http://3.1.203.189/user/${user}/pot/${potId}`
+      `http://api.metalistings.xyz/user/${user}/pot/${potId}`
     )
     const potDetails = await userPotResponse.json()
     return potDetails
