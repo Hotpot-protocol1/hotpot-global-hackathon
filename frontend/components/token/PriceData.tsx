@@ -44,7 +44,7 @@ const SOURCE_ICON = process.env.NEXT_PUBLIC_SOURCE_ICON
 const API_BASE =
   process.env.NEXT_PUBLIC_RESERVOIR_API_BASE || 'https://api.reservoir.tools'
 const CURRENCIES = process.env.NEXT_PUBLIC_LISTING_CURRENCIES
-const HOTPOT_CONTRACT = process.env.NEXT_HOTPOT_MARKETPLACE_CONTRACT_SEP
+const HOTPOT_CONTRACT = process.env.NEXT_HOTPOT_MARKETPLACE_CONTRACT
 
 type Props = {
   details: ReturnType<typeof useTokens>
