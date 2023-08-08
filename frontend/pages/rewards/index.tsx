@@ -17,10 +17,9 @@ import PotResultBanner from 'components/PotResultBanner'
 
 type Props = InferGetStaticPropsType<typeof getStaticProps> & {
   prizePool: Item | null
-  ticketCost: string | null
 }
 
-const Rewards: NextPage<Props> = ({ prizePool, ticketCost }) => {
+const Rewards: NextPage<Props> = ({ prizePool }) => {
   const { isConnected } = useAccount()
   const isMounted = useMounted()
 

@@ -59,6 +59,7 @@ const BODY_FONT_FAMILY = 'Quicksand'
 const FONT_FAMILY = process.env.NEXT_PUBLIC_FONT_FAMILY || 'Quicksand'
 const PRIMARY_COLOR = process.env.NEXT_PUBLIC_PRIMARY_COLOR || 'default'
 import presetColors from '../colors'
+import { PrizePoolProvider } from 'context/NFTContext'
 
 const FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
 const FEE_RECIPIENT = process.env.NEXT_PUBLIC_FEE_RECIPIENT
@@ -101,7 +102,10 @@ function AppWrapper(props: AppProps & { baseUrl: string }) {
       defaultTheme={defaultTheme}
       forcedTheme={!THEME_SWITCHING_ENABLED ? defaultTheme : undefined}
     >
-      <App {...props} />
+      {' '}
+      <PrizePoolProvider>
+        <App {...props} />
+      </PrizePoolProvider>
     </ThemeProvider>
   )
 }
