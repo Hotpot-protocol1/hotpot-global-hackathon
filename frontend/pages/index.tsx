@@ -10,8 +10,6 @@ import { useMediaQuery } from '@react-hookz/web'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Hero from 'components/Hero'
-import getPrizePool, { Item } from '../lib/getPrizePool'
-import getTicketCost from 'lib/getTicketCost'
 
 // Environment variables
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
