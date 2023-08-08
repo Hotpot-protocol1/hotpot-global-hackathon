@@ -78,6 +78,8 @@ const ListModal: React.FC<Props> = ({
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [priceValue, setPriceValue] = useState<number>(0)
+  const [isApproved, setIsApproved] = useState<boolean>(false)
+  const [txn, setTxn] = useState<string>('')
   const [toast, setToast] = useState(null)
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
   const imageSize = singleColumnBreakpoint ? 533 : 250
@@ -141,9 +143,13 @@ const ListModal: React.FC<Props> = ({
         tokenId,
         nftPriceWei
       )
+      setIsApproved(true)
+      console.log('Listing Transaction Hash:', listingTx.hash)
+      setTxn(listingTx.hash)
+      await listingTx.wait()
+      setIsApproved(false)
       setIsLoading(false)
       setStep(3)
-      console.log('Listing Transaction Hash:', listingTx.hash)
     } catch (error) {
       setIsLoading(false)
       console.log(error)
@@ -204,6 +210,7 @@ const ListModal: React.FC<Props> = ({
     return null
   }
   const tix = useTix(priceValue ?? '0')
+  const shortTxn = txn.slice(0, 4) + '...' + txn.slice(-4)
   let mainContent = (
     <div>
       <div className="mb-4 flex flex-row rounded border border-[#FFD027] bg-[#FFF1CC] py-2 px-2 text-sm font-normal">
@@ -368,17 +375,37 @@ const ListModal: React.FC<Props> = ({
               </div>
             )}
             <h1 className="text-md font-semibold">
-              Confirm listing on Hotpot in your wallet
+              {isApproved
+                ? 'Confirmed!'
+                : 'Confirm listing on Hotpot in your wallet'}
             </h1>
+
             <div className="flex flex-row items-center justify-center gap-5">
-              <img src="/hotpot.png" className="h-14 w-14" />
+              {tokenDetails?.image ? (
+                <div className="w-14 rounded-sm object-fill">
+                  <Image
+                    loader={({ src }) => src}
+                    src={optimizeImage(tokenDetails?.image, imageSize)}
+                    alt={`${tokenDetails?.name}`}
+                    className="w-full"
+                    width={imageSize}
+                    height={imageSize}
+                    objectFit="cover"
+                    layout="responsive"
+                  />
+                </div>
+              ) : (
+                <img src="/hotpot.png" className="h-14 w-14" />
+              )}
               <div>
                 <CgMore className="h-4 w-4 animate-ping" />
               </div>
               <img src="/hotpot.png" className="h-14 w-14" />
             </div>
             <div className="text-sm font-light text-gray-500">
-              A free off-chain signature to create the listing
+              {isApproved
+                ? 'Finalizing on the blockchain...'
+                : 'A free off-chain signature to create the listing'}
             </div>
           </div>
         </div>
@@ -411,7 +438,7 @@ const ListModal: React.FC<Props> = ({
             <div className="w-[48%] rounded border-2 border-[#7000FF]" />
           </div>
 
-          <div className="relative mt-10 flex flex-col items-center justify-center gap-5">
+          <div className="relative mt-10 flex flex-col items-center justify-center gap-2">
             <div className="absolute inset-0 z-10 mt-6 flex scale-100 transform items-center justify-center">
               <img src="/success.gif" className="object-cover" />
             </div>
@@ -421,6 +448,16 @@ const ListModal: React.FC<Props> = ({
             </h1>
             <div className="text-sm font-light text-gray-500">
               Your NFT has been listed for sale
+            </div>
+            <div className="z-20 mt-4 bg-white text-xs font-light text-gray-400">
+              <a
+                href={`https://sepolia.etherscan.io/tx/${txn}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                View Transaction: {shortTxn}
+              </a>
             </div>
           </div>
         </div>
@@ -433,7 +470,7 @@ const ListModal: React.FC<Props> = ({
               <div className="items-left flex flex-col gap-1">
                 <div className="flex flex-row items-center">
                   <img src="/eth.svg" className="mr-2 h-3 w-3" alt="price" />
-                  <div className="text-sm font-semibold">0.1</div>
+                  <div className="text-sm font-semibold">{priceValue}</div>
                 </div>
               </div>
             </div>
@@ -520,7 +557,9 @@ const ListModal: React.FC<Props> = ({
                   {isLoading ? (
                     <>
                       <CgSpinner className="mr-2 inline-block h-6 w-6 animate-spin" />
-                      Waiting for approval
+                      {isApproved
+                        ? 'Waiting to be Validated'
+                        : 'Waiting for Approval'}
                     </>
                   ) : error ? (
                     'Retry'
