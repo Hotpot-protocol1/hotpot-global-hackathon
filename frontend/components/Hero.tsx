@@ -1,33 +1,12 @@
-import React, { useEffect, useState } from 'react'
-// import getPrizePool, { Item } from '../lib/getPrizePool'
 import { CgSpinner } from 'react-icons/cg'
-import { usePrizePoolContext } from 'context/NFTContext'
+import { useHotpotContext } from 'context/HotpotContext'
 
 type HeroProps = {
   variant?: string
 }
 
 const Hero: React.FC<HeroProps> = ({ variant }) => {
-  const { prizePoolData, isLoading } = usePrizePoolContext()
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const prizePoolData = await getPrizePool()
-  //       if (prizePoolData) {
-  //         setPrizePool(prizePoolData)
-  //         console.log(prizePoolData)
-  //       }
-  //     } catch (error) {
-  //       console.error(
-  //         'An error occurred while fetching the prize pool data:',
-  //         error
-  //       )
-  //     }
-  //     setLoading(false)
-  //   }
-  //   fetchData()
-  // }, [])
+  const { prizePool, isLoadingPrizePool } = useHotpotContext()
 
   const backgroundImageUrl =
     variant === 'rewards' ? '/banner-rewards.svg' : '/banner-home.svg'
@@ -51,17 +30,17 @@ const Hero: React.FC<HeroProps> = ({ variant }) => {
 
           <div className="mt-11 flex w-[340px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-solid border-[#FFF06A] bg-gradient-to-b from-[#FFE179] to-[#FFB52E] px-10 py-4 text-black md:px-16">
             <div className="text-lg font-normal md:text-xl">Prize Pool</div>
-            <div className="w-full text-center text-xl md:w-auto md:text-2xl">
-              {isLoading ? (
-                <div>
-                  <CgSpinner className="h-6 w-6 animate-spin" />
+            <div className="w-full items-center text-center text-xl md:w-auto md:text-2xl">
+              {isLoadingPrizePool ? (
+                <div className="flex items-center justify-center">
+                  <CgSpinner className="h-6 w-6 animate-spin text-center" />
                 </div>
               ) : (
                 <div className="text-xl md:text-2xl">
-                  {prizePoolData?.currentPotSize?.slice(0, 4)}{' '}
+                  {prizePool?.currentPotSize?.slice(0, 4)}{' '}
                   <span className="text-lg md:text-xl">ETH</span> /{' '}
                   <span className="text-purple-600">
-                    {prizePoolData?.potLimit?.slice(0, 4)}{' '}
+                    {prizePool?.potLimit?.slice(0, 4)}{' '}
                     <span className="text-lg md:text-xl">ETH</span>
                   </span>
                 </div>

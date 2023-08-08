@@ -28,7 +28,6 @@ import { truncateAddress } from 'lib/truncateText'
 import { paths, setParams } from '@reservoir0x/reservoir-sdk'
 import UserActivityTab from 'components/tables/UserActivityTab'
 import useMounted from 'hooks/useMounted'
-import getAllListedNFTs, { Item } from '../../lib/getAllListedNFTs'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const COLLECTION = process.env.NEXT_PUBLIC_COLLECTION
@@ -37,15 +36,13 @@ const COLLECTION_SET_ID = process.env.NEXT_PUBLIC_COLLECTION_SET_ID
 const RESERVOIR_API_KEY = process.env.RESERVOIR_API_KEY
 const RESERVOIR_API_BASE = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
 
-type Props = InferGetStaticPropsType<typeof getStaticProps> & {
-  listedNFTs: Item[] | null
-}
+type Props = InferGetStaticPropsType<typeof getStaticProps>
 
 const metadata = {
   title: (title: string) => <title>{title}</title>,
 }
 
-const Address: NextPage<Props> = ({ address, fallback, listedNFTs }) => {
+const Address: NextPage<Props> = ({ address, fallback }) => {
   const isMounted = useMounted()
   const router = useRouter()
   const accountData = useAccount()
@@ -154,11 +151,7 @@ const Address: NextPage<Props> = ({ address, fallback, listedNFTs }) => {
             </Tabs.List>
             <Tabs.Content value="portfolio">
               <div className="mt-6">
-                <UserTokensGrid
-                  fallback={fallback}
-                  listedNFTs={listedNFTs}
-                  owner={address || ''}
-                />
+                <UserTokensGrid fallback={fallback} owner={address || ''} />
               </div>
             </Tabs.Content>
             {isOwner && (
@@ -208,7 +201,7 @@ const Address: NextPage<Props> = ({ address, fallback, listedNFTs }) => {
               </Tabs.Content>
             )}
             <Tabs.Content value="activity" className="col-span-full">
-              <UserActivityTab user={address} listedNFTs={listedNFTs} />
+              <UserActivityTab user={address} />
             </Tabs.Content>
           </Tabs.Root>
         </div>
@@ -241,7 +234,6 @@ export const getStaticProps: GetStaticProps<{
       'x-api-key': RESERVOIR_API_KEY,
     }
   }
-  const listedNFTs = await getAllListedNFTs()
 
   const url = new URL(`${RESERVOIR_API_BASE}/users/${address}/tokens/v6`)
 
@@ -265,7 +257,6 @@ export const getStaticProps: GetStaticProps<{
   return {
     props: {
       address,
-      listedNFTs,
       fallback: {
         tokens,
       },

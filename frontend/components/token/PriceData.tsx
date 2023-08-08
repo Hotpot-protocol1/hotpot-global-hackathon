@@ -33,11 +33,10 @@ import { getPricing } from 'lib/token/pricing'
 import { useContract } from 'wagmi'
 import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
 import { CgSpinner } from 'react-icons/cg'
-import getTotalPrice from 'lib/getTotalPrice'
 import BuyModal from 'components/modal/BuyModal'
 import ListModal2 from '../../components/modal/ListModal'
-import { Item } from '../../lib/getAllListedNFTs'
 import useTix from 'lib/tix'
+import { useHotpotContext } from 'context/HotpotContext'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const SOURCE_ID = process.env.NEXT_PUBLIC_SOURCE_ID
@@ -52,7 +51,6 @@ type Props = {
   collection?: Collection
   isOwner: boolean
   tokenDetails?: TokenDetails
-  listedNFTs: Item[] | null
 }
 
 type ItemInfo = {
@@ -74,7 +72,6 @@ const PriceData: FC<Props> = ({
   collection,
   isOwner,
   tokenDetails,
-  listedNFTs,
 }) => {
   const router = useRouter()
   const isMounted = useMounted()
@@ -89,6 +86,7 @@ const PriceData: FC<Props> = ({
   const [clearCartOpen, setClearCartOpen] = useState(false)
   const [cartToSwap, setCartToSwap] = useState<undefined | typeof cartTokens>()
   const account = useAccount()
+  const { listedNFTs, isLoadingNFTs } = useHotpotContext()
   const [currentNFT, setCurrentNFT] = useState<ItemInfo | null>(null)
   const token = details.data ? details.data[0] : undefined
   const tokenId = token?.token?.tokenId

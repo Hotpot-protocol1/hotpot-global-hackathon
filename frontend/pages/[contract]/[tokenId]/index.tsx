@@ -20,7 +20,6 @@ import {
   useUserTokens,
 } from '@reservoir0x/reservoir-kit-ui'
 import { useAccount } from 'wagmi'
-import getAllListedNFTs, { Item } from '../../../lib/getAllListedNFTs'
 
 // Environment variables
 // For more information about these variables
@@ -42,7 +41,6 @@ const COLLECTION_SET_ID = process.env.NEXT_PUBLIC_COLLECTION_SET_ID
 const PROXY_API_BASE = process.env.NEXT_PUBLIC_PROXY_API_BASE
 
 type Props = {
-  listedNFTs: Item[] | null
   collectionId: string
   tokenDetails?: TokenDetails
 }
@@ -73,7 +71,7 @@ const metadata = {
   ),
 }
 
-const Index: NextPage<Props> = ({ collectionId, tokenDetails, listedNFTs }) => {
+const Index: NextPage<Props> = ({ collectionId, tokenDetails }) => {
   const [tokenOpenSea] = useState<any>({
     animation_url: null,
     extension: null,
@@ -196,7 +194,6 @@ const Index: NextPage<Props> = ({ collectionId, tokenDetails, listedNFTs }) => {
           details={tokenData}
           collection={collection}
           isOwner={isOwner}
-          listedNFTs={listedNFTs}
         />
         <CollectionInfo collection={collection} token={token.token} />
 
@@ -250,7 +247,6 @@ export const getStaticProps: GetStaticProps<{
       'x-api-key': RESERVOIR_API_KEY,
     }
   }
-  const listedNFTs = await getAllListedNFTs()
   const url = new URL('/tokens/v5', RESERVOIR_API_BASE)
 
   const query: paths['/tokens/v5']['get']['parameters']['query'] = {
@@ -278,6 +274,6 @@ export const getStaticProps: GetStaticProps<{
   }
 
   return {
-    props: { collectionId, tokenDetails: data?.tokens?.[0]?.token, listedNFTs },
+    props: { collectionId, tokenDetails: data?.tokens?.[0]?.token },
   }
 }

@@ -5,7 +5,6 @@ import { Item } from '../../lib/getAllListedNFTs'
 
 type Props = {
   user?: string
-  listedNFTs: Item[] | null
 }
 
 type ActivityQuery = NonNullable<
@@ -13,7 +12,7 @@ type ActivityQuery = NonNullable<
 >
 type ActivityTypes = Exclude<ActivityQuery['types'], string>
 
-const UserActivityTab: FC<Props> = ({ user, listedNFTs }) => {
+const UserActivityTab: FC<Props> = ({ user }) => {
   const [activityTypes, setActivityTypes] = useState<ActivityTypes>([])
   const query: ActivityQuery = {
     limit: 20,
@@ -35,7 +34,6 @@ const UserActivityTab: FC<Props> = ({ user, listedNFTs }) => {
   return (
     <ActivityTable
       data={data}
-      listedNFTs={listedNFTs}
       types={activityTypes}
       onTypesChange={(types) => {
         setActivityTypes(types)

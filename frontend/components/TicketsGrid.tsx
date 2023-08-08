@@ -7,6 +7,7 @@ import { getPotById } from 'lib/getPotById'
 import { Item } from '../lib/getPrizePool'
 import useMounted from 'hooks/useMounted'
 import ResultsModal from './modal/ResultsModal'
+import { useHotpotContext } from 'context/HotpotContext'
 
 interface Ticket {
   number: number
@@ -17,11 +18,12 @@ interface TicketsGridProps {
   prizePool?: Item | null
 }
 
-const TicketsGrid: FC<TicketsGridProps> = ({ prizePool }) => {
+const TicketsGrid: FC<TicketsGridProps> = () => {
   const [tab, setTab] = useState<string>('current')
   const [dummyData, setDummyData] = useState<Ticket[]>([])
   const [data, setData] = useState<PotData | null>(null)
   const [previousData, setPreviousData] = useState<PotData | null>(null)
+  const { prizePool, isLoadingPrizePool } = useHotpotContext()
   const currentPotSize = parseFloat(prizePool?.currentPotSize ?? '0')
   const potLimit = parseFloat(prizePool?.potLimit ?? '0')
   const potFill = Math.round((currentPotSize / potLimit) * 100)

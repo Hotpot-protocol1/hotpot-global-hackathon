@@ -4,7 +4,6 @@ import { useUserTokens } from '@reservoir0x/reservoir-kit-ui'
 import { useInView } from 'react-intersection-observer'
 import TokenCard from './TokenCard'
 import { paths } from '@reservoir0x/reservoir-sdk'
-import { Item } from 'lib/getAllListedNFTs'
 
 const COLLECTION = process.env.NEXT_PUBLIC_COLLECTION
 const COMMUNITY = process.env.NEXT_PUBLIC_COMMUNITY
@@ -15,10 +14,9 @@ type Props = {
     tokens: paths['/users/{user}/tokens/v6']['get']['responses']['200']['schema']
   }
   owner: string
-  listedNFTs: Item[] | null
 }
 
-const UserTokensGrid: FC<Props> = ({ fallback, owner, listedNFTs }) => {
+const UserTokensGrid: FC<Props> = ({ fallback, owner }) => {
   const userTokensParams: Parameters<typeof useUserTokens>['1'] = {
     limit: 20,
     normalizeRoyalties: true,
@@ -90,7 +88,6 @@ const UserTokensGrid: FC<Props> = ({ fallback, owner, listedNFTs }) => {
               key={`${token?.token?.contract}${token?.token?.tokenId}`}
               mutate={mutate}
               collectionImage={token?.token?.collection?.imageUrl}
-              listedNFTs={listedNFTs}
             />
           ))}
       {isFetchingPage ? (

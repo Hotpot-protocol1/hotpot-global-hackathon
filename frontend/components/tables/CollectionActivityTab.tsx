@@ -1,11 +1,9 @@
 import { useCollectionActivity } from '@reservoir0x/reservoir-kit-ui'
 import ActivityTable from 'components/tables/ActivityTable'
-import { Item } from 'lib/getAllListedNFTs'
 import { FC, useEffect, useState } from 'react'
 
 type Props = {
   collectionId?: string
-  listedNFTs: Item[] | null
 }
 
 type ActivityQuery = NonNullable<
@@ -13,7 +11,7 @@ type ActivityQuery = NonNullable<
 >
 type ActivityTypes = Exclude<ActivityQuery['types'], string>
 
-const CollectionActivityTab: FC<Props> = ({ collectionId, listedNFTs }) => {
+const CollectionActivityTab: FC<Props> = ({ collectionId }) => {
   const [activityTypes, setActivityTypes] = useState<ActivityTypes>(['sale'])
 
   const query: ActivityQuery = {
@@ -38,7 +36,6 @@ const CollectionActivityTab: FC<Props> = ({ collectionId, listedNFTs }) => {
     <ActivityTable
       data={data}
       types={activityTypes}
-      listedNFTs={listedNFTs}
       onTypesChange={(types) => {
         setActivityTypes(types)
       }}

@@ -20,6 +20,7 @@ import { useInView } from 'react-intersection-observer'
 import MobileActivityFilter from 'components/filter/MobileActivityFilter'
 import { Item } from '../../lib/getAllListedNFTs'
 import useTix from 'lib/tix'
+import { useHotpotContext } from 'context/HotpotContext'
 
 const RESERVOIR_API_BASE = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
 const MARKET_CONTRACT = '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
@@ -44,14 +45,12 @@ type ActivityTypes = Exclude<
 
 type Props = {
   data: ActivityResponse
-  listedNFTs: Item[] | null
   types: ActivityTypes
   onTypesChange: (types: ActivityTypes) => void
   emptyPlaceholder: ReactElement
 }
 
 const ActivityTable: FC<Props> = ({
-  listedNFTs,
   data,
   types,
   onTypesChange,
@@ -60,6 +59,7 @@ const ActivityTable: FC<Props> = ({
   const headings = ['Event', 'Item', 'Amount', 'From', 'To', 'Rewards', 'Time']
   const isMobile = useMediaQuery('only screen and (max-width : 730px)')
   const filters = ['Sales', 'Listings', 'Transfer', 'Mints']
+  const { listedNFTs, isLoadingNFTs } = useHotpotContext()
   const enabledFilters: typeof filters = []
 
   if (types?.includes('sale')) {

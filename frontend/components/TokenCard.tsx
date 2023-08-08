@@ -25,9 +25,9 @@ import RarityTooltip from './RarityTooltip'
 import { Collection } from 'types/reservoir'
 import { getPricing } from 'lib/token/pricing'
 import ListModal2 from './modal/ListModal'
-import { Item } from '../lib/getAllListedNFTs'
 import BuyModal from './modal/BuyModal'
 import useTix from '../lib/tix'
+import { useHotpotContext } from 'context/HotpotContext'
 
 const SOURCE_ICON = process.env.NEXT_PUBLIC_SOURCE_ICON
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
@@ -57,7 +57,6 @@ type Props = {
   mutate: MutatorCallback
   setClearCartOpen?: Dispatch<SetStateAction<boolean>>
   setCartToSwap?: Dispatch<SetStateAction<any | undefined>>
-  listedNFTs: Item[] | null
 }
 
 const TokenCard: FC<Props> = ({
@@ -68,16 +67,15 @@ const TokenCard: FC<Props> = ({
   mutate,
   setClearCartOpen,
   setCartToSwap,
-  listedNFTs,
 }) => {
   const account = useAccount()
   const { data: signer } = useSigner()
   const { chain: activeChain } = useNetwork()
-
   const tokensMap = useRecoilValue(getTokensMap)
   const cartCurrency = useRecoilValue(getCartCurrency)
   const [cartTokens, setCartTokens] = useRecoilState(recoilCartTokens)
   const cartPools = useRecoilValue(getPricingPools)
+  const { listedNFTs, isLoadingNFTs } = useHotpotContext()
   const [currentNFT, setCurrentNFT] = useState<ItemInfo | null>(null)
   const reservoirClient = useReservoirClient()
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')

@@ -36,7 +36,7 @@ const Rewards: NextPage<Props> = ({ prizePool }) => {
       <PotResultBanner />
       <div className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
         <Hero variant="rewards" />
-        <TicketsGrid prizePool={prizePool} />
+        <TicketsGrid />
         <Leaderboard />
         {isConnected ? <></> : <div className=""></div>}
         <Faq />

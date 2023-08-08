@@ -2,7 +2,6 @@ import { ComponentProps, FC, ReactNode } from 'react'
 import { Toaster } from 'react-hot-toast'
 import Navbar from './Navbar'
 import NetworkWarning from './NetworkWarning'
-import { PrizePoolProvider } from 'context/NFTContext'
 
 type Props = {
   navbar: ComponentProps<typeof Navbar>
