@@ -8,13 +8,13 @@ export interface PotData {
 export const getRafflePot = async (user: string): Promise<PotData | null> => {
   try {
     const latestRaffleResponse = await fetch(
-      'http://api.metalistings.xyz/pot/latest_raffle'
+      'https://api.metalistings.xyz/pot/latest_raffle'
     )
     const potIdResponse = await latestRaffleResponse.json()
     const potId = potIdResponse.pot_id
 
     const userPotResponse = await fetch(
-      `http://api.metalistings.xyz/user/${user}/pot/${potId}`
+      `https://api.metalistings.xyz/user/${user}/pot/${potId}`
     )
     const potDetails = await userPotResponse.json()
 
