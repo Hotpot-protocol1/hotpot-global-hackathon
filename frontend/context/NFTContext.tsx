@@ -43,7 +43,7 @@ export const PrizePoolProvider: React.FC<PrizePoolProviderProps> = ({
     }
 
     fetchData()
-  }, [prizePoolData])
+  }, [])
 
   return (
     <PrizePoolContext.Provider value={{ prizePoolData, isLoading }}>
