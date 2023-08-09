@@ -76,20 +76,24 @@ const HamburgerMenu: FC<Props> = ({ externalLinks }) => {
               </span>
             </div>
 
-            {hasExternalLinks && (
-              <div className="grid">
-                {externalLinks.map(({ name, url }) => (
-                  <a
-                    key={url}
-                    href={url}
-                    rel="noopener noreferrer"
-                    className="border-b border-neutral-300 p-4 text-[#4B5563] hover:text-[#1F2937] dark:border-neutral-600 dark:text-white dark:hover:bg-neutral-600"
-                  >
-                    {name}
-                  </a>
-                ))}
-              </div>
-            )}
+            <div className="grid">
+              <Link href="/" legacyBehavior={true}>
+                <a
+                  href="/"
+                  className="border-b border-neutral-300 p-4 text-[#4B5563] hover:text-[#1F2937] dark:border-neutral-600 dark:text-white dark:hover:bg-neutral-600"
+                >
+                  Discover
+                </a>
+              </Link>
+              <Link href="/rewards" legacyBehavior={true}>
+                <a
+                  href="/rewards"
+                  className="border-b border-neutral-300 p-4 text-[#4B5563] hover:text-[#1F2937] dark:border-neutral-600 dark:text-white dark:hover:bg-neutral-600"
+                >
+                  Rewards
+                </a>
+              </Link>
+            </div>
 
             <Link
               href={`/address/${accountData.address}`}
