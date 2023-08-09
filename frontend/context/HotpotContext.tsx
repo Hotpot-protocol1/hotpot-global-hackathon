@@ -29,13 +29,17 @@ export const HotpotProvider: React.FC<HotpotProviderProps> = ({ children }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const prizePool = await getPrizePool()
-        const nfts = await getAllListedNFTs()
+        const [prizePool, nfts] = await Promise.all([
+          getPrizePool(),
+          getAllListedNFTs(),
+        ])
+
         setPrizePool(prizePool)
         setListedNFTs(nfts)
       } catch (error) {
         console.error('An error occurred while fetching data:', error)
       }
+
       setIsLoadingPrizePool(false)
       setIsLoadingNFTs(false)
     }

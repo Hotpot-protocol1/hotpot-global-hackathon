@@ -53,7 +53,6 @@ const metadata = {
 const Home: NextPage<Props> = ({ fallback }) => {
   const isSmallDevice = useMediaQuery('only screen and (max-width : 600px)')
   const router = useRouter()
-
   const title = META_TITLE && metadata.title(META_TITLE)
   const description = META_DESCRIPTION && metadata.description(META_DESCRIPTION)
   const image = metadata.image(META_IMAGE)
@@ -82,6 +81,7 @@ const Home: NextPage<Props> = ({ fallback }) => {
         {image}
       </Head>
       <PotResultBanner />
+
       <header className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
         <Hero />
         <h1 className="reservoir-h1 mt-14 text-center dark:text-white">
