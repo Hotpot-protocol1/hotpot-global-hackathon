@@ -12,7 +12,7 @@ import useTix from 'lib/tix'
 import { optimizeImage } from 'lib/optmizeImage'
 import Image from 'next/legacy/image'
 import { useMediaQuery } from '@react-hookz/web'
-import Link from 'next/link'
+import { SWRResponse } from 'swr'
 
 type BuyCallbackData = {
   tokenId?: string
@@ -31,6 +31,7 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   onBuyComplete?: (data: BuyCallbackData) => void
   onBuyError?: (error: Error, data: BuyCallbackData) => void
   onClose?: () => void
+  mutate?: SWRResponse['mutate']
 }
 
 const BuyModal: React.FC<Props> = ({
@@ -39,6 +40,7 @@ const BuyModal: React.FC<Props> = ({
   price,
   tokenDetails,
   collectionImage,
+  mutate,
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [priceLoading, setPriceLoading] = useState(false)
@@ -109,6 +111,9 @@ const BuyModal: React.FC<Props> = ({
   const onClose = () => {
     setError(null)
     setIsSuccess(false)
+    if (mutate) {
+      mutate()
+    }
   }
 
   if (!isMounted) {

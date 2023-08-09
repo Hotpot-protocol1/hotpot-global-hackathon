@@ -25,11 +25,6 @@ import {
 } from '../../contracts/index'
 import useTix from 'lib/tix'
 
-type ListingCallbackData = {
-  tokenId?: string
-  collectionId?: string
-}
-
 enum STEPS {
   SelectMarkets = 0,
   SetPrice = 1,
@@ -60,8 +55,8 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   copyOverrides?: Partial<typeof ModalCopy>
   feesBps?: string[]
   onGoToToken?: () => any
-  onListingComplete?: (data: ListingCallbackData) => void
-  onListingError?: (error: Error, data: ListingCallbackData) => void
+  onListingComplete?: () => void
+  onListingError?: (error: Error) => void
   onClose?: () => void
 }
 
@@ -70,15 +65,18 @@ const ListModal: React.FC<Props> = ({
   tokenId,
   tokenDetails,
   collectionId,
+  onListingComplete,
+  onListingError,
 }) => {
   const [step, setStep] = useState(STEPS.SelectMarkets)
   const [isLoading, setIsLoading] = useState(false)
   const provider = useProvider()
   const { data: signer } = useSigner()
   const [isMounted, setIsMounted] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const [priceValue, setPriceValue] = useState<number>(0)
   const [isApproved, setIsApproved] = useState<boolean>(false)
+  const [alert, setAlert] = useState<string | null>(null)
   const [txn, setTxn] = useState<string>('')
   const [toast, setToast] = useState(null)
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
@@ -104,9 +102,9 @@ const ListModal: React.FC<Props> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPriceValue = Number(e.target.value)
     if (newPriceValue <= 0) {
-      setError('Price must be greater than 0.')
+      setAlert('Price must be greater than 0.')
     } else {
-      setError(null)
+      setAlert(null)
     }
     setPriceValue(newPriceValue)
     nftPriceRef.current = newPriceValue
@@ -153,7 +151,11 @@ const ListModal: React.FC<Props> = ({
     } catch (error) {
       setIsLoading(false)
       console.log(error)
-      setError('Oops, something went wrong. Please try again')
+      if (error instanceof Error) {
+        setError(error)
+      } else {
+        setError(new Error('An unknown error occurred.'))
+      }
     }
   }
 
@@ -164,7 +166,18 @@ const ListModal: React.FC<Props> = ({
 
   const onClose = () => {
     setStep(0)
+    setError(null)
+    setAlert(null)
+    if (onListingComplete) {
+      onListingComplete()
+    }
   }
+
+  useEffect(() => {
+    if (error && onListingError) {
+      onListingError(error)
+    }
+  }, [error])
 
   const onNext = () => {
     setStep((value) => value + 1)
@@ -209,6 +222,7 @@ const ListModal: React.FC<Props> = ({
   if (!isMounted) {
     return null
   }
+
   const tix = useTix(priceValue ?? '0')
   const shortTxn = txn.slice(0, 4) + '...' + txn.slice(-4)
   let mainContent = (
@@ -349,7 +363,7 @@ const ListModal: React.FC<Props> = ({
               </div>
             </div>
             <div className="items-center justify-center p-1 text-xs font-light text-red-500">
-              {error}
+              {alert}
             </div>
           </div>
         </div>
@@ -369,9 +383,9 @@ const ListModal: React.FC<Props> = ({
 
           <div className="mt-10 flex flex-col items-center justify-center gap-10">
             {error && (
-              <div className="mt-2 flex flex-row items-center justify-center gap-2 rounded-sm border bg-gray-100 px-10 py-2 text-xs text-gray-600">
+              <div className="flex flex-row items-center justify-center gap-2 rounded-sm border bg-gray-100 px-10 py-2 text-xs text-gray-600">
                 <HiExclamationCircle className="h-4 w-4 text-red-500" />
-                {error}
+                <div>Oops! something went wrong</div>
               </div>
             )}
             <h1 className="text-md font-semibold">
