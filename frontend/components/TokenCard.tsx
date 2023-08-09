@@ -325,6 +325,7 @@ const TokenCard: FC<Props> = ({
               price={currentNFT?.price}
               tokenDetails={token?.token}
               collectionImage={collectionImage}
+              mutate={mutate}
             />
             {isInCart && (
               <button
