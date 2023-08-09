@@ -12,6 +12,7 @@ import useTix from 'lib/tix'
 import { optimizeImage } from 'lib/optmizeImage'
 import Image from 'next/legacy/image'
 import { useMediaQuery } from '@react-hookz/web'
+import Link from 'next/link'
 
 type BuyCallbackData = {
   tokenId?: string
@@ -46,6 +47,8 @@ const BuyModal: React.FC<Props> = ({
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState(null)
+  const [isApproved, setIsApproved] = useState<boolean>(false)
+  const [txn, setTxn] = useState<string>('')
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
   const [totalPrice, setTotalPrice] = useState<string | null>(null)
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
@@ -89,9 +92,13 @@ const BuyModal: React.FC<Props> = ({
       const buyNFT = await NftMarketplace.purchaseItem(itemId, {
         value: priceInWei,
       })
-      setIsLoading(false)
+      setIsApproved(true)
       console.log('Listing Transaction Hash:', buyNFT.hash)
+      setTxn(buyNFT.hash)
+      await buyNFT.wait()
+      setIsApproved(false)
       setIsSuccess(true)
+      setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
       console.log(error)
@@ -108,6 +115,7 @@ const BuyModal: React.FC<Props> = ({
     return null
   }
   const tix = useTix(price ?? '0')
+  const shortTxn = txn.slice(0, 4) + '...' + txn.slice(-4)
   return (
     <Modal trigger={trigger}>
       <Dialog.Content className="fixed top-[50%] left-[50%] mt-10 w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-lg bg-white pb-4 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow">
@@ -117,6 +125,8 @@ const BuyModal: React.FC<Props> = ({
             <h2 className="text-md m-0 items-center justify-center font-semibold text-gray-900">
               {isSuccess
                 ? 'Your purchase has been processed!'
+                : isApproved
+                ? 'Finalizing on the blockchain'
                 : 'Complete Checkout'}
             </h2>
           </Dialog.Title>
@@ -138,16 +148,26 @@ const BuyModal: React.FC<Props> = ({
         ) : (
           <div className="m-2 flex min-h-[200px] flex-row md:flex-grow md:flex-col">
             {isSuccess ? (
-              <div className="relative mt-4 flex flex-col items-center justify-center gap-5">
-                <div className="absolute inset-0 z-10 mt-6 flex scale-125 transform items-center justify-center">
+              <div className="relative mt-4 flex flex-col items-center justify-center gap-2">
+                <div className="scale-120 absolute inset-0 z-10 mt-6 flex transform items-center justify-center">
                   <img src="/success.gif" className="object-cover" />
                 </div>
                 <HiCheckCircle className=" h-[80px] w-[80px] items-center justify-center text-green-700" />
                 <h1 className="text-xl font-semibold">
                   NFT Purchase Successful! 🎉
                 </h1>
-                <div className="text-sm font-light text-gray-500 ">
+                <div className="text-sm font-light text-gray-500">
                   Your NFT has been sent to your wallet
+                </div>
+                <div className="z-20 mt-4 bg-white text-xs font-light text-gray-400">
+                  <a
+                    href={`https://sepolia.etherscan.io/tx/${txn}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    View Transaction: {shortTxn}
+                  </a>
                 </div>
               </div>
             ) : (
@@ -242,7 +262,9 @@ const BuyModal: React.FC<Props> = ({
                       {isLoading ? (
                         <>
                           <CgSpinner className="mr-2 inline-block h-6 w-6 animate-spin" />
-                          Waiting for approval
+                          {isApproved
+                            ? 'Waiting to be Validated'
+                            : 'Waiting for Approval'}
                         </>
                       ) : error ? (
                         'Retry'

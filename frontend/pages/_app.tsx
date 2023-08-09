@@ -103,9 +103,7 @@ function AppWrapper(props: AppProps & { baseUrl: string }) {
       forcedTheme={!THEME_SWITCHING_ENABLED ? defaultTheme : undefined}
     >
       {' '}
-      <HotpotProvider>
-        <App {...props} />
-      </HotpotProvider>
+      <App {...props} />
     </ThemeProvider>
   )
 }
@@ -183,21 +181,23 @@ const App: FC<AppProps & { baseUrl: string }> = ({
   }
 
   return (
-    <ReservoirKitProvider options={options} theme={reservoirKitTheme}>
-      <RecoilRoot>
-        <WagmiConfig client={wagmiClient}>
-          <RainbowKitProvider
-            chains={chains}
-            theme={rainbowKitTheme}
-            modalSize="compact"
-          >
-            <AnalyticsProvider>
-              <Component {...pageProps} />
-            </AnalyticsProvider>
-          </RainbowKitProvider>
-        </WagmiConfig>
-      </RecoilRoot>
-    </ReservoirKitProvider>
+    <HotpotProvider>
+      <ReservoirKitProvider options={options} theme={reservoirKitTheme}>
+        <RecoilRoot>
+          <WagmiConfig client={wagmiClient}>
+            <RainbowKitProvider
+              chains={chains}
+              theme={rainbowKitTheme}
+              modalSize="compact"
+            >
+              <AnalyticsProvider>
+                <Component {...pageProps} />
+              </AnalyticsProvider>
+            </RainbowKitProvider>
+          </WagmiConfig>
+        </RecoilRoot>
+      </ReservoirKitProvider>
+    </HotpotProvider>
   )
 }
 

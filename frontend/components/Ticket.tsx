@@ -7,9 +7,6 @@ import { PotData, getLatestPot } from 'lib/getLatestPot'
 const Ticket: FC = () => {
   const account = useAccount()
   const { address } = useAccount()
-  const { connectors } = useConnect()
-  const { disconnect } = useDisconnect()
-  const wallet = connectors[0]
   const isMounted = useMounted()
   const [data, setData] = useState<PotData | null>(null)
 
@@ -31,13 +28,13 @@ const Ticket: FC = () => {
   }
 
   if (account.isConnected) {
-    if (!data && account?.isConnected) {
-      return (
-        <div>
-          <CgSpinner className="animate-spin" />
-        </div>
-      )
-    }
+    // if (!data && account?.isConnected && !isMounted) {
+    //   return (
+    //     <div>
+    //       <CgSpinner className="animate-spin" />
+    //     </div>
+    //   )
+    // }
     return (
       <div className="flex items-center rounded-lg border border-solid border-[#CFD8E1] px-6 py-2">
         <div className="text-base font-normal">

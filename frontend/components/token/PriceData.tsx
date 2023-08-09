@@ -215,7 +215,7 @@ const PriceData: FC<Props> = ({
     <div className="col-span-full md:col-span-4 lg:col-span-5 lg:col-start-2">
       <article className="col-span-full rounded-2xl border border-gray-300 bg-white p-6 dark:border-neutral-600 dark:bg-black">
         <div className="grid grid-cols-1 gap-6">
-          {isHotpot && currentNFT ? (
+          {isHotpot ? (
             <div className="flex flex-row">
               <div className="flex-grow">
                 <div className="reservoir-h5 font-headings dark:text-white">
@@ -231,19 +231,26 @@ const PriceData: FC<Props> = ({
                 </div>
               </div>
               <div className="reservoir-h3 font-headings dark:text-white">
-                <div className="flex flex-row items-center">
-                  {tix > 0 && (
-                    <div className="z-10 mx-2 flex items-center justify-center truncate rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
-                      +{tix} TIX
-                    </div>
-                  )}
-                  <img
-                    src="/eth.svg"
-                    alt="hotpot-marketplace"
-                    className="mr-1 h-5 w-5"
-                  />{' '}
-                  {currentNFT?.price}
-                </div>
+                {isLoadingNFTs ? (
+                  <div className="flex flex-row items-center justify-center">
+                    <CgSpinner className="h-5 w-5 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="flex flex-row items-center">
+                    {tix > 0 && (
+                      <div className="z-10 mx-2 flex items-center justify-center truncate rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
+                        +{tix} TIX
+                      </div>
+                    )}
+                    <img
+                      src="/eth.svg"
+                      alt="hotpot-marketplace"
+                      className="mr-1 h-5 w-5"
+                    />{' '}
+                    {currentNFT?.price}
+                  </div>
+                )}
+
                 <div className="text-sm text-neutral-600 dark:text-neutral-300">
                   {/* {formatDollar(usdPrice)} */}
                 </div>
@@ -301,6 +308,7 @@ const PriceData: FC<Props> = ({
                   }
                   collectionId={contract}
                   tokenId={tokenId}
+                  tokenDetails={token?.token}
                   onListingComplete={() => {
                     details && details.mutate()
                   }}
@@ -335,7 +343,10 @@ const PriceData: FC<Props> = ({
               {isHotpot && !isOwner && (
                 <BuyModal
                   trigger={
-                    <button className="btn-primary-fill col-span-1">
+                    <button
+                      className="btn-primary-fill col-span-1"
+                      disabled={isLoadingNFTs}
+                    >
                       Buy Now
                     </button>
                   }

@@ -57,6 +57,9 @@ const BuyCartModal: React.FC<Props> = ({
   const provider = useProvider()
   const { data: signer } = useSigner()
   const [isMounted, setIsMounted] = useState<boolean>(false)
+  const [isApproved, setIsApproved] = useState<boolean>(false)
+  const [txn, setTxn] = useState<string[]>([])
+
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
@@ -95,9 +98,13 @@ const BuyCartModal: React.FC<Props> = ({
         const buyNFT = await NftMarketplace.purchaseItem(itemId, {
           value: priceInWei,
         })
-        console.log('Listing Transaction Hash:', buyNFT.hash)
-      }
 
+        console.log('Listing Transaction Hash:', buyNFT.hash)
+        setIsApproved(true)
+        setTxn((prevTxn) => [...prevTxn, buyNFT.hash])
+        await buyNFT.wait()
+      }
+      setIsApproved(false)
       setIsLoading(false)
       setIsSuccess(true)
       handleSuccess()
@@ -129,6 +136,8 @@ const BuyCartModal: React.FC<Props> = ({
             <h2 className="text-md m-0 items-center justify-center font-semibold text-gray-900">
               {isSuccess
                 ? 'Your purchase has been processed!'
+                : isApproved
+                ? 'Finalizing on the blockchain'
                 : 'Complete Checkout'}
             </h2>
           </Dialog.Title>
@@ -151,7 +160,7 @@ const BuyCartModal: React.FC<Props> = ({
         ) : (
           <div className="m-2 flex min-h-[200px] flex-row md:flex-grow md:flex-col">
             {isSuccess ? (
-              <div className="relative mt-4 flex flex-col items-center justify-center gap-5">
+              <div className="relative mt-4 flex flex-col items-center justify-center gap-2">
                 <div className="absolute inset-0 z-10 mt-6 flex scale-125 transform items-center justify-center">
                   <img src="/success.gif" className="object-cover" />
                 </div>
@@ -162,6 +171,19 @@ const BuyCartModal: React.FC<Props> = ({
                 <div className="text-sm font-light text-gray-500 ">
                   Your NFT has been sent to your wallet
                 </div>
+                {/* <div className="z-20 text-xs font-light text-gray-400">
+                  {txn.map((tx, index) => (
+                    <a
+                      key={index}
+                      href={`https://sepolia.etherscan.io/tx/${tx}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block hover:underline"
+                    >
+                      View Transaction: {tx.substring(0, 10)}
+                    </a>
+                  ))}
+                </div> */}
               </div>
             ) : (
               <>
@@ -239,7 +261,9 @@ const BuyCartModal: React.FC<Props> = ({
                       {isLoading ? (
                         <>
                           <CgSpinner className="mr-2 inline-block h-6 w-6 animate-spin" />
-                          Waiting for approval
+                          {isApproved
+                            ? 'Waiting to be Validated'
+                            : 'Waiting for Approval'}
                         </>
                       ) : error ? (
                         'Retry'
