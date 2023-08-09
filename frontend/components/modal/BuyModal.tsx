@@ -31,7 +31,6 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   onBuyComplete?: (data: BuyCallbackData) => void
   onBuyError?: (error: Error, data: BuyCallbackData) => void
   onClose?: () => void
-  signer: ReturnType<typeof useSigner>['data']
   mutate?: SWRResponse['mutate']
 }
 

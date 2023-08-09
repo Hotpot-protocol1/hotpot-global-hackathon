@@ -324,7 +324,6 @@ const TokenCard: FC<Props> = ({
               tokenDetails={token?.token}
               collectionImage={collectionImage}
               mutate={mutate}
-              signer={signer}
             />
             {isInCart && (
               <button
