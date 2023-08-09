@@ -10,6 +10,7 @@ import { useMediaQuery } from '@react-hookz/web'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Hero from 'components/Hero'
+import PotResultBanner from 'components/PotResultBanner'
 
 // Environment variables
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
@@ -80,7 +81,7 @@ const Home: NextPage<Props> = ({ fallback }) => {
         {description}
         {image}
       </Head>
-
+      <PotResultBanner />
       <header className="col-span-full mt-4 mb-12 px-2 md:mt-5 lg:px-12">
         <Hero />
         <h1 className="reservoir-h1 mt-14 text-center dark:text-white">

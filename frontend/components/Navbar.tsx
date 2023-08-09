@@ -10,6 +10,7 @@ import SearchMenu from './SearchMenu'
 import { useMediaQuery } from '@react-hookz/web'
 import useMounted from 'hooks/useMounted'
 import Ticket from './Ticket'
+import Link from 'next/link'
 
 const SearchCollections = dynamic(() => import('./SearchCollections'))
 const CommunityDropdown = dynamic(() => import('./CommunityDropdown'))
@@ -123,19 +124,26 @@ const Navbar: FC = () => {
   return (
     <nav className="sticky top-0 z-[1000] col-span-full flex items-center justify-between gap-2 border-b border-[#D4D4D4] bg-white px-6 py-4 dark:border-neutral-600 dark:bg-black md:gap-3 md:py-6 md:px-16">
       <NavbarLogo className="max-w-60 z-10" />
-      {showLinks && (
-        <div className="z-10 ml-12 mr-12 hidden items-center gap-11 md:flex">
-          {externalLinks.map(({ name, url }) => (
-            <a
-              key={url}
-              href={url}
-              className="text-dark reservoir-h6 font-medium hover:text-[#1F2937] dark:text-white"
-            >
-              {name}
-            </a>
-          ))}
-        </div>
-      )}
+
+      <div className="z-10 ml-12 mr-12 hidden items-center gap-11 md:flex">
+        <Link href="/" legacyBehavior={true}>
+          <a
+            href="/"
+            className="text-dark reservoir-h6 font-medium hover:text-[#1F2937] dark:text-white"
+          >
+            Discover
+          </a>
+        </Link>
+        <Link href="/rewards" legacyBehavior={true}>
+          <a
+            href="/rewards"
+            className="text-dark reservoir-h6 font-medium hover:text-[#1F2937] dark:text-white"
+          >
+            Rewards
+          </a>
+        </Link>
+      </div>
+
       {(hasCommunityDropdown || showDesktopSearch) && (
         <div className="flex h-full w-full items-center">
           {filterComponent && filterComponent}
