@@ -16,7 +16,7 @@ import PotResultBanner from 'components/PotResultBanner'
 type Props = InferGetStaticPropsType<typeof getStaticProps>
 
 const Rewards: NextPage<Props> = () => {
-  const { isConnected } = useAccount()
+  const account = useAccount()
   const isMounted = useMounted()
 
   if (!isMounted) {
@@ -34,7 +34,7 @@ const Rewards: NextPage<Props> = () => {
         <Hero variant="rewards" />
         <TicketsGrid />
         <Leaderboard />
-        {isConnected ? <></> : <div className=""></div>}
+        {account.isConnected ? <></> : <div className=""></div>}
         <Faq />
       </div>
       <Footer />
