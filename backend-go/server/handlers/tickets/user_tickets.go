@@ -24,6 +24,8 @@ func validateChain(chain string) (int, error) {
 		return eventservice.ChainSepolia, nil
 	case "xdc":
 		return eventservice.ChainXDC, nil
+	case "goerli":
+		return eventservice.ChainGoerli, nil
 	}
 
 	return 0, errors.New("chain doesn't exist")

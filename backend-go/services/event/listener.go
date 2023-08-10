@@ -32,17 +32,8 @@ const (
 	ChainMainnet = iota
 	ChainSepolia
 	ChainXDC
+	ChainGoerli
 )
-
-// Marketplace: [xdcBE786989E194433365f34B45BdC9760c246c3f35](https://apothem.blocksscan.io/address/xdcbe786989e194433365f34b45bdc9760c246c3f35#transactions)
-
-// Hotpot implementation: [xdc6554bc9bcBa2bB6E4F957A6425B9038C70E29085](https://apothem.blocksscan.io/address/xdc6554bc9bcba2bb6e4f957a6425b9038c70e29085#transactions)
-
-// Hotpot Factory: [xdc4b5F283ecc3e609252caf1980D534Cf3779206a2](https://apothem.blocksscan.io/address/xdc4b5f283ecc3e609252caf1980d534cf3779206a2#transactions)
-
-// Hotpot: [xdc4B20b152C338Fa96F639BBc170270f544523b307](https://apothem.blocksscan.io/address/xdc4B20b152C338Fa96F639BBc170270f544523b307#transactions)
-
-// Operator: xdcaE789C29DF5de1d2B36D7ACD695fcBdb55be85ab
 
 func InitializeInfura(proxyAddress, rpcBaseURL, rpcApiKey string) *Infura {
 	return &Infura{proxyAddress: proxyAddress, baseURL: rpcBaseURL, apiKey: rpcApiKey, potID: 1}
@@ -116,19 +107,19 @@ func (i *Infura) listen(userDBHandle db.UserTickets) error {
 			switch vLog.Topics[0].Hex() {
 			case logGenerateTicketsSigHash.Hex():
 				fmt.Println("GENERATE TICKETS")
-				err = i.tryRaffleTicketsCatch(ChainSepolia, instance, userDBHandle, contractAbi, vLog)
+				err = i.tryRaffleTicketsCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog)
 				if err != nil {
 					fmt.Printf("unpack raffle tickets catch problem: %v \n", err)
 				}
 			case logRandomWordReqSigHash.Hex():
 				fmt.Println("RANDOM WORD REQ")
-				err = i.tryRandomWordRequestedCatch(ChainSepolia, instance, contractAbi, vLog)
+				err = i.tryRandomWordRequestedCatch(ChainGoerli, instance, contractAbi, vLog)
 				if err != nil {
 					fmt.Printf("unpack random word requested catch problem: %v \n", err)
 				}
 			case logRandomWordFulSigHash.Hex():
 				fmt.Println("RANDOM WORD FUL")
-				err = i.tryRandomWordFulfilledCatch(ChainSepolia, instance, userDBHandle, contractAbi, vLog)
+				err = i.tryRandomWordFulfilledCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog)
 				if err != nil {
 					fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
 				}
