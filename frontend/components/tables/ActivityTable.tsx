@@ -23,7 +23,7 @@ import useTix from 'lib/tix'
 import { useHotpotContext } from 'context/HotpotContext'
 
 const RESERVOIR_API_BASE = process.env.NEXT_PUBLIC_RESERVOIR_API_BASE
-const MARKET_CONTRACT = '0x4650fE604E42A403494Bf3190611d29419C91602'
+const MARKET_CONTRACT = '0x4650fe604e42a403494bf3190611d29419c91602'
 type CollectionActivityResponse = ReturnType<typeof useCollectionActivity>
 type CollectionActivity = CollectionActivityResponse['data'][0]
 export type CollectionActivityTypes = NonNullable<
@@ -287,13 +287,13 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({
 
   if (
     activity.fromAddress?.toLowerCase() ===
-    '0x4650fE604E42A403494Bf3190611d29419C91602'
+    '0x4650fe604e42a403494bf3190611d29419c91602'
   ) {
     activityDescription = 'Sale'
     logos.transfer = <img src="/hotpot.png" className="mr-2 h-6 w-6" />
   } else if (
     activity.toAddress?.toLowerCase() ===
-    '0x4650fE604E42A403494Bf3190611d29419C91602'
+    '0x4650fe604e42a403494bf3190611d29419c91602'
   ) {
     activityDescription = 'Listing'
     logos.transfer = <img src="/hotpot.png" className="mr-2 h-6 w-6" />
