@@ -1,0 +1,39 @@
+version: "3"
+
+networks:
+  hotpot:
+
+services:
+  hotpot-backend:
+    container_name: hotpot-backend
+    image: 226144105235.dkr.ecr.ap-southeast-1.amazonaws.com/hotpot-global:latest
+
+    restart: always
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-region: "ap-southeast-1"
+        awslogs-group: "debugging"
+        awslogs-stream-prefix: "ecs"
+    environment:
+      - HOTPOT_API_HOST=
+      - HOTPOT_API_PORT=8089
+      - HOTPOT_API_READ_TIMEOUT=120s
+      - HOTPOT_API_WRITE_TIMEOUT=120s
+      - HOTPOT_API_IDLE_TIMEOUT=120s
+      - HOTPOT_API_LOG_LEVEL=debug
+      - HOTPOT_API_INFURA_BASE_URL_WS=wss://sepolia.infura.io/ws/v3/
+      - HOTPOT_API_INFURA_BASE_URL=https://sepolia.infura.io/v3/
+      - HOTPOT_API_INFURA_KEY=2c30c4fcc5dd4c48b7c067f64bf06bc7
+      - HOTPOT_API_OPERATOR_PRIV_KEY=ca97802244de68c94a3b7a41974891532734040d37eeea037f597d65de890122
+      - HOTPOT_API_PROXY_CONTRACT_ADDRESS=0x8Dc5DfCED235d297d41FA932dBbF19F7aC20D990
+      - HOTPOT_API_MARKETPLACE_CONTRACT_ADDRESS=0x4cFef2903d920069984D30e39Eb5D9a1c6e08Fc0
+      - HOTPOT_API_DATABASE_NAME=hotpot
+      - HOTPOT_API_DATABASE_HOST=hotpot-db.clfopfxkucgt.ap-southeast-1.rds.amazonaws.com
+      - HOTPOT_API_DATABASE_PORT=5432
+      - HOTPOT_API_DATABASE_USER=postgres
+      - HOTPOT_API_DATABASE_PASSWORD=FXI9U2PhqVZAtGQvpoi5
+      - HOTPOT_API_DATABASE_SSL=disable
+    ports:
+      - 80:8089
+    command: bash -c "./hotpot-backend run"
