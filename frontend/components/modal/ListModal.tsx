@@ -465,7 +465,7 @@ const ListModal: React.FC<Props> = ({
             </div>
             <div className="z-20 mt-4 bg-white text-xs font-light text-gray-400">
               <a
-                href={`https://sepolia.etherscan.io/tx/${txn}`}
+                href={`https://goerli.etherscan.io/tx/${txn}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"

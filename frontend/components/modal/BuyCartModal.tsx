@@ -175,7 +175,7 @@ const BuyCartModal: React.FC<Props> = ({
                   {txn.map((tx, index) => (
                     <a
                       key={index}
-                      href={`https://sepolia.etherscan.io/tx/${tx}`}
+                      href={`https://goerli.etherscan.io/tx/${tx}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block hover:underline"
