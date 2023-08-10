@@ -48,6 +48,7 @@ const TicketsGrid: FC<TicketsGridProps> = () => {
       if (address) {
         const { currentPot, pots } = await getLatestPot(address)
         if (pots) {
+          console.log(pots)
           const potsWithRaffle = pots.filter(
             (pot) => pot.raffle_timestamp !== null
           )
@@ -166,7 +167,7 @@ const TicketsGrid: FC<TicketsGridProps> = () => {
           </h2>
           {data?.NumOfTickets === 0 ? (
             <div className="grid-rows-10 md:grid-rows-19 m-4 grid max-h-[500px] grid-cols-5 gap-4 overflow-auto md:grid-cols-10">
-              <div>Not tickets</div>
+              <div>No tickets</div>
             </div>
           ) : (
             <div className="grid-rows-10 md:grid-rows-19 m-4 grid max-h-[500px] grid-cols-5 gap-4 overflow-auto md:grid-cols-10">
@@ -192,7 +193,6 @@ const TicketsGrid: FC<TicketsGridProps> = () => {
                       : 'cursor-pointer bg-[#E1D8FD] text-[#A58AF9]'
                   }`}
                   style={{ cursor: ticket.is_winner ? 'pointer' : 'default' }}
-                  onClick={() => {}}
                 >
                   {tab !== 'current' && ticket.is_winner ? (
                     <>

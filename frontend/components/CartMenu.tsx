@@ -19,6 +19,7 @@ import { getPricing } from 'lib/token/pricing'
 import { formatEther } from 'ethers/lib/utils'
 import { CgSpinner } from 'react-icons/cg'
 import BuyCartModal from './modal/BuyCartModal'
+import ConnectWalletButton from './ConnectWalletButton'
 type UseBalanceToken = NonNullable<Parameters<typeof useBalance>['0']>['token']
 
 const slideDown = keyframes({
@@ -50,6 +51,7 @@ const CartMenu: FC = () => {
   const [waitingTx, setWaitingTx] = useState<boolean>(false)
   const { data: signer } = useSigner()
   const { address } = useAccount()
+  const accountData = useAccount()
   const reservoirClient = useReservoirClient()
   const { data: balance } = useBalance({
     address: address,
@@ -244,47 +246,29 @@ const CartMenu: FC = () => {
             </div>
           )}
         </div>
-        {/* {balance?.formatted && +balance.formatted < cartTotal && (
-          <div className="mb-2 text-center ">
-            <span className="reservoir-headings text-[#FF6369]">
-              Insufficient balance{' '}
-            </span>
-            <FormatCrypto
-              amount={+balance.formatted}
-              address={cartCurrency?.contract}
-              decimals={cartCurrency?.decimals}
-            />
-          </div>
-        )} */}
-
-        <BuyCartModal
-          trigger={
-            <button
-              onClick={() => setWaitingTx(true)}
-              className="btn-primary-fill w-full"
-              disabled={cartTotal.state === 'loading' || waitingTx}
-            >
-              {waitingTx && <CgSpinner className="h-4 w-4 animate-spin" />}
-              {waitingTx ? 'Waiting' : 'Purchase'}
-            </button>
-          }
-          cartTokens={cartTokens}
-          totalPrice={formattedCartTotal}
-          setWaitingTx={handleWaitingTx}
-          handleSuccess={handleSuccess}
-          cartCount={cartCount}
-        />
-        {/* <button
-          onClick={() => signer && execute(signer)}
-          // disabled={
-          //   cartCount === 0 ||
-          //   waitingTx ||
-          //   Boolean(balance?.formatted && +balance.formatted < cartTotal)
-          // }
-          className="w-full btn-primary-fill"
-        >
-          {waitingTx ? 'Waiting' : 'Purchase'}
-        </button> */}
+        {accountData?.isConnected ? (
+          <BuyCartModal
+            trigger={
+              <button
+                onClick={() => setWaitingTx(true)}
+                className="btn-primary-fill w-full"
+                disabled={cartTotal.state === 'loading' || waitingTx}
+              >
+                {waitingTx && <CgSpinner className="h-4 w-4 animate-spin" />}
+                {waitingTx ? 'Waiting' : 'Purchase'}
+              </button>
+            }
+            cartTokens={cartTokens}
+            totalPrice={formattedCartTotal}
+            setWaitingTx={handleWaitingTx}
+            handleSuccess={handleSuccess}
+            cartCount={cartCount}
+          />
+        ) : (
+          <ConnectWalletButton className="w-full">
+            <span>Connect Wallet</span>
+          </ConnectWalletButton>
+        )}
       </StyledContent>
     </Popover.Root>
   )
