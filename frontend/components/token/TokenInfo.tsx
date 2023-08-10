@@ -77,7 +77,7 @@ const TokenInfo: FC<Props> = ({ token }) => {
         </div>
         <div className="flex items-center gap-2">
           {token?.owner?.trim() ==
-          '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0' ? (
+          '0x4650fE604E42A403494Bf3190611d29419C91602' ? (
             <a
               className="reservoir-h6 font-headings"
               target="_blank"

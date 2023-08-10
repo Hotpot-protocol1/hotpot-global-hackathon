@@ -207,7 +207,7 @@ const PriceData: FC<Props> = ({
   const isInCart = Boolean(tokensMap[`${contract}:${tokenId}`])
 
   const isHotpot =
-    tokenDetails?.owner == '0x4cfef2903d920069984d30e39eb5d9a1c6e08fc0'
+    tokenDetails?.owner == '0x4650fE604E42A403494Bf3190611d29419C91602'
 
   const tix = useTix(currentNFT?.price ?? '0')
 

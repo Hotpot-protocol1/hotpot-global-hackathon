@@ -14,7 +14,7 @@ export type Item = {
 
 const getAllListedNFTs = async (): Promise<Item[] | null> => {
   const provider = new ethers.providers.JsonRpcProvider(
-    `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`
+    `https://eth-goerli.g.alchemy.com/v2/${alchemyKey}`
   )
   const contract = new ethers.Contract(
     NFTMarketplace_CONTRACT_SEP,

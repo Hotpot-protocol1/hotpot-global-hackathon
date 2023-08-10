@@ -5,7 +5,7 @@ const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_ID
 
 const getTicketCost = async (): Promise<string | null> => {
   const provider = new ethers.providers.JsonRpcProvider(
-    `https://eth-sepolia.g.alchemy.com/v2/${alchemyKey}`
+    `https://eth-goerli.g.alchemy.com/v2/${alchemyKey}`
   )
   const contract = new ethers.Contract(Hotpot_CONTRACT_SEP, hotpotAbi, provider)
 
