@@ -6,7 +6,7 @@ const useTix = (amount: number | string): number => {
     return 0
   }
 
-  return Math.floor(parsedAmount / 0.2)
+  return Math.floor(parsedAmount / 0.01)
 }
 
 export default useTix
