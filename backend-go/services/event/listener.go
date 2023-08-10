@@ -53,17 +53,6 @@ func (i *Infura) Start(userDBHandle db.UserTickets, log *logrus.Entry) {
 		defer RecoverFromPanic(log)
 
 		for {
-			err := i.listen(userDBHandle)
-			if err != nil {
-				log.WithError(err).Error("Listening to WS failed")
-			}
-		}
-	}()
-
-	go func() {
-		defer RecoverFromPanic(log)
-
-		for {
 			err := i.listenXDC(userDBHandle)
 			if err != nil {
 				log.WithError(err).Error("Listening to WS failed")
@@ -83,10 +72,6 @@ func (i *Infura) listenXDC(userDBHandle db.UserTickets) error {
 		Addresses: []common.Address{addr},
 	}
 
-	// logs, err := client.FilterLogs(context.Background(), query)
-	// if err != nil {
-	// 	return fmt.Errorf("logs problem: %v", err)
-	// }
 	logs := make(chan types.Log)
 
 	marketplaceAbiFile, err := os.Open("config/hotpot-abi.json")
@@ -122,7 +107,6 @@ func (i *Infura) listenXDC(userDBHandle db.UserTickets) error {
 			return fmt.Errorf("log sub problem %v", err)
 		case vLog := <-logs:
 			fmt.Println("TX HASH: ", vLog.TxHash.Hex())
-			// for _, vLog := range logs {
 			switch vLog.Topics[0].Hex() {
 			case logGenerateTicketsSigHash.Hex():
 				fmt.Println("GENERATE TICKETS")
@@ -146,86 +130,6 @@ func (i *Infura) listenXDC(userDBHandle db.UserTickets) error {
 		}
 	}
 }
-
-func (i *Infura) listen(userDBHandle db.UserTickets) error {
-	dialURL := i.baseURL + i.apiKey
-	client, err := ethclient.Dial(dialURL)
-	if err != nil {
-		return fmt.Errorf("dial problem: %v", err)
-	}
-
-	addr := common.HexToAddress(i.proxyAddress)
-	query := ethereum.FilterQuery{
-		Addresses: []common.Address{addr},
-	}
-
-	// logs, err := client.FilterLogs(context.Background(), query)
-	// if err != nil {
-	// 	return fmt.Errorf("logs problem: %v", err)
-	// }
-	logs := make(chan types.Log)
-
-	marketplaceAbiFile, err := os.Open("config/hotpot-abi.json")
-	if err != nil {
-		return fmt.Errorf("open file problem: %v", err)
-	}
-
-	contractAbi, err := abi.JSON(marketplaceAbiFile)
-	if err != nil {
-		return fmt.Errorf("abi json problem: %v", err)
-	}
-
-	instance, err := hotpot.NewHotpot(addr, client)
-	if err != nil {
-		return fmt.Errorf("instance error: %v", err)
-	}
-
-	logGenerateTicketsSig := []byte("GenerateRaffleTickets(address,address,uint32,uint32,uint32,uint32,uint256,uint256)")
-	logRandomWordReqSig := []byte("RandomWordRequested(uint256,uint32,uint32)")
-	logRandomWordFulSig := []byte("RandomnessFulfilled(uint16,uint256)")
-	logGenerateTicketsSigHash := crypto.Keccak256Hash(logGenerateTicketsSig)
-	logRandomWordReqSigHash := crypto.Keccak256Hash(logRandomWordReqSig)
-	logRandomWordFulSigHash := crypto.Keccak256Hash(logRandomWordFulSig)
-
-	sub, err := client.SubscribeFilterLogs(context.Background(), query, logs)
-	if err != nil {
-		return fmt.Errorf("subscribe to logs problem: %v", err)
-	}
-
-	for {
-		select {
-		case err := <-sub.Err():
-			return fmt.Errorf("log sub problem %v", err)
-		case vLog := <-logs:
-			fmt.Println("TX HASH: ", vLog.TxHash.Hex())
-			// for _, vLog := range logs {
-			switch vLog.Topics[0].Hex() {
-			case logGenerateTicketsSigHash.Hex():
-				fmt.Println("GENERATE TICKETS")
-				err = i.tryRaffleTicketsCatch(ChainSepolia, instance, userDBHandle, contractAbi, vLog)
-				if err != nil {
-					fmt.Printf("unpack raffle tickets catch problem: %v \n", err)
-				}
-			case logRandomWordReqSigHash.Hex():
-				fmt.Println("RANDOM WORD REQ")
-				err = i.tryRandomWordRequestedCatch(ChainSepolia, instance, contractAbi, vLog)
-				if err != nil {
-					fmt.Printf("unpack random word requested catch problem: %v \n", err)
-				}
-			case logRandomWordFulSigHash.Hex():
-				fmt.Println("RANDOM WORD FUL")
-				err = i.tryRandomWordFulfilledCatch(ChainSepolia, instance, userDBHandle, contractAbi, vLog)
-				if err != nil {
-					fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
-				}
-			}
-		}
-	}
-
-	// return nil
-}
-
-// }
 
 func (infura *Infura) tryRandomWordRequestedCatch(chain int, hotpot *hotpot.Hotpot, contractAbi abi.ABI, vLog types.Log) error {
 	_, err := contractAbi.Unpack("RandomWordRequested", vLog.Data)
