@@ -30,11 +30,9 @@ import ConnectWalletButton from 'components/ConnectWalletButton'
 import useMounted from 'hooks/useMounted'
 import { useRouter } from 'next/router'
 import { getPricing } from 'lib/token/pricing'
-import { useContract } from 'wagmi'
-import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
 import { CgSpinner } from 'react-icons/cg'
 import BuyModal from 'components/modal/BuyModal'
-import ListModal2 from '../../components/modal/ListModal'
+import ListModalCustom from '../../components/modal/ListModal'
 import useTix from 'lib/tix'
 import { useHotpotContext } from 'context/HotpotContext'
 
@@ -298,7 +296,7 @@ const PriceData: FC<Props> = ({
           ) : (
             <>
               {isOwner && (
-                <ListModal2
+                <ListModalCustom
                   trigger={
                     <button className="btn-primary-fill w-full dark:ring-primary-900 dark:focus:ring-4">
                       {floorAskPrice?.amount?.decimal
@@ -309,9 +307,7 @@ const PriceData: FC<Props> = ({
                   collectionId={contract}
                   tokenId={tokenId}
                   tokenDetails={token?.token}
-                  onListingComplete={() => {
-                    details && details.mutate()
-                  }}
+                  mutate={details.mutate}
                   onListingError={(err: any) => {
                     if (err?.code === 4001) {
                       setToast({
@@ -353,6 +349,7 @@ const PriceData: FC<Props> = ({
                   itemId={currentNFT?.itemId}
                   price={currentNFT?.price}
                   tokenDetails={tokenDetails}
+                  mutate={details.mutate}
                 />
               )}
 

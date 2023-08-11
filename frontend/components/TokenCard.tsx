@@ -24,7 +24,7 @@ import { useMediaQuery } from '@react-hookz/web'
 import RarityTooltip from './RarityTooltip'
 import { Collection } from 'types/reservoir'
 import { getPricing } from 'lib/token/pricing'
-import ListModal2 from './modal/ListModal'
+import ListModalCustom from './modal/ListModal'
 import BuyModal from './modal/BuyModal'
 import useTix from '../lib/tix'
 import { useHotpotContext } from 'context/HotpotContext'
@@ -276,7 +276,7 @@ const TokenCard: FC<Props> = ({
 
         {isOwner && (
           <div className="grid">
-            <ListModal2
+            <ListModalCustom
               trigger={
                 <button className="btn-primary-fill reservoir-subtitle flex h-[40px] items-center justify-center whitespace-nowrap rounded-none text-white focus:ring-0">
                   {price?.amount?.decimal
@@ -287,9 +287,7 @@ const TokenCard: FC<Props> = ({
               collectionId={token.token?.contract}
               tokenId={token.token?.tokenId}
               tokenDetails={token?.token}
-              onListingComplete={() => {
-                mutate()
-              }}
+              mutate={mutate}
               onListingError={(err: any) => {
                 if (err?.code === 4001) {
                   setToast({

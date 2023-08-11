@@ -24,6 +24,7 @@ import {
   NFTMarketplace_CONTRACT_SEP,
 } from '../../contracts/index'
 import useTix from 'lib/tix'
+import { SWRResponse } from 'swr'
 
 enum STEPS {
   SelectMarkets = 0,
@@ -55,9 +56,9 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   copyOverrides?: Partial<typeof ModalCopy>
   feesBps?: string[]
   onGoToToken?: () => any
-  onListingComplete?: () => void
   onListingError?: (error: Error) => void
   onClose?: () => void
+  mutate?: SWRResponse['mutate']
 }
 
 const ListModal: React.FC<Props> = ({
@@ -65,8 +66,8 @@ const ListModal: React.FC<Props> = ({
   tokenId,
   tokenDetails,
   collectionId,
-  onListingComplete,
   onListingError,
+  mutate,
 }) => {
   const [step, setStep] = useState(STEPS.SelectMarkets)
   const [isLoading, setIsLoading] = useState(false)
@@ -79,6 +80,7 @@ const ListModal: React.FC<Props> = ({
   const [alert, setAlert] = useState<string | null>(null)
   const [txn, setTxn] = useState<string>('')
   const [toast, setToast] = useState(null)
+
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
   const imageSize = singleColumnBreakpoint ? 533 : 250
 
@@ -168,8 +170,8 @@ const ListModal: React.FC<Props> = ({
     setStep(0)
     setError(null)
     setAlert(null)
-    if (onListingComplete) {
-      onListingComplete()
+    if (mutate) {
+      mutate()
     }
   }
 
@@ -213,11 +215,13 @@ const ListModal: React.FC<Props> = ({
     if (error) {
       return handleSubmit
     }
+
     if (step === STEPS.SetPrice) {
       return handleSubmit
     }
+
     return onNext
-  }, [step, isLoading, error])
+  }, [step, isLoading, error, priceValue])
 
   if (!isMounted) {
     return null
@@ -338,7 +342,7 @@ const ListModal: React.FC<Props> = ({
                 <div className="flex items-center">
                   <img src="/hotpot.png" className="mr-4 h-8 w-8 flex-none" />
                   <img src="/eth.svg" className="mr-1 h-4 w-4" alt="price" />
-                  <div className="">SEP</div>
+                  <div className="">ETH</div>
                 </div>
               </div>
               <input
@@ -565,7 +569,9 @@ const ListModal: React.FC<Props> = ({
               {step !== STEPS.Complete && (
                 <button
                   onClick={primaryAction}
-                  disabled={isLoading}
+                  disabled={
+                    isLoading || (step === STEPS.SetPrice && priceValue <= 0)
+                  }
                   className="w-full rounded bg-[#7000FF] py-2 text-white hover:bg-[#430099]"
                 >
                   {isLoading ? (

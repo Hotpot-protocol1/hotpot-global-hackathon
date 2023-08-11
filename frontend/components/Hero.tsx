@@ -36,8 +36,8 @@ const Hero: React.FC<HeroProps> = ({ variant }) => {
                   <CgSpinner className="h-6 w-6 animate-spin text-center" />
                 </div>
               ) : (
-                <div className="text-xl md:text-2xl">
-                  {prizePool?.currentPotSize?.slice(0, 4)}{' '}
+                <div className="text-xl md:text-xl">
+                  {prizePool?.currentPotSize?.slice(0, 5)}{' '}
                   <span className="text-lg md:text-xl">ETH</span> /{' '}
                   <span className="text-purple-600">
                     {prizePool?.potLimit?.slice(0, 4)}{' '}

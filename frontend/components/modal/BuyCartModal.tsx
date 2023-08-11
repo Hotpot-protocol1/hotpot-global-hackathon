@@ -47,7 +47,6 @@ const BuyCartModal: React.FC<Props> = ({
   trigger,
   cartTokens,
   totalPrice,
-  onBuyComplete = () => {},
   setWaitingTx,
   handleSuccess,
   cartCount,
@@ -171,19 +170,7 @@ const BuyCartModal: React.FC<Props> = ({
                 <div className="text-sm font-light text-gray-500 ">
                   Your NFT has been sent to your wallet
                 </div>
-                {/* <div className="z-20 text-xs font-light text-gray-400">
-                  {txn.map((tx, index) => (
-                    <a
-                      key={index}
-                      href={`https://goerli.etherscan.io/tx/${tx}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block hover:underline"
-                    >
-                      View Transaction: {tx.substring(0, 10)}
-                    </a>
-                  ))}
-                </div> */}
+                {/* View Transaction */}
               </div>
             ) : (
               <>
