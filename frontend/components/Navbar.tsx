@@ -11,6 +11,7 @@ import { useMediaQuery } from '@react-hookz/web'
 import useMounted from 'hooks/useMounted'
 import Ticket from './Ticket'
 import Link from 'next/link'
+import SelectChain from './SelectChain'
 
 const SearchCollections = dynamic(() => import('./SearchCollections'))
 const CommunityDropdown = dynamic(() => import('./CommunityDropdown'))
@@ -153,7 +154,22 @@ const Navbar: FC = () => {
         <div className="ml-auto flex gap-x-5">
           {!hasCommunityDropdown && filterComponent && filterComponent}
           <CartMenu />
-          <HamburgerMenu externalLinks={externalLinks} />
+          <Link href="/" legacyBehavior={true}>
+            <a
+              href="/"
+              className="text-dark reservoir-h6 font-medium hover:text-[#1F2937] dark:text-white"
+            >
+              Discover
+            </a>
+          </Link>
+          <Link href="/rewards" legacyBehavior={true}>
+            <a
+              href="/rewards"
+              className="text-dark reservoir-h6 font-medium hover:text-[#1F2937] dark:text-white"
+            >
+              Rewards
+            </a>
+          </Link>
         </div>
       ) : (
         <div className="z-10 ml-auto shrink-0 gap-2 md:flex xl:gap-4">
@@ -163,6 +179,7 @@ const Navbar: FC = () => {
             </div>
           )}
           <div className="flex flex-row items-center justify-center gap-2">
+            <SelectChain />
             <Ticket />
             <CartMenu />
             <ConnectWallet />

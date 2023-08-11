@@ -3,6 +3,7 @@ import { useAccount } from 'wagmi'
 import { CgSpinner } from 'react-icons/cg'
 import useSWR from 'swr'
 import { getLatestPot } from 'lib/getLatestPot'
+import Link from 'next/link'
 
 const Ticket: FC = () => {
   const account = useAccount()
@@ -28,15 +29,19 @@ const Ticket: FC = () => {
 
     if (data?.currentPot) {
       return (
-        <div className="flex items-center rounded-lg border border-solid border-[#CFD8E1] px-6 py-2">
-          <div className="text-base font-normal">
-            {' '}
-            <span className="text-purple-800">
-              {data.currentPot.NumOfTickets}
-            </span>{' '}
-            TIX
-          </div>
-        </div>
+        <>
+          <Link href="/rewards" legacyBehavior={true}>
+            <div className="flex items-center rounded-lg border border-solid border-[#CFD8E1] px-6 py-2">
+              <div className="text-base font-normal">
+                {' '}
+                <span className="text-purple-800">
+                  {data.currentPot.NumOfTickets}
+                </span>{' '}
+                TIX
+              </div>
+            </div>
+          </Link>
+        </>
       )
     }
   }

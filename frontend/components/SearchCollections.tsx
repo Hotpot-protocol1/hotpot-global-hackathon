@@ -86,7 +86,6 @@ const SearchCollections: FC<Props> = ({
         const data = (await res.json()) as SearchCollectionsAPISuccessResponse
 
         if (!data) throw new ReferenceError('Data does not exist.')
-
         setResults(data)
       } catch (err) {
         console.error(err)
@@ -138,7 +137,7 @@ const SearchCollections: FC<Props> = ({
             className={
               isMobile
                 ? 'ml-[72px] h-[72px] w-full outline-none dark:bg-black'
-                : `reservoir-label-l input-primary-outline w-full pl-9 dark:border-neutral-600 dark:bg-neutral-800 dark:text-white dark:ring-primary-900 dark:placeholder:text-neutral-400  dark:focus:ring-4 lg:w-[447px]`
+                : `reservoir-label-l input-primary-outline w-full pl-9 dark:border-neutral-600 dark:bg-neutral-800 dark:text-white dark:ring-primary-900 dark:placeholder:text-neutral-400  dark:focus:ring-4 lg:w-[400px]`
             }
             placeholder="Search for a collection"
             {...getInputProps()}

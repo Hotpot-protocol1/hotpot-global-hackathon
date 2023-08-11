@@ -15,10 +15,10 @@ export const getLatestPot = async (
 ): Promise<{ currentPot: PotData | null; pots: Pots[] | null }> => {
   try {
     const currentPotPromise = fetch(
-      `https://api.metalistings.xyz/user/${user}/pot/current`
+      `https://api.hotpot.gg/user/${user}/pot/current?chain=goerli`
     ).then((res) => res.json())
     const potsPromise = fetch(
-      `https://api.metalistings.xyz/user/${user}/pot`
+      `https://api.hotpot.gg/user/${user}/pot?chain=goerli`
     ).then((res) => res.json())
 
     const [currentPot, pots] = await Promise.all([
