@@ -12,7 +12,7 @@ const PotResultBanner = () => {
     if (isConnected && address) {
       getRafflePot(address)
         .then((res) => {
-          setIsRaffleDrawn(!res?.pot_id);
+          setIsRaffleDrawn(!res);
         })
     }
   }, [isConnected, address]);
