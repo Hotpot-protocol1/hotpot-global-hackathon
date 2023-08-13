@@ -7,7 +7,7 @@ import React, {
   useRef,
 } from 'react'
 import { ethers } from 'ethers'
-import { useContract, useProvider, useSigner } from 'wagmi'
+import { useAccount, useContract, useProvider, useSigner } from 'wagmi'
 import * as Switch from '@radix-ui/react-switch'
 import * as Dialog from '@radix-ui/react-dialog'
 import { CgMore, CgSpinner } from 'react-icons/cg'
@@ -73,6 +73,7 @@ const ListModal: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false)
   const provider = useProvider()
   const { data: signer } = useSigner()
+  const account = useAccount()
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [priceValue, setPriceValue] = useState<number>(0)
@@ -130,14 +131,23 @@ const ListModal: React.FC<Props> = ({
         return
       }
 
-      // Call the `approve` function on the NFT contract
-      const approvalTx = await Nft.approve(NftMarketplace.address, tokenId)
-      console.log('Approval Transaction Hash:', approvalTx.hash)
+      // Check if Hotpot is already approved to manage all of the owner's tokens
+      const isAlreadyApproved = await Nft.isApprovedForAll(
+        account.address,
+        NftMarketplace.address
+      )
 
-      // Wait for the approval transaction to be confirmed
-      await approvalTx.wait()
+      if (!isAlreadyApproved) {
+        // If not approved, call the `setApprovalForAll` function on the NFT contract
+        const approvalTx = await Nft.setApprovalForAll(
+          NftMarketplace.address,
+          true
+        )
+        console.log('Approval Transaction Hash:', approvalTx.hash)
+        await approvalTx.wait() // Wait for the approval transaction to be confirmed
+      }
 
-      // After approval, call the `makeItem` function on the marketplace
+      // After approval, call the `makeItem` function on the Hotpot marketplace
       const listingTx = await NftMarketplace.makeItem(
         collectionId,
         tokenId,

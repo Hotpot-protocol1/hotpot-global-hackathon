@@ -25,7 +25,6 @@ export const getLatestPot = async (
       currentPotPromise,
       potsPromise,
     ])
-
     return {
       currentPot,
       pots,

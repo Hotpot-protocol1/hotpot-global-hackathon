@@ -20,7 +20,6 @@ interface TicketsGridProps {
 
 const TicketsGrid: FC<TicketsGridProps> = () => {
   const [tab, setTab] = useState<string>('current')
-  const [dummyData, setDummyData] = useState<Ticket[]>([])
   const [data, setData] = useState<PotData | null>(null)
   const [previousData, setPreviousData] = useState<PotData | null>(null)
   const { prizePool, isLoadingPrizePool } = useHotpotContext()
@@ -34,34 +33,28 @@ const TicketsGrid: FC<TicketsGridProps> = () => {
   const account = useAccount()
   const { address } = useAccount()
   const isMounted = useMounted()
+  const dummyTicket = 1234
 
   useEffect(() => {
-    if (account?.isDisconnected) {
-      setDummyData(
-        Array.from({ length: 50 }, (_, i) => ({
-          number: Math.floor(Math.random() * 90000 + 10000),
-          date: new Date(Date.now() - (i % 200) * 24 * 60 * 60 * 1000),
-        }))
-      )
-    }
-    const fetchLatestPotData = async () => {
-      if (address) {
-        const { currentPot, pots } = await getLatestPot(address)
-        if (pots) {
-          console.log(pots)
-          const potsWithRaffle = pots.filter(
-            (pot) => pot.raffle_timestamp !== null
-          )
-          const lastTwoPots = potsWithRaffle.slice(-2)
+    if (account.isConnected) {
+      const fetchLatestPotData = async () => {
+        if (address) {
+          const { currentPot, pots } = await getLatestPot(address)
+          if (pots) {
+            const potsWithRaffle = pots.filter(
+              (pot) => pot.raffle_timestamp !== null
+            )
+            const lastTwoPots = potsWithRaffle.slice(-2)
+            setData(currentPot)
+            setTabs(lastTwoPots)
+          }
           setData(currentPot)
-
-          setTabs(lastTwoPots)
         }
-        setData(currentPot)
       }
-    }
 
-    fetchLatestPotData()
+      fetchLatestPotData()
+    }
+    setTab('current')
   }, [address])
 
   const handleTabClick = async (potId: number) => {
@@ -107,7 +100,7 @@ const TicketsGrid: FC<TicketsGridProps> = () => {
             </div>
 
             <h2 className="m-4 font-medium text-[#FF60D5]">My Tickets: 1445</h2>
-            <div className="grid-rows-10 md:grid-rows-19 m-4 grid max-h-[500px] grid-cols-5 gap-4 overflow-auto md:grid-cols-10">
+            <div className="grid-rows-10 md:grid-rows-19 m-4 grid min-h-[200px] grid-cols-5 gap-4 md:grid-cols-10">
               <div className="rounded-lg border border-dashed border-black">
                 <div
                   className="rounded-l-lg bg-[#9270FF] py-2 text-center text-sm text-[#FAF9FE]"
@@ -116,12 +109,12 @@ const TicketsGrid: FC<TicketsGridProps> = () => {
                   <div>80%</div>
                 </div>
               </div>
-              {dummyData.map((ticket, i) => (
+              {Array.from({ length: 25 }).map((_, i) => (
                 <div
                   key={i}
                   className="rounded-lg border bg-[#9270FF] py-2 text-center text-sm text-[#FAF9FE]"
                 >
-                  <div>#{ticket.number}</div>
+                  <div>#{dummyTicket}</div>
                 </div>
               ))}
             </div>
@@ -165,7 +158,7 @@ const TicketsGrid: FC<TicketsGridProps> = () => {
           <h2 className="m-4 font-medium text-[#FF60D5]">
             My Tickets: {data?.NumOfTickets}
           </h2>
-          {data?.NumOfTickets === 0 ? (
+          {tab === 'current' && data?.NumOfTickets === 0 ? (
             <div className="grid-rows-10 md:grid-rows-19 m-4 grid max-h-[500px] grid-cols-5 gap-4 overflow-auto md:grid-cols-10">
               <div>No tickets</div>
             </div>

@@ -1,75 +1,63 @@
 import { FC } from 'react'
-import { FiAlertCircle } from 'react-icons/fi'
-
-interface LeaderboardItem {
-  rank: number
-  name: string
-  boost: string
-  tickets24h: number
-  totalTickets: number
-}
-
 const Faq: FC = () => {
-  const generateData = (): LeaderboardItem[] => {
-    const Data: LeaderboardItem[] = []
-    for (let i = 1; i <= 15; i++) {
-      Data.push({
-        rank: i,
-        name: 'Mochi',
-        boost: '1x',
-        tickets24h: 628,
-        totalTickets: 8080,
-      })
-    }
-    return Data
-  }
-
-  const data = generateData()
-
   return (
     <div className="m-4 mt-11">
       <h2 className="mb-4 font-medium text-[#FF60D5]">
         Frequently asked questions
       </h2>
-      <div className="w-full text-xs">
+      <div className="reservoir-subtitle w-full text-sm">
         <div className="mb-4 rounded-lg border bg-white p-6">
-          <h3 className="mb-2 text-base font-medium">What is a Pot O’ Gold?</h3>
-          <p className="text-gray-700">
-            Flotapay is an online bill payment app that allows users in Nigeria
-            to pay their bills and make other payments easily and securely from
-            their smartphones or other devices.
+          <h3 className="reservoir-title mb-2 text-lg font-medium">
+            What is a Pot O' Gold?
+          </h3>
+          <p className="text-gray-700 ">
+            Pot O’ Gold is a provably-fair community jackpot where users earn
+            golden tickets for an opportunity to win up to 100 ETH!
           </p>
         </div>
         <div className="mb-4 rounded-lg border bg-white p-6">
-          <h3 className="mb-2 text-base font-medium">What is a Pot O’ Gold?</h3>
+          <h3 className="reservoir-title mb-2 text-lg font-medium">
+            How do I earn Golden Tickets?
+          </h3>
           <p className="text-gray-700">
-            Flotapay is an online bill payment app that allows users in Nigeria
-            to pay their bills and <br /> make other payments easily and
-            securely from their smartphones or other devices.
+            Golden Tickets are automatically earned every time you trade 0.2 ETH
+            Hotpot NFTs.
           </p>
         </div>
         <div className="mb-4 rounded-lg border bg-white p-6">
-          <h3 className="mb-2 text-base font-medium">What is a Pot O’ Gold?</h3>
+          <h3 className="reservoir-title mb-2 text-lg font-medium">
+            Can I buy Golden Tickets?
+          </h3>
           <p className="text-gray-700">
-            Flotapay is an online bill payment app that allows users in Nigeria
-            to pay their bills and make other payments easily and securely from
-            their smartphones or other devices.
+            No entry purchases are required, golden tickets can only be earned
+            while trading.
           </p>
         </div>
         <div className="mb-4 rounded-lg bg-white p-6 shadow">
-          <h3 className="mb-2 text-base font-medium">What is a Pot O’ Gold?</h3>
+          <h3 className="reservoir-title mb-2 text-lg font-medium">
+            How is the Pot O' Gold funded?
+          </h3>
           <p className="text-gray-700">
-            Flotapay is an online bill payment app that allows users in Nigeria
-            to pay their bills and make other payments easily and securely from
-            their smartphones or other devices.
+            For every Hotpot transaction, the full 1% transaction fee will be
+            directly sent to the pot.
           </p>
         </div>
         <div className="mb-4 rounded-lg border bg-white p-6">
-          <h3 className="mb-2 text-base font-medium">What is a Pot O’ Gold?</h3>
+          <h3 className="reservoir-title mb-2 text-lg font-medium">
+            How can I claim my winnings?
+          </h3>
           <p className="text-gray-700">
-            Flotapay is an online bill payment app that allows users in Nigeria
-            to pay their bills and make other payments easily and securely from
-            their smartphones or other devices.
+            Go to “My Profile” under my tickets, click on your golden ticket to
+            claim! All raffle winners have 30 days to claim their prize.
+          </p>
+        </div>
+        <div className="mb-4 rounded-lg border bg-white p-6">
+          <h3 className="reservoir-title mb-2 text-lg font-medium">
+            Can I win multiple times?
+          </h3>
+          <p className="text-gray-700">
+            Yes, each ticket has a chance to win, meaning you can win more than
+            once!
           </p>
         </div>
       </div>

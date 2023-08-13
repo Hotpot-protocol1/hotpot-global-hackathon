@@ -40,7 +40,7 @@ const SelectChain: FC = () => {
       onValueChange={handleValueChange}
       onOpenChange={(open) => setIsOpen(open)}
     >
-      <Select.Trigger className="btn-primary-outline ml-auto rounded-lg border-transparent p-0 normal-case dark:border-neutral-600 dark:bg-neutral-900 dark:ring-primary-900 dark:focus:ring-4">
+      <Select.Trigger className="btn-primary-outline ml-auto rounded-lg border-transparent p-0 normal-case outline-none">
         <div className="flex items-center gap-1 rounded-lg border border-solid border-[#CFD8E1] px-4 py-2">
           <div className="text-base font-normal">{chains[selectedValue]}</div>
           {isOpen ? (
@@ -51,11 +51,14 @@ const SelectChain: FC = () => {
         </div>
       </Select.Trigger>
 
-      <Select.Content position="popper" className="rounded-lg bg-gray-100">
+      <Select.Content
+        position="popper"
+        className="rounded-lg bg-gray-100 outline-none"
+      >
         <Select.Group>
           {Object.entries(chains).map(([value, name]) => (
             <Select.Item key={value} value={value}>
-              <div className="group flex w-full cursor-pointer items-center justify-between rounded px-6 py-3 outline-none transition hover:bg-gray-200 focus:bg-neutral-100 dark:hover:bg-neutral-700 dark:focus:bg-neutral-800">
+              <div className="group flex w-full cursor-pointer items-center justify-between rounded px-6 py-3 outline-none transition hover:bg-gray-200 hover:outline-none focus:bg-neutral-100 dark:hover:bg-neutral-700 dark:focus:bg-neutral-800">
                 {name}
               </div>
             </Select.Item>

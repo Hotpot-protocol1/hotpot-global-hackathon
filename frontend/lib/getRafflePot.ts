@@ -14,7 +14,7 @@ export const getRafflePot = async (user: string): Promise<PotData | null> => {
     const potId = potIdResponse.pot_id
 
     const userPotResponse = await fetch(
-      `https://api.hotpot.gg/user/${user}/pot/${potId}chain?=goerli`
+      `https://api.hotpot.gg/user/${user}/pot/${potId}?chain=goerli`
     )
     const potDetails = await userPotResponse.json()
 
