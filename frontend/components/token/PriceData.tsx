@@ -12,7 +12,7 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { useAccount, useNetwork, useSigner } from 'wagmi'
 import { setToast } from './setToast'
 import recoilCartTokens, {
@@ -35,6 +35,7 @@ import BuyModal from 'components/modal/BuyModal'
 import ListModalCustom from '../../components/modal/ListModal'
 import useTix from 'lib/tix'
 import { useHotpotContext } from 'context/HotpotContext'
+import getCartTotalPriceHotpot from 'recoil/cart/getCartTotalPriceHotpot'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const SOURCE_ID = process.env.NEXT_PUBLIC_SOURCE_ID
@@ -74,6 +75,7 @@ const PriceData: FC<Props> = ({
   const router = useRouter()
   const isMounted = useMounted()
   const [cartTokens, setCartTokens] = useRecoilState(recoilCartTokens)
+  const cartTotalHotpot = useRecoilValueLoadable(getCartTotalPriceHotpot)
   const tokensMap = useRecoilValue(getTokensMap)
   const cartCurrency = useRecoilValue(getCartCurrency)
   const cartPools = useRecoilValue(getPricingPools)
@@ -89,7 +91,6 @@ const PriceData: FC<Props> = ({
   const token = details.data ? details.data[0] : undefined
   const tokenId = token?.token?.tokenId
   const contract = token?.token?.contract
-
   const findItem = (
     contractToFind: string,
     tokenIdToFind: string
@@ -236,7 +237,7 @@ const PriceData: FC<Props> = ({
                 ) : (
                   <div className="flex flex-row items-center">
                     {tix > 0 && (
-                      <div className="z-10 mx-2 flex items-center justify-center truncate rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
+                      <div className="z-5 mx-2 flex items-center justify-center truncate rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
                         +{tix} TIX
                       </div>
                     )}
@@ -380,7 +381,8 @@ const PriceData: FC<Props> = ({
                       if (
                         !cartCurrency ||
                         floorAskPrice?.currency?.contract ===
-                          cartCurrency?.contract
+                          cartCurrency?.contract ||
+                        !cartTotalHotpot.contents
                       ) {
                         setCartTokens([
                           ...cartTokens,

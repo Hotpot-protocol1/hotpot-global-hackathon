@@ -20,6 +20,7 @@ import { formatEther } from 'ethers/lib/utils'
 import { CgSpinner } from 'react-icons/cg'
 import BuyCartModal from './modal/BuyCartModal'
 import ConnectWalletButton from './ConnectWalletButton'
+import getCartTotalPriceHotpot from 'recoil/cart/getCartTotalPriceHotpot'
 type UseBalanceToken = NonNullable<Parameters<typeof useBalance>['0']>['token']
 
 const slideDown = keyframes({
@@ -43,6 +44,7 @@ const StyledContent = styled(Popover.Content, {
 const CartMenu: FC = () => {
   const cartCount = useRecoilValue(getCartCount)
   const cartTotal = useRecoilValueLoadable(getCartTotalPrice)
+  const cartTotalHotpot = useRecoilValueLoadable(getCartTotalPriceHotpot)
   const cartCurrency = useRecoilValue(getCartCurrency)
   const pricingPools = useRecoilValue(getPricingPools)
   const [cartTokens, setCartTokens] = useRecoilState(cartTokensAtom)
@@ -61,13 +63,18 @@ const CartMenu: FC = () => {
         : undefined,
   })
   const formattedCartTotal = cartTotal.contents
+  const formattedCartTotalHotpot = cartTotalHotpot.contents
 
   const handleWaitingTx = (isWaiting: boolean) => {
     setWaitingTx(isWaiting)
   }
 
   const handleSuccess = () => {
-    setCartTokens([])
+    setToast({
+      kind: 'success',
+      message: 'Your purchase was successful.',
+      title: 'Purchase Successful',
+    })
   }
 
   const execute = async (signer: Signer) => {
@@ -133,30 +140,30 @@ const CartMenu: FC = () => {
     setWaitingTx(false)
   }
 
-  if (cartTotal.state === 'hasError') {
-    return (
-      <Popover.Root>
-        <Popover.Trigger>
-          <div className="relative z-10 grid h-8 w-8 items-center justify-center rounded-full">
-            {cartCount > 0 && (
-              <div className="reservoir-subtitle absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary-700 text-white">
-                {cartCount}
-              </div>
-            )}
-            <FaShoppingCart className="h-[18px] w-[18px]" />
-          </div>
-        </Popover.Trigger>
-        <StyledContent
-          sideOffset={22}
-          className="z-[10000000] w-[367px] rounded-2xl bg-white p-6 shadow-lg dark:border dark:border-neutral-700 dark:bg-neutral-900"
-        >
-          <div className="mb-4 flex justify-center">
-            Error loading cart total
-          </div>
-        </StyledContent>
-      </Popover.Root>
-    )
-  }
+  // if (cartTotal.state === 'hasError') {
+  //   return (
+  //     <Popover.Root>
+  //       <Popover.Trigger>
+  //         <div className="relative z-10 grid items-center justify-center w-8 h-8 rounded-full">
+  //           {cartCount > 0 && (
+  //             <div className="absolute flex items-center justify-center w-5 h-5 text-white rounded-full reservoir-subtitle -top-1 -right-1 bg-primary-700">
+  //               {cartCount}
+  //             </div>
+  //           )}
+  //           <FaShoppingCart className="h-[18px] w-[18px]" />
+  //         </div>
+  //       </Popover.Trigger>
+  //       <StyledContent
+  //         sideOffset={22}
+  //         className="z-[10000000] w-[367px] rounded-2xl bg-white p-6 shadow-lg dark:border dark:border-neutral-700 dark:bg-neutral-900"
+  //       >
+  //         <div className="flex justify-center mb-4">
+  //           Error loading cart total
+  //         </div>
+  //       </StyledContent>
+  //     </Popover.Root>
+  //   )
+  // }
 
   return (
     <Popover.Root>
@@ -210,13 +217,23 @@ const CartMenu: FC = () => {
                       {name || `#${tokenId}`}
                     </div>
                     <div className="reservoir-label-s">{collection?.name}</div>
-                    <div className="reservoir-h6 flex flex-row items-center justify-between gap-1">
-                      <img src="/eth.svg" alt="eth" className="h-3 w-3" />{' '}
-                      {hotpotPrice}
-                      <div className="ml-6 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm text-[#0FA46E]">
-                        +{tix} TIX
+                    {formattedCartTotalHotpot ? (
+                      <div className="reservoir-h6 flex flex-row items-center justify-between gap-1">
+                        <img src="/eth.svg" alt="eth" className="h-3 w-3" />{' '}
+                        {hotpotPrice}
+                        <div className="ml-6 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm text-[#0FA46E]">
+                          +{tix} TIX
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="reservoir-h6">
+                        <FormatCrypto
+                          amount={price?.amount?.decimal}
+                          address={price?.currency?.contract}
+                          decimals={price?.currency?.decimals}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -236,34 +253,77 @@ const CartMenu: FC = () => {
 
         <div className="mb-4 flex justify-between">
           <div className="reservoir-h6">You Pay</div>
-          {cartTotal.state === 'loading' ? (
+          {cartTotalHotpot.state === 'loading' ? (
             <CgSpinner className="h-5 w-5 animate-spin" />
-          ) : (
+          ) : formattedCartTotalHotpot ? (
             <div className="reservoir-h6 flex flex-row items-center justify-center gap-2">
-              {' '}
-              <img src="/eth.svg" alt="eth" className="h-3 w-3" />{' '}
-              {formattedCartTotal}
+              <img src="/eth.svg" alt="eth" className="h-3 w-3" />
+              <span>{formattedCartTotalHotpot}</span>
+            </div>
+          ) : (
+            <div className="reservoir-h6">
+              <FormatCrypto
+                amount={formattedCartTotal}
+                address={cartCurrency?.contract}
+                decimals={cartCurrency?.decimals}
+              />
             </div>
           )}
         </div>
+
         {accountData?.isConnected ? (
-          <BuyCartModal
-            trigger={
-              <button
-                onClick={() => setWaitingTx(true)}
-                className="btn-primary-fill w-full"
-                disabled={cartTotal.state === 'loading' || waitingTx}
-              >
-                {waitingTx && <CgSpinner className="h-4 w-4 animate-spin" />}
-                {waitingTx ? 'Waiting' : 'Purchase'}
-              </button>
-            }
-            cartTokens={cartTokens}
-            totalPrice={formattedCartTotal}
-            setWaitingTx={handleWaitingTx}
-            handleSuccess={handleSuccess}
-            cartCount={cartCount}
-          />
+          <>
+            {formattedCartTotalHotpot ? (
+              <BuyCartModal
+                trigger={
+                  <button
+                    onClick={() => setWaitingTx(true)}
+                    className="btn-primary-fill w-full"
+                    disabled={cartTotal.state === 'loading'}
+                  >
+                    {waitingTx && (
+                      <CgSpinner className="h-4 w-4 animate-spin" />
+                    )}
+                    {waitingTx ? 'Waiting' : 'Purchase'}
+                  </button>
+                }
+                cartTokens={cartTokens}
+                totalPrice={formattedCartTotalHotpot}
+                setWaitingTx={handleWaitingTx}
+                cartCount={cartCount}
+                handleSuccess={handleSuccess}
+              />
+            ) : (
+              <>
+                {balance?.formatted && +balance.formatted < formattedCartTotal && (
+                  <div className="mb-2 text-center ">
+                    <span className="reservoir-headings text-[#FF6369]">
+                      Insufficient balance{' '}
+                    </span>
+                    <FormatCrypto
+                      amount={+balance.formatted}
+                      address={cartCurrency?.contract}
+                      decimals={cartCurrency?.decimals}
+                    />
+                  </div>
+                )}
+                <button
+                  onClick={() => signer && execute(signer)}
+                  disabled={
+                    cartCount === 0 ||
+                    waitingTx ||
+                    Boolean(
+                      balance?.formatted &&
+                        +balance.formatted < formattedCartTotal
+                    )
+                  }
+                  className="btn-primary-fill w-full"
+                >
+                  {waitingTx ? 'Waiting' : 'Purchase'}
+                </button>
+              </>
+            )}
+          </>
         ) : (
           <ConnectWalletButton className="w-full">
             <span>Connect Wallet</span>

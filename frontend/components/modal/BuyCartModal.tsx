@@ -57,7 +57,6 @@ const BuyCartModal: React.FC<Props> = ({
   const { data: signer } = useSigner()
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [isApproved, setIsApproved] = useState<boolean>(false)
-  const [txn, setTxn] = useState<string[]>([])
 
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState(null)
@@ -93,20 +92,20 @@ const BuyCartModal: React.FC<Props> = ({
 
       const itemIds = cartTokens.map((tokenData) => tokenData.itemId)
 
-      for (const itemId of itemIds) {
+      const allNFTs = itemIds.map(async (itemId) => {
         const buyNFT = await NftMarketplace.purchaseItem(itemId, {
           value: priceInWei,
         })
-
         console.log('Listing Transaction Hash:', buyNFT.hash)
         setIsApproved(true)
-        setTxn((prevTxn) => [...prevTxn, buyNFT.hash])
         await buyNFT.wait()
-      }
+      })
+
+      await Promise.all(allNFTs)
+
       setIsApproved(false)
       setIsLoading(false)
       setIsSuccess(true)
-      handleSuccess()
     } catch (error) {
       setIsLoading(false)
       console.log(error)
@@ -125,7 +124,7 @@ const BuyCartModal: React.FC<Props> = ({
   if (!isMounted) {
     return null
   }
-  const tix = useTix(totalPrice ?? '0')
+  // const tix = useTix(totalPrice ?? 0)
   return (
     <Modal trigger={trigger}>
       <Dialog.Content className="fixed top-[50%] left-[50%] mt-10 w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-lg bg-white pb-4 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow">
@@ -170,7 +169,6 @@ const BuyCartModal: React.FC<Props> = ({
                 <div className="text-sm font-light text-gray-500 ">
                   Your NFT has been sent to your wallet
                 </div>
-                {/* View Transaction */}
               </div>
             ) : (
               <>
@@ -214,11 +212,11 @@ const BuyCartModal: React.FC<Props> = ({
                       )}
                     </div>
                     <div className="flex flex-row items-center justify-center gap-1 ">
-                      {tix > 0 && (
+                      {/* {tix > 0 && (
                         <div className=" z-10 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
                           +{tix} TIX
                         </div>
-                      )}
+                      )} */}
                       <img src="/eth.svg" alt="eth" className="h-4 w-4" />
                       <div className="text-sm font-semibold">{totalPrice}</div>
                     </div>

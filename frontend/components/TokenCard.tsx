@@ -13,7 +13,7 @@ import React, {
 import FormatCrypto from 'components/FormatCrypto'
 import BuyNow from 'components/BuyNow'
 import useTokens from 'hooks/useTokens'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { getCartCurrency, getTokensMap } from 'recoil/cart'
 import { useAccount, useNetwork, useSigner } from 'wagmi'
 import recoilCartTokens, { getPricingPools } from 'recoil/cart'
@@ -28,6 +28,7 @@ import ListModalCustom from './modal/ListModal'
 import BuyModal from './modal/BuyModal'
 import useTix from '../lib/tix'
 import { useHotpotContext } from 'context/HotpotContext'
+import getCartTotalPriceHotpot from 'recoil/cart/getCartTotalPriceHotpot'
 
 const SOURCE_ICON = process.env.NEXT_PUBLIC_SOURCE_ICON
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
@@ -74,6 +75,7 @@ const TokenCard: FC<Props> = ({
   const tokensMap = useRecoilValue(getTokensMap)
   const cartCurrency = useRecoilValue(getCartCurrency)
   const [cartTokens, setCartTokens] = useRecoilState(recoilCartTokens)
+  const cartTotalHotpot = useRecoilValueLoadable(getCartTotalPriceHotpot)
   const cartPools = useRecoilValue(getPricingPools)
   const { listedNFTs, isLoadingNFTs } = useHotpotContext()
   const [currentNFT, setCurrentNFT] = useState<ItemInfo | null>(null)
@@ -123,7 +125,6 @@ const TokenCard: FC<Props> = ({
     return null
   }
 
-  // useEffect hook to call the function on load once listedNFTs data is available
   useEffect(() => {
     if (listedNFTs && contract && id) {
       const currentNFT = findItem(contract, id)
@@ -340,15 +341,24 @@ const TokenCard: FC<Props> = ({
                 Remove
               </button>
             )}
-            {!isInCart && canAddToCart && (
+            {!isInCart && canAddToCart && isHotpot && (
               <button
                 disabled={isInTheWrongNetwork}
                 onClick={() => {
                   if (token && token.token && token.market) {
-                    if (
-                      !cartCurrency ||
-                      price?.currency?.contract === cartCurrency?.contract
-                    ) {
+                    if (cartCurrency) {
+                      setCartToSwap &&
+                        setCartToSwap([
+                          {
+                            token: token.token,
+                            market: token.market,
+                            itemId: currentNFT?.itemId ?? 0,
+                            hotpotPrice: currentNFT?.price ?? '0',
+                            tix: tix ?? 0,
+                          },
+                        ])
+                      setClearCartOpen && setClearCartOpen(true)
+                    } else {
                       setCartTokens([
                         ...cartTokens,
                         {
@@ -359,15 +369,6 @@ const TokenCard: FC<Props> = ({
                           tix: tix ?? 0,
                         },
                       ])
-                    } else {
-                      setCartToSwap &&
-                        setCartToSwap([
-                          {
-                            token: token.token,
-                            market: token.market,
-                          },
-                        ])
-                      setClearCartOpen && setClearCartOpen(true)
                     }
                   }
                 }}
@@ -438,6 +439,9 @@ const TokenCard: FC<Props> = ({
                             {
                               token: token.token,
                               market: token.market,
+                              itemId: currentNFT?.itemId ?? 0,
+                              hotpotPrice: currentNFT?.price ?? '0',
+                              tix: tix ?? 0,
                             },
                           ])
                         setClearCartOpen && setClearCartOpen(true)
