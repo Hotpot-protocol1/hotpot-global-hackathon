@@ -1,10 +1,24 @@
-import ResultsModal from './modal/ResultsModal'
-
+import { getRafflePot } from 'lib/getRafflePot'
+import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 
+import ResultsModal from './modal/ResultsModal'
+
 const PotResultBanner = () => {
-  const { isConnected } = useAccount()
-  if (isConnected) {
+  const { isConnected, address } = useAccount()
+  const [isRaffleDrawn, setIsRaffleDrawn] = useState(false)
+
+  useEffect(() => {
+    if (isConnected && address) {
+      getRafflePot(address).then((res) => {
+        if (res !== null) {
+          setIsRaffleDrawn(true)
+        }
+      })
+    }
+  }, [isConnected, address])
+
+  if (isRaffleDrawn) {
     return (
       <div className="col-span-full">
         <div className="flex w-full flex-row items-center justify-center gap-1 bg-[#FFD43C] py-2">

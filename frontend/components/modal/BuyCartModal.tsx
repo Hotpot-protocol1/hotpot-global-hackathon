@@ -1,13 +1,15 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { ethers } from 'ethers'
-import { useContract, useProvider, useSigner } from 'wagmi'
+import { useAccount, useContract, useProvider, useSigner } from 'wagmi'
 import * as Dialog from '@radix-ui/react-dialog'
 import { CgSpinner } from 'react-icons/cg'
 import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
-import Modal from './Modal'
 import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
-import useTix from 'lib/tix'
 import { useTokens } from '@reservoir0x/reservoir-kit-ui'
+import { mutate } from 'swr'
+import { setToast } from 'components/token/setToast'
+import Modal from './Modal'
+import useTix from 'lib/tix'
 
 type BuyCallbackData = {
   tokenId?: string
@@ -53,13 +55,13 @@ const BuyCartModal: React.FC<Props> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [priceLoading, setPriceLoading] = useState(false)
+  const { address } = useAccount()
   const provider = useProvider()
   const { data: signer } = useSigner()
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [isApproved, setIsApproved] = useState<boolean>(false)
 
   const [error, setError] = useState<string | null>(null)
-  const [toast, setToast] = useState(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
 
   useEffect(() => {
@@ -106,11 +108,21 @@ const BuyCartModal: React.FC<Props> = ({
       setIsApproved(false)
       setIsLoading(false)
       setIsSuccess(true)
+      setToast({
+        kind: 'complete',
+        message: 'Your transaction was successful',
+        title: 'Purchase Complete',
+      })
     } catch (error) {
       setIsLoading(false)
       console.log(error)
       setError('Oops, something went wrong. Please try again')
       setWaitingTx(false)
+      setToast({
+        kind: 'error',
+        message: 'The transaction was not completed.',
+        title: 'Could not buy token',
+      })
     }
     setWaitingTx(false)
   }
@@ -119,12 +131,15 @@ const BuyCartModal: React.FC<Props> = ({
     setError(null)
     setIsSuccess(false)
     setWaitingTx(false)
+    if (address) {
+      mutate(['latestPot', address])
+    }
   }
 
   if (!isMounted) {
     return null
   }
-  // const tix = useTix(totalPrice ?? 0)
+  const tix = useTix(totalPrice ?? 0)
   return (
     <Modal trigger={trigger}>
       <Dialog.Content className="fixed top-[50%] left-[50%] mt-10 w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-lg bg-white pb-4 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow">
@@ -212,11 +227,11 @@ const BuyCartModal: React.FC<Props> = ({
                       )}
                     </div>
                     <div className="flex flex-row items-center justify-center gap-1 ">
-                      {/* {tix > 0 && (
+                      {tix > 0 && (
                         <div className=" z-10 rounded border border-[#0FA46E] bg-[#DBF1E4] px-2 text-sm font-normal text-[#0FA46E]">
                           +{tix} TIX
                         </div>
-                      )} */}
+                      )}
                       <img src="/eth.svg" alt="eth" className="h-4 w-4" />
                       <div className="text-sm font-semibold">{totalPrice}</div>
                     </div>

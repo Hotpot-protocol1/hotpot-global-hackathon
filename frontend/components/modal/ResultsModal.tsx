@@ -1,12 +1,13 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { useContract, useProvider, useSigner } from 'wagmi'
 import * as Dialog from '@radix-ui/react-dialog'
-import Modal from './Modal'
 import { Hotpot_CONTRACT_SEP, hotpotAbi } from '../../contracts/index'
 import { useAccount } from 'wagmi'
 import { PotData, getRafflePot } from 'lib/getRafflePot'
 import { CgSpinner } from 'react-icons/cg'
 import { HiX } from 'react-icons/hi'
+import { setToast } from 'components/token/setToast'
+import Modal from './Modal'
 
 type Ticket = {
   ticket_id: number
@@ -35,7 +36,6 @@ const ResultsModal: React.FC<Props> = ({ trigger }) => {
   const { data: signer } = useSigner()
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [toast, setToast] = useState(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
   const [totalPrice, setTotalPrice] = useState<string | null>(null)
   const { address } = useAccount()
@@ -57,7 +57,7 @@ const ResultsModal: React.FC<Props> = ({ trigger }) => {
     signerOrProvider: signer,
   })
 
-  const handleSubmit = async () => {
+  const handleClaim = async () => {
     setIsLoading(true)
     setError(null)
     setIsSuccess(false)
@@ -71,10 +71,20 @@ const ResultsModal: React.FC<Props> = ({ trigger }) => {
       setIsLoading(false)
       console.log('Listing Transaction Hash:', claimPrize.hash)
       setIsSuccess(true)
+      setToast({
+        kind: 'complete',
+        message: 'Prize has been sent to your wallet',
+        title: 'Successfully Claimed',
+      })
     } catch (error) {
       setIsLoading(false)
       console.log(error)
       setError('Oops, something went wrong. Please try again')
+      setToast({
+        kind: 'error',
+        message: 'You have already claimed the prize',
+        title: 'Claim Error',
+      })
     }
   }
 
@@ -121,9 +131,9 @@ const ResultsModal: React.FC<Props> = ({ trigger }) => {
         )}
         <img src="/gold-chest.svg" className="my-4 w-[260px]" />
         <button
-          onClick={handleSubmit}
+          onClick={handleClaim}
           className="mb-4 flex items-center justify-center rounded-full border border-[#FFF06A] bg-gradient-to-b from-[#FFE179] to-[#FFB52E] px-16 py-3 text-sm font-medium text-[#CD7100] hover:from-[#FFC269] hover:to-[#FFB82E] focus:outline-none"
-          disabled={isLoading || isSuccess} // Disable the button while isLoading is true or isSuccess is true
+          disabled={isLoading || isSuccess}
         >
           {isLoading ? (
             <CgSpinner className="mr-2 h-5 w-5 animate-spin"></CgSpinner>

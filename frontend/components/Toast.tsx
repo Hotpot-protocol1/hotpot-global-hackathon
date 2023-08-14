@@ -1,19 +1,21 @@
 import React, { FC, Fragment } from 'react'
 import { Transition } from '@headlessui/react'
-import toast, { Toast } from 'react-hot-toast'
 import {
+  HiCheckCircle,
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
   HiOutlineInformationCircle,
   HiOutlineXCircle,
+  HiStar,
   HiX,
 } from 'react-icons/hi'
+import toast, { Toast } from 'react-hot-toast'
 
 type Props = {
   t: Toast
   toast: typeof toast
   data: {
-    kind: 'error' | 'success' | 'warning' | 'info'
+    kind: 'error' | 'success' | 'warning' | 'info' | 'tickets' | 'complete'
     title: string
     message: string
   }
@@ -21,14 +23,14 @@ type Props = {
 
 const Toast: FC<Props> = ({ t, toast, data: { kind, message, title } }) => {
   return (
-    <div className="flex w-full max-w-sm flex-col items-center space-y-4 sm:items-end">
+    <div className="mx-4 flex w-full max-w-sm flex-col items-center space-y-4 sm:items-end">
       <Transition
         show={t.visible}
         as={Fragment}
         enter="transform ease-out duration-300 transition"
-        enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+        enterFrom="translate-y-4 opacity-0 sm:translate-y-0 sm:translate-x-2"
         enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-        leave="transition ease-in duration-100"
+        leave="transition ease-in duration-200"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
@@ -74,4 +76,6 @@ const icons = {
   info: (
     <HiOutlineInformationCircle className="h-6 w-6 rounded-full text-blue-400" />
   ),
+  tickets: <HiStar className="h-6 w-6 rounded-full text-[#FF991C]" />,
+  complete: <HiCheckCircle className="h-6 w-6 rounded-full text-[#0C8383]" />,
 }
