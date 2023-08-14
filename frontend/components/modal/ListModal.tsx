@@ -13,18 +13,19 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { CgMore, CgSpinner } from 'react-icons/cg'
 import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
 import InfoTooltip from 'components/InfoTooltip'
-import Modal from './Modal'
 import { TokenDetails } from 'types/reservoir'
 import { optimizeImage } from 'lib/optmizeImage'
-import Image from 'next/legacy/image'
 import { useMediaQuery } from '@react-hookz/web'
 import {
   abi,
   ERC721abi,
   NFTMarketplace_CONTRACT_SEP,
 } from '../../contracts/index'
-import useTix from 'lib/tix'
 import { SWRResponse } from 'swr'
+import Image from 'next/legacy/image'
+import { setToast } from 'components/token/setToast'
+import Modal from './Modal'
+import useTix from 'lib/tix'
 
 enum STEPS {
   SelectMarkets = 0,
@@ -80,7 +81,6 @@ const ListModal: React.FC<Props> = ({
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const [alert, setAlert] = useState<string | null>(null)
   const [txn, setTxn] = useState<string>('')
-  const [toast, setToast] = useState(null)
 
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
   const imageSize = singleColumnBreakpoint ? 533 : 250
@@ -159,6 +159,11 @@ const ListModal: React.FC<Props> = ({
       await listingTx.wait()
       setIsApproved(false)
       setIsLoading(false)
+      setToast({
+        kind: 'complete',
+        message: 'Your item was listed successfully',
+        title: 'Success!',
+      })
       setStep(3)
     } catch (error) {
       setIsLoading(false)
@@ -168,6 +173,11 @@ const ListModal: React.FC<Props> = ({
       } else {
         setError(new Error('An unknown error occurred.'))
       }
+      setToast({
+        kind: 'error',
+        message: 'The transaction was not completed.',
+        title: 'Could not list token',
+      })
     }
   }
 
