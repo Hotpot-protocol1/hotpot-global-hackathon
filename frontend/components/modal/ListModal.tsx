@@ -7,25 +7,25 @@ import React, {
   useRef,
 } from 'react'
 import { ethers } from 'ethers'
-import { useAccount, useContract, useProvider, useSigner } from 'wagmi'
-import * as Switch from '@radix-ui/react-switch'
-import * as Dialog from '@radix-ui/react-dialog'
-import { CgMore, CgSpinner } from 'react-icons/cg'
-import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
-import InfoTooltip from 'components/InfoTooltip'
+import { SWRResponse } from 'swr'
 import { TokenDetails } from 'types/reservoir'
 import { optimizeImage } from 'lib/optmizeImage'
 import { useMediaQuery } from '@react-hookz/web'
+import * as Dialog from '@radix-ui/react-dialog'
+import * as Switch from '@radix-ui/react-switch'
+import { CgMore, CgSpinner } from 'react-icons/cg'
+import { setToast } from 'components/token/setToast'
+import { useAccount, useContract, useProvider, useSigner } from 'wagmi'
+import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
 import {
   abi,
   ERC721abi,
   NFTMarketplace_CONTRACT_SEP,
 } from '../../contracts/index'
-import { SWRResponse } from 'swr'
-import Image from 'next/legacy/image'
-import { setToast } from 'components/token/setToast'
 import Modal from './Modal'
 import useTix from 'lib/tix'
+import Image from 'next/legacy/image'
+import InfoTooltip from 'components/InfoTooltip'
 
 enum STEPS {
   SelectMarkets = 0,
@@ -160,7 +160,7 @@ const ListModal: React.FC<Props> = ({
       setIsApproved(false)
       setIsLoading(false)
       setToast({
-        kind: 'complete',
+        kind: 'success',
         message: 'Your item was listed successfully',
         title: 'Success!',
       })
@@ -173,11 +173,6 @@ const ListModal: React.FC<Props> = ({
       } else {
         setError(new Error('An unknown error occurred.'))
       }
-      setToast({
-        kind: 'error',
-        message: 'The transaction was not completed.',
-        title: 'Could not list token',
-      })
     }
   }
 
@@ -190,6 +185,7 @@ const ListModal: React.FC<Props> = ({
     setStep(0)
     setError(null)
     setAlert(null)
+    setPriceValue(0)
     if (mutate) {
       mutate()
     }
@@ -352,7 +348,7 @@ const ListModal: React.FC<Props> = ({
                 <InfoTooltip
                   side="top"
                   width={200}
-                  content=" How much SEP you will receive after marketplace fees and creator royalties are subtracted."
+                  content="How much you will receive"
                 />
               </div>
             </div>
@@ -592,7 +588,11 @@ const ListModal: React.FC<Props> = ({
                   disabled={
                     isLoading || (step === STEPS.SetPrice && priceValue <= 0)
                   }
-                  className="w-full rounded bg-[#7000FF] py-2 text-white hover:bg-[#430099]"
+                  className={`w-full rounded py-2 text-white ${
+                    isLoading || (step === STEPS.SetPrice && priceValue <= 0)
+                      ? 'cursor-not-allowed bg-gray-400'
+                      : 'cursor-pointer bg-[#7000FF] hover:bg-[#430099]'
+                  }`}
                 >
                   {isLoading ? (
                     <>

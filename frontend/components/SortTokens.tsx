@@ -4,17 +4,15 @@ import { FC } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { FiChevronDown } from 'react-icons/fi'
 
-type Options =
-  | 'Price low to high'
-  | 'Price high to low'
-  | 'Rare to Common'
-  | 'Common to Rare'
+type Options = 'Price low to high' | 'Price high to low'
+// | 'Rare to Common'
+// | 'Common to Rare'
 
 const options: { [x: string]: { sortBy: string; sortDirection: string } } = {
   'Price low to high': { sortBy: 'floorAskPrice', sortDirection: 'asc' },
   'Price high to low': { sortBy: 'floorAskPrice', sortDirection: 'desc' },
-  'Rare to Common': { sortBy: 'rarity', sortDirection: 'asc' },
-  'Common to Rare': { sortBy: 'rarity', sortDirection: 'desc' },
+  // 'Rare to Common': { sortBy: 'rarity', sortDirection: 'asc' },
+  // 'Common to Rare': { sortBy: 'rarity', sortDirection: 'desc' },
 }
 
 const SortTokens: FC = ({}) => {
@@ -27,14 +25,14 @@ const SortTokens: FC = ({}) => {
     const sortBy = router?.query['sortBy']?.toString()
     const sortDirection = router?.query['sortDirection']?.toString()
 
-    if (sortBy === 'rarity' && sortDirection === 'desc') {
-      setSortSelection('Common to Rare')
-      return
-    }
-    if (sortBy === 'rarity' && sortDirection === 'asc') {
-      setSortSelection('Rare to Common')
-      return
-    }
+    // if (sortBy === 'rarity' && sortDirection === 'desc') {
+    //   setSortSelection('Common to Rare')
+    //   return
+    // }
+    // if (sortBy === 'rarity' && sortDirection === 'asc') {
+    //   setSortSelection('Rare to Common')
+    //   return
+    // }
     if (sortBy === 'floorAskPrice' && sortDirection === 'desc') {
       setSortSelection('Price high to low')
       return

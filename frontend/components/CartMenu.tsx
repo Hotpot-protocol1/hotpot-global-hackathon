@@ -2,7 +2,7 @@ import { styled, keyframes } from '@stitches/react'
 import * as Popover from '@radix-ui/react-popover'
 import { FC, useState } from 'react'
 import { FaShoppingCart, FaTrashAlt } from 'react-icons/fa'
-import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil' // Update import statement
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { Execute } from '@reservoir0x/reservoir-sdk'
 import { Signer } from 'ethers'
 import { setToast } from './token/setToast'
