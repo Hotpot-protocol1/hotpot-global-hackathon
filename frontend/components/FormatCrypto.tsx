@@ -10,7 +10,7 @@ const API_BASE =
   process.env.NEXT_PUBLIC_RESERVOIR_API_BASE || 'https://api.reservoir.tools'
 
 type Props = ComponentProps<typeof FormatCurrency> & FormatCryptoProps
-
+const defaultLogo = '/eth.svg'
 const FormatCrypto: FC<Props> = ({
   amount,
   maximumFractionDigits,
@@ -26,7 +26,7 @@ const FormatCrypto: FC<Props> = ({
     >
       {address && (
         <img
-          src={logoUrl}
+          src={logoUrl || defaultLogo}
           alt="Currency Logo"
           style={{ width: `${logoWidth}px` }}
         />

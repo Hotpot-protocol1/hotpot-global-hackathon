@@ -110,7 +110,7 @@ const BuyCartModal: React.FC<Props> = ({
       setIsSuccess(true)
       setToast({
         kind: 'complete',
-        message: 'Your transaction was successful',
+        message: '',
         title: 'Purchase Complete',
       })
     } catch (error) {

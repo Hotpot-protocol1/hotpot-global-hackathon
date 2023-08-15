@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { HiX } from 'react-icons/hi'
 
 interface ModalProps {
   trigger: ReactNode
