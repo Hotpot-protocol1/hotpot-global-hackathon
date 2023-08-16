@@ -9,20 +9,21 @@ import {
   Address,
 } from 'wagmi'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import Link from 'next/link'
 import { HiOutlineLogout } from 'react-icons/hi'
+import { FaWallet } from 'react-icons/fa'
+import { truncateAddress, truncateEns } from 'lib/truncateText'
+import Link from 'next/link'
 import FormatNativeCrypto from './FormatNativeCrypto'
 import ConnectWalletButton from 'components/ConnectWalletButton'
+import CopyClipboard from './CopyClipboard'
 import useMounted from 'hooks/useMounted'
 import Avatar from './Avatar'
-import { truncateAddress, truncateEns } from 'lib/truncateText'
-
-const DARK_MODE = process.env.NEXT_PUBLIC_DARK_MODE
 
 const ConnectWallet: FC = () => {
   const account = useAccount()
   const { data: ensAvatar } = useEnsAvatar({ address: account?.address })
   const { data: ensName } = useEnsName({ address: account?.address })
+
   const { connectors } = useConnect()
   const { disconnect } = useDisconnect()
   const wallet = connectors[0]
@@ -46,22 +47,27 @@ const ConnectWallet: FC = () => {
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content align="end" sideOffset={6}>
-        <div
-          className="w-48 space-y-1  rounded rounded-t bg-white px-1.5 py-2 shadow-md radix-side-bottom:animate-slide-down dark:bg-neutral-900 md:w-56
-          "
-        >
-          <div className="group flex w-full items-center justify-between rounded px-4 py-3 outline-none transition">
-            {ensName ? (
-              <span>{truncateEns(ensName)}</span>
-            ) : (
-              <span>{truncateAddress(account.address || '')}</span>
-            )}
-          </div>
-          <div className="group flex w-full items-center justify-between rounded border-b border-gray-200 px-4 py-3 outline-none transition">
-            <span>Balance </span>
-            <span>
-              {account.address && <Balance address={account.address} />}
-            </span>
+        <div className="w-48 space-y-1 rounded rounded-t bg-white px-1.5 py-2 shadow-md radix-side-bottom:animate-slide-down dark:bg-neutral-900 md:w-56">
+          <div className="gap-0 rounded border-b">
+            <div className="items-left group flex w-full flex-col justify-between rounded px-4 py-3 font-medium outline-none transition dark:bg-blue-900">
+              {ensName ? (
+                <span className="font-normal text-gray-500 dark:text-gray-300">
+                  {truncateEns(ensName)}
+                  <CopyClipboard content={ensName as string} />
+                </span>
+              ) : (
+                <div className="flex flex-row items-center gap-2 text-gray-500">
+                  {truncateAddress(account.address || '')}
+                  <CopyClipboard content={account.address as string} />
+                </div>
+              )}
+              <div className="mt-2 flex flex-row items-center gap-2">
+                <FaWallet className="ml-1 h-4 w-4 text-gray-500" />
+                <div className="flex flex-row items-center rounded border border-violet-400 px-3 pr-5 text-sm text-gray-800 dark:text-gray-300">
+                  {account.address && <Balance address={account.address} />}
+                </div>
+              </div>
+            </div>
           </div>
 
           <Link href={`/address/${account.address}`} legacyBehavior={true}>
@@ -71,6 +77,7 @@ const ConnectWallet: FC = () => {
               </a>
             </DropdownMenu.Item>
           </Link>
+
           <DropdownMenu.Item asChild>
             <button
               key={wallet.id}

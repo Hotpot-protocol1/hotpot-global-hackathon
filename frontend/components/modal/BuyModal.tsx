@@ -1,21 +1,22 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { ethers } from 'ethers'
-import { useContract, useSigner } from 'wagmi'
+import { useBalance, useContract, useSigner } from 'wagmi'
 import * as Dialog from '@radix-ui/react-dialog'
 import { CgSpinner } from 'react-icons/cg'
 import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
-import { TokenDetails } from 'types/reservoir'
 import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
-import { useAccount } from 'wagmi'
+import { useHotpotContext } from 'context/HotpotContext'
+import { setToast } from 'components/token/setToast'
+import { TokenDetails } from 'types/reservoir'
 import { optimizeImage } from 'lib/optmizeImage'
 import { useMediaQuery } from '@react-hookz/web'
-import { setToast } from 'components/token/setToast'
-import Image from 'next/legacy/image'
-import getTotalPrice from 'lib/getTotalPrice'
 import { SWRResponse, mutate } from 'swr'
+import { useAccount } from 'wagmi'
+import FormatNativeCrypto from 'components/FormatNativeCrypto'
+import getTotalPrice from 'lib/getTotalPrice'
+import Image from 'next/legacy/image'
 import useTix from 'lib/tix'
 import Modal from './Modal'
-import { useHotpotContext } from 'context/HotpotContext'
 
 type BuyCallbackData = {
   tokenId?: string
@@ -49,16 +50,20 @@ const BuyModal: React.FC<Props> = ({
   const [priceLoading, setPriceLoading] = useState(false)
   const { data: signer } = useSigner()
   const { address } = useAccount()
+  const account = useAccount()
+  const { data: balance } = useBalance({ address: account?.address })
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const [txn, setTxn] = useState<string>('')
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
   const [totalPrice, setTotalPrice] = useState<string | null>(null)
+  const { prizePool } = useHotpotContext()
+  const tix = useTix(price ?? '0')
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
   const imageSize = singleColumnBreakpoint ? 533 : 250
-  const { prizePool } = useHotpotContext()
-
+  const shortTxn = txn.slice(0, 4) + '...' + txn.slice(-4)
+  const isLowBalance = (balance?.formatted ?? 0) < (totalPrice ?? 0)
   useEffect(() => {
     setIsMounted(true)
     setPriceLoading(true)
@@ -97,6 +102,7 @@ const BuyModal: React.FC<Props> = ({
         console.log('Wait for prize pool to load')
         return
       }
+
       const currentPot = parseFloat(prizePool?.currentPotSize)
       const potLimit = parseFloat(prizePool?.potLimit)
       const percentageFee = 0.1 * parseFloat(totalPrice)
@@ -152,8 +158,7 @@ const BuyModal: React.FC<Props> = ({
   if (!isMounted) {
     return null
   }
-  const tix = useTix(price ?? '0')
-  const shortTxn = txn.slice(0, 4) + '...' + txn.slice(-4)
+
   return (
     <Modal trigger={trigger}>
       <Dialog.Content className="fixed top-[50%] left-[50%] mt-10 w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-lg bg-white pb-4 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow">
@@ -291,25 +296,40 @@ const BuyModal: React.FC<Props> = ({
                     </div>
                   </div>
 
-                  <div className="mt-[25px] flex justify-end gap-4">
-                    <button
-                      onClick={handleSubmit}
-                      disabled={isLoading}
-                      className="w-full rounded bg-[#7000FF] py-2 text-white hover:bg-[#430099]"
-                    >
-                      {isLoading ? (
-                        <>
-                          <CgSpinner className="mr-2 inline-block h-6 w-6 animate-spin" />
-                          {isApproved
-                            ? 'Waiting to be Validated'
-                            : 'Waiting for Approval'}
-                        </>
-                      ) : error ? (
-                        'Retry'
-                      ) : (
-                        'Checkout'
-                      )}
-                    </button>
+                  <div>
+                    {isLowBalance && (
+                      <div className="mt-2 flex items-center justify-center gap-1 text-center">
+                        <span className="reservoir-headings text-[#FF6369]">
+                          Insufficient balance{' '}
+                        </span>
+                        <FormatNativeCrypto amount={balance?.value} />
+                      </div>
+                    )}
+
+                    <div className="mt-[16px] flex justify-end gap-4">
+                      <button
+                        onClick={handleSubmit}
+                        disabled={isLoading || isLowBalance}
+                        className={`w-full rounded py-2 text-white ${
+                          isLoading || isLowBalance
+                            ? 'bg-[#D3D3D3]'
+                            : 'bg-[#7000FF] hover:bg-[#430099]'
+                        }`}
+                      >
+                        {isLoading ? (
+                          <>
+                            <CgSpinner className="mr-2 inline-block h-6 w-6 animate-spin" />
+                            {isApproved
+                              ? 'Waiting to be Validated'
+                              : 'Waiting for Approval'}
+                          </>
+                        ) : error ? (
+                          'Retry'
+                        ) : (
+                          'Checkout'
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </main>
               </>

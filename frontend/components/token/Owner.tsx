@@ -57,7 +57,15 @@ const Owner: FC<Props> = ({ details, bannedOnOpenSea, collection }) => {
             </div>
           )}
         <div className="reservoir-h3 mb-3 flex items-center gap-4 overflow-hidden font-headings dark:text-white">
-          <div>{token?.name || `#${token?.tokenId}`}</div>
+          <Link
+            key={`${token?.name}`}
+            href={`/collections/${collection?.id}`}
+            legacyBehavior={true}
+          >
+            <a>
+              <div>{token?.name || `#${token?.tokenId}`}</div>
+            </a>
+          </Link>
           {bannedOnOpenSea && (
             <Tooltip.Provider>
               <Tooltip.Root delayDuration={0}>
