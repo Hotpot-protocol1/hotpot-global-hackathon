@@ -1,7 +1,7 @@
 import { useTokens } from '@reservoir0x/reservoir-kit-ui'
 import { optimizeImage } from 'lib/optmizeImage'
 import Script from 'next/script'
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { TokenDetails } from 'types/reservoir'
 
 type Props = {
@@ -9,6 +9,7 @@ type Props = {
 }
 
 const TokenMedia: FC<Props> = ({ token }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
   return (
     <div className="col-span-full md:col-span-4 lg:col-span-5 lg:col-start-2">
       <Script
@@ -20,11 +21,26 @@ const TokenMedia: FC<Props> = ({ token }) => {
         src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"
       ></Script>
       {token?.media === null ? (
-        <img
-          alt="Token Image"
-          className="w-full rounded-2xl"
-          src={optimizeImage(token?.image, 533)}
-        />
+        <>
+          <img
+            alt="Token Image"
+            className="w-full rounded-2xl"
+            src={optimizeImage(token?.image, 533)}
+            onClick={() => setIsModalOpen(true)}
+          />
+          {isModalOpen && (
+            <div
+              className="fixed top-0 left-0 z-[3000] flex h-full w-full items-center justify-center bg-black bg-opacity-50 drop-shadow backdrop-blur"
+              onClick={() => setIsModalOpen(false)}
+            >
+              <img
+                alt="Token Image"
+                className="max-h-screen max-w-full"
+                src={optimizeImage(token?.image, 533)}
+              />
+            </div>
+          )}
+        </>
       ) : (
         <Media
           media={token?.media as string}

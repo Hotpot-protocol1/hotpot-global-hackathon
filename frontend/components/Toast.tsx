@@ -73,7 +73,7 @@ const Toast: FC<Props> = ({ t, toast, data: { kind, message, title } }) => {
         enter="transform ease-out duration-300 transition"
         enterFrom="translate-y-4 opacity-0 sm:translate-y-0 sm:translate-x-2"
         enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-        leave="transition ease-in duration-200"
+        leave="transition ease-in duration-100"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >

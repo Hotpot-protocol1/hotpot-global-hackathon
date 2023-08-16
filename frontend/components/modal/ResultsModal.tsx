@@ -37,7 +37,6 @@ const ResultsModal: React.FC<Props> = ({ trigger }) => {
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
-  const [totalPrice, setTotalPrice] = useState<string | null>(null)
   const { address } = useAccount()
 
   useEffect(() => {
