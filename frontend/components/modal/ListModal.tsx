@@ -13,7 +13,8 @@ import { optimizeImage } from 'lib/optmizeImage'
 import { useMediaQuery } from '@react-hookz/web'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Switch from '@radix-ui/react-switch'
-import { CgMore, CgSpinner } from 'react-icons/cg'
+import * as Select from '@radix-ui/react-select'
+import { CgChevronDown, CgMore, CgSpinner } from 'react-icons/cg'
 import { setToast } from 'components/token/setToast'
 import { useAccount, useContract, useProvider, useSigner } from 'wagmi'
 import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
@@ -22,17 +23,59 @@ import {
   ERC721abi,
   NFTMarketplace_CONTRACT_SEP,
 } from '../../contracts/index'
+import InfoTooltip from 'components/InfoTooltip'
+import dayjs, { ManipulateType } from 'dayjs'
+import Image from 'next/legacy/image'
 import Modal from './Modal'
 import useTix from 'lib/tix'
-import Image from 'next/legacy/image'
-import InfoTooltip from 'components/InfoTooltip'
 
-enum STEPS {
-  SelectMarkets = 0,
-  SetPrice = 1,
-  ListItem = 2,
-  Complete = 3,
+export type ExpirationOption = {
+  text: string
+  value: string
+  relativeTime: number | null
+  relativeTimeUnit: ManipulateType | null
 }
+
+const expirationOptions: ExpirationOption[] = [
+  {
+    text: '1 Hour',
+    value: 'hour',
+    relativeTime: 1,
+    relativeTimeUnit: 'h',
+  },
+  {
+    text: '12 Hours',
+    value: '12 hours',
+    relativeTime: 12,
+    relativeTimeUnit: 'h',
+  },
+  {
+    text: '1 Day',
+    value: '1 day',
+    relativeTime: 1,
+    relativeTimeUnit: 'd',
+  },
+  {
+    text: '3 Day',
+    value: '3 days',
+    relativeTime: 3,
+    relativeTimeUnit: 'd',
+  },
+  { text: '1 Week', value: 'week', relativeTime: 1, relativeTimeUnit: 'w' },
+  { text: '1 Month', value: 'month', relativeTime: 1, relativeTimeUnit: 'M' },
+  {
+    text: '3 Months',
+    value: '3 months',
+    relativeTime: 3,
+    relativeTimeUnit: 'M',
+  },
+  {
+    text: '6 Months',
+    value: '6 months',
+    relativeTime: 6,
+    relativeTimeUnit: 'M',
+  },
+]
 
 const ModalCopy = {
   title: 'List Item for sale',
@@ -43,6 +86,13 @@ const ModalCopy = {
   ctaEditListing: 'Edit Listing',
   ctaRetry: 'Retry',
   ctaGoToToken: 'Go to Token',
+}
+
+enum STEPS {
+  SelectMarkets = 0,
+  SetPrice = 1,
+  ListItem = 2,
+  Complete = 3,
 }
 
 type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
@@ -81,6 +131,9 @@ const ListModal: React.FC<Props> = ({
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const [alert, setAlert] = useState<string | null>(null)
   const [txn, setTxn] = useState<string>('')
+  const [expirationOption, setExpirationOption] = useState<ExpirationOption>(
+    expirationOptions[5]
+  )
 
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
   const imageSize = singleColumnBreakpoint ? 533 : 250
@@ -129,6 +182,14 @@ const ListModal: React.FC<Props> = ({
       if (!Nft) {
         console.log('Nft contract instance is not available.')
         return
+      }
+      let expirationTime: string | null = null
+
+      if (expirationOption.relativeTime && expirationOption.relativeTimeUnit) {
+        expirationTime = dayjs()
+          .add(expirationOption.relativeTime, expirationOption.relativeTimeUnit)
+          .unix()
+          .toString()
       }
 
       // Check if Hotpot is already approved to manage all of the owner's tokens
@@ -353,7 +414,7 @@ const ListModal: React.FC<Props> = ({
               </div>
             </div>
 
-            <div className="text-md mt-2 flex flex-row justify-between font-light">
+            <div className="text-md mt-2 flex flex-row justify-between">
               <div className="flex flex-row items-center gap-2 text-gray-700">
                 <div className="flex items-center">
                   <img src="/hotpot.png" className="mr-4 h-8 w-8 flex-none" />
@@ -366,7 +427,7 @@ const ListModal: React.FC<Props> = ({
                 onChange={handleChange}
                 type="number"
                 placeholder="Enter a listing price"
-                className="mx-2 grow rounded border px-4 py-2"
+                className="mx-2 grow rounded border-2 px-4 py-2 hover:border-blue-700"
               />
 
               <div
@@ -384,6 +445,43 @@ const ListModal: React.FC<Props> = ({
             </div>
             <div className="items-center justify-center p-1 text-xs font-light text-red-500">
               {alert}
+            </div>
+            <div className="items-left mt-4 flex flex-col justify-center ">
+              <div className="text-sm text-gray-500">Expiration Date</div>
+              <Select.Root
+                value={expirationOption?.value || ''}
+                onValueChange={(value: string) => {
+                  const option = expirationOptions.find(
+                    (option) => option.value === value
+                  )
+                  if (option) {
+                    setExpirationOption(option)
+                  }
+                }}
+              >
+                <Select.Trigger>
+                  <div className="mt-2 flex items-center justify-between gap-1 rounded border-2 border-solid border-gray-200 px-4 py-2 hover:border-blue-700 focus:border-blue-700">
+                    <div className="text-base font-normal">
+                      <span>{expirationOption.text}</span>
+                    </div>
+                    <CgChevronDown className="text-gray-500" />
+                  </div>
+                </Select.Trigger>
+
+                <Select.Content>
+                  <Select.Group>
+                    <div className="items-left no-scrollbar max-h-[280px] w-[460px] translate-y-[130px] overflow-y-auto rounded border-2 border-blue-700 bg-white">
+                      {expirationOptions.map((option) => (
+                        <Select.Item key={option.text} value={option.value}>
+                          <div className="flex cursor-pointer items-center px-4 py-2 text-left hover:bg-gray-100">
+                            {option.text}
+                          </div>
+                        </Select.Item>
+                      ))}
+                    </div>
+                  </Select.Group>
+                </Select.Content>
+              </Select.Root>
             </div>
           </div>
         </div>
