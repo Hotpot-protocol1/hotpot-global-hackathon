@@ -18,4 +18,5 @@ var (
 	InternalServerErr = ErrResp{"INTERNAL_SERVER_ERROR", http.StatusInternalServerError}
 	IncorrectBodyErr  = ErrResp{"INCORRECT_BODY", http.StatusBadRequest}
 	IncorrectChainErr = ErrResp{"INCORRECT_CHAIN", http.StatusBadRequest}
+	NoRaffle          = ErrResp{"NO_RAFFLE", http.StatusNotFound}
 )

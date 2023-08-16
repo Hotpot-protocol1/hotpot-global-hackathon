@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 
@@ -41,7 +42,7 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 	)
 
 	log := cfg.Log.New()
-	infura := eventservice.InitializeInfura(cfg.ProxyContract, cfg.Infura.BaseURLWS, cfg.Infura.APIKey)
+	infura := eventservice.InitializeInfura(cfg.ProxyContract, cfg.Infura.BaseURL, cfg.Infura.BaseURLWS, cfg.Infura.APIKey, cfg.OperatorPrivKey)
 	infura.Start(db.UserTickets(), log)
 
 	userHandler := user.New(db, log, infura)
@@ -58,6 +59,7 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 	router.GET("/user/:wallet_address/pot/:pot_id", userHandler.GetUserTicketsForPot)
 	router.GET("/user/:wallet_address/pot/current", userHandler.GetUserTicketsForCurrentPot)
 	router.GET("/user/:wallet_address/pot", userHandler.GetPotsWithRaffleTimestamp)
+	router.GET("/pot/:pot_id/leaderboard", userHandler.GetPotTicketLeaderboard)
 	router.GET("/pot/latest_raffle", userHandler.GetLatestRafflePotID)
 	router.GET("/pot/latest_raffle/test", userHandler.GetLatestRafflePotIDSeconds)
 
@@ -67,10 +69,10 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 	})
 
 	router.GET("/try", func(c echo.Context) error {
-		// err := operator.Execute(buyer, seller, 250000000000000000)
-		// if err != nil {
-		// 	fmt.Println("Error is ", err)
-		// }
+		err := infura.TestFulfilled(db.UserTickets())
+		if err != nil {
+			fmt.Println("Error is ", err)
+		}
 
 		return c.NoContent(http.StatusOK)
 	})

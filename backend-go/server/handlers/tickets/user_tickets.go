@@ -83,9 +83,13 @@ func (h *Handler) GetPotsWithRaffleTimestamp(c echo.Context) error {
 	walletAddr := c.Param(paramWalletAddress)
 
 	pots, err := h.userDB.GetUserPotsWithRaffleTimestamp(chain, walletAddr)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		h.log.WithError(err).Error("Failed to get pots with raffle timestamp")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
+	}
+
+	if err == sql.ErrNoRows {
+		return c.JSON(http.StatusNotFound, errs.NoRaffle)
 	}
 
 	return c.JSON(http.StatusOK, pots)
@@ -97,17 +101,38 @@ func (h *Handler) GetLatestRafflePotID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errs.IncorrectChainErr)
 	}
 
-	potID, err := h.userDB.GetLatestRafflePotID(chain)
+	potInfo, err := h.userDB.GetLatestRafflePotInfo(chain)
 	if err != nil {
 		h.log.WithError(err).Error("Failed to get pots with raffle timestamp")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
 	}
 
-	if !potID.Valid {
+	if potInfo.PotId == 0 {
 		return c.JSON(http.StatusOK, map[string]interface{}{"pot_id": nil})
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"pot_id": potID.Int16})
+	return c.JSON(http.StatusOK, potInfo)
+}
+
+func (h *Handler) GetPotTicketLeaderboard(c echo.Context) error {
+	chain, err := validateChain(c.QueryParam(queryParamChain))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errs.IncorrectChainErr)
+	}
+
+	potIDString := c.Param(paramPotID)
+	potID, err := strconv.Atoi(potIDString)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errs.IncorrectBodyErr)
+	}
+
+	leaderboard, err := h.userDB.GetPotTicketLeaderboard(chain, potID)
+	if err != nil {
+		h.log.WithError(err).Error("Failed to get pots with raffle timestamp")
+		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
+	}
+
+	return c.JSON(http.StatusOK, leaderboard)
 }
 
 // TODO: REMOVE test only
@@ -117,15 +142,15 @@ func (h *Handler) GetLatestRafflePotIDSeconds(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errs.IncorrectChainErr)
 	}
 
-	potID, err := h.userDB.GetLatestRafflePotIDSeconds(chain)
+	potInfo, err := h.userDB.GetLatestRafflePotInfoSeconds(chain)
 	if err != nil && err != sql.ErrNoRows {
 		h.log.WithError(err).Error("Failed to get pots with raffle timestamp")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
 	}
 
-	if !potID.Valid {
+	if potInfo.PotId == 0 {
 		return c.JSON(http.StatusOK, map[string]interface{}{"pot_id": nil})
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"pot_id": potID.Int16})
+	return c.JSON(http.StatusOK, potInfo)
 }

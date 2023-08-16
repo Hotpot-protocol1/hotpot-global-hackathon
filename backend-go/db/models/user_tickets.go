@@ -14,6 +14,12 @@ type UserTickets struct {
 	Chain           int        `db:"chain" json:"chain"`
 }
 
+type UserLeaderboard struct {
+	NumOfTickets  int    `db:"num_of_tickets" json:"num_of_tickets"`
+	WalletAddress string `db:"wallet_address" json:"wallet_address"`
+	PotID         uint16 `db:"pot_id" json:"pot_id"`
+}
+
 type UserPotTickets struct {
 	NumOfTickets  int
 	WalletAddress string          `db:"wallet_address" json:"wallet_address"`
@@ -26,7 +32,12 @@ type UserPotTicket struct {
 	IsWinner bool   `db:"is_winner" json:"is_winner"`
 }
 
-type PotsWithRaffleTimestamp struct {
+type PotWithRaffleTimestamp struct {
 	PotId           uint16     `db:"pot_id" json:"pot_id"`
 	RaffleTimestamp *time.Time `db:"raffle_timestamp" json:"raffle_timestamp"`
+}
+
+type Winner struct {
+	WalletAddress string `db:"wallet_address" json:"wallet_address"`
+	TicketID      uint32 `db:"ticket_id" json:"ticket_id"`
 }
