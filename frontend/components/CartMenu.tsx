@@ -2,7 +2,7 @@ import { styled, keyframes } from '@stitches/react'
 import * as Popover from '@radix-ui/react-popover'
 import { FC, useState } from 'react'
 import { FaShoppingCart, FaTrashAlt } from 'react-icons/fa'
-import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil' // Update import statement
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { Execute } from '@reservoir0x/reservoir-sdk'
 import { Signer } from 'ethers'
 import { setToast } from './token/setToast'
@@ -14,13 +14,14 @@ import cartTokensAtom, {
   getCartTotalPrice,
   getPricingPools,
 } from 'recoil/cart'
-import FormatCrypto from 'components/FormatCrypto'
 import { getPricing } from 'lib/token/pricing'
 import { formatEther } from 'ethers/lib/utils'
 import { CgSpinner } from 'react-icons/cg'
+import FormatCrypto from 'components/FormatCrypto'
 import BuyCartModal from './modal/BuyCartModal'
 import ConnectWalletButton from './ConnectWalletButton'
 import getCartTotalPriceHotpot from 'recoil/cart/getCartTotalPriceHotpot'
+
 type UseBalanceToken = NonNullable<Parameters<typeof useBalance>['0']>['token']
 
 const slideDown = keyframes({
@@ -90,8 +91,8 @@ const CartMenu: FC = () => {
 
     if (!reservoirClient) throw 'Client not started'
 
-    await reservoirClient.actions
-      .buyToken({
+    try {
+      await reservoirClient.actions.buyToken({
         expectedPrice: cartTotal.contents,
         tokens: cartTokens.map((token) => token.token),
         signer,
@@ -100,70 +101,45 @@ const CartMenu: FC = () => {
           partial: true,
         },
       })
-      .then(() => setCartTokens([]))
-      .catch((err: any) => {
-        if (err?.type === 'price mismatch') {
-          setToast({
-            kind: 'error',
-            message: 'Price was greater than expected.',
-            title: 'Could not buy token',
-          })
-          return
-        }
 
-        if (err?.message.includes('ETH balance')) {
-          setToast({
-            kind: 'error',
-            message: 'You have insufficient funds to buy this token.',
-            title: 'Not enough ETH balance',
-          })
-          return
-        }
-
-        if (err?.code === 4001) {
-          setOpen(false)
-          setSteps(undefined)
-          setToast({
-            kind: 'error',
-            message: 'You have canceled the transaction.',
-            title: 'User canceled transaction',
-          })
-          return
-        }
+      setCartTokens([])
+      setToast({
+        kind: 'complete',
+        message: 'Your transaction was successful',
+        title: 'Purchase Complete',
+      })
+    } catch (err: any) {
+      if (err?.type === 'price mismatch') {
+        setToast({
+          kind: 'error',
+          message: 'Price was greater than expected.',
+          title: 'Could not buy token',
+        })
+      } else if (err?.message.includes('ETH balance')) {
+        setToast({
+          kind: 'error',
+          message: 'You have insufficient funds to buy this token.',
+          title: 'Not enough ETH balance',
+        })
+      } else if (err?.code === 4001) {
+        setOpen(false)
+        setSteps(undefined)
+        setToast({
+          kind: 'error',
+          message: 'You have canceled the transaction.',
+          title: 'User canceled transaction',
+        })
+      } else {
         setToast({
           kind: 'error',
           message: 'The transaction was not completed.',
           title: 'Could not buy token',
         })
-      })
+      }
+    }
 
     setWaitingTx(false)
   }
-
-  // if (cartTotal.state === 'hasError') {
-  //   return (
-  //     <Popover.Root>
-  //       <Popover.Trigger>
-  //         <div className="relative z-10 grid items-center justify-center w-8 h-8 rounded-full">
-  //           {cartCount > 0 && (
-  //             <div className="absolute flex items-center justify-center w-5 h-5 text-white rounded-full reservoir-subtitle -top-1 -right-1 bg-primary-700">
-  //               {cartCount}
-  //             </div>
-  //           )}
-  //           <FaShoppingCart className="h-[18px] w-[18px]" />
-  //         </div>
-  //       </Popover.Trigger>
-  //       <StyledContent
-  //         sideOffset={22}
-  //         className="z-[10000000] w-[367px] rounded-2xl bg-white p-6 shadow-lg dark:border dark:border-neutral-700 dark:bg-neutral-900"
-  //       >
-  //         <div className="flex justify-center mb-4">
-  //           Error loading cart total
-  //         </div>
-  //       </StyledContent>
-  //     </Popover.Root>
-  //   )
-  // }
 
   return (
     <Popover.Root>
@@ -279,7 +255,7 @@ const CartMenu: FC = () => {
                   <button
                     onClick={() => setWaitingTx(true)}
                     className="btn-primary-fill w-full"
-                    disabled={cartTotal.state === 'loading'}
+                    disabled={cartTotalHotpot.state === 'loading'}
                   >
                     {waitingTx && (
                       <CgSpinner className="h-4 w-4 animate-spin" />

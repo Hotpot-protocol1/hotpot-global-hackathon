@@ -1,18 +1,21 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { ethers } from 'ethers'
-import { useContract, useProvider, useSigner } from 'wagmi'
+import { useContract, useSigner } from 'wagmi'
 import * as Dialog from '@radix-ui/react-dialog'
 import { CgSpinner } from 'react-icons/cg'
 import { HiCheckCircle, HiExclamationCircle, HiX } from 'react-icons/hi'
 import { TokenDetails } from 'types/reservoir'
-import Modal from './Modal'
 import { abi, NFTMarketplace_CONTRACT_SEP } from '../../contracts/index'
-import getTotalPrice from 'lib/getTotalPrice'
-import useTix from 'lib/tix'
+import { useAccount } from 'wagmi'
 import { optimizeImage } from 'lib/optmizeImage'
-import Image from 'next/legacy/image'
 import { useMediaQuery } from '@react-hookz/web'
-import { SWRResponse } from 'swr'
+import { setToast } from 'components/token/setToast'
+import Image from 'next/legacy/image'
+import getTotalPrice from 'lib/getTotalPrice'
+import { SWRResponse, mutate } from 'swr'
+import useTix from 'lib/tix'
+import Modal from './Modal'
+import { useHotpotContext } from 'context/HotpotContext'
 
 type BuyCallbackData = {
   tokenId?: string
@@ -31,7 +34,7 @@ type Props = Pick<Parameters<typeof Modal>['0'], 'trigger'> & {
   onBuyComplete?: (data: BuyCallbackData) => void
   onBuyError?: (error: Error, data: BuyCallbackData) => void
   onClose?: () => void
-  mutate?: SWRResponse['mutate']
+  mutateToken?: SWRResponse['mutate']
 }
 
 const BuyModal: React.FC<Props> = ({
@@ -40,21 +43,21 @@ const BuyModal: React.FC<Props> = ({
   price,
   tokenDetails,
   collectionImage,
-  mutate,
+  mutateToken,
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [priceLoading, setPriceLoading] = useState(false)
-  const provider = useProvider()
   const { data: signer } = useSigner()
+  const { address } = useAccount()
   const [isMounted, setIsMounted] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [toast, setToast] = useState(null)
   const [isApproved, setIsApproved] = useState<boolean>(false)
   const [txn, setTxn] = useState<string>('')
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
   const [totalPrice, setTotalPrice] = useState<string | null>(null)
   const singleColumnBreakpoint = useMediaQuery('(max-width: 640px)')
   const imageSize = singleColumnBreakpoint ? 533 : 250
+  const { prizePool } = useHotpotContext()
 
   useEffect(() => {
     setIsMounted(true)
@@ -90,10 +93,27 @@ const BuyModal: React.FC<Props> = ({
         console.log('Wait for total price to load')
         return
       }
+      if (!prizePool) {
+        console.log('Wait for prize pool to load')
+        return
+      }
+      const currentPot = parseFloat(prizePool?.currentPotSize)
+      const potLimit = parseFloat(prizePool?.potLimit)
+      const percentageFee = 0.1 * parseFloat(totalPrice)
+      const isLastTrade = percentageFee > potLimit - currentPot
       const priceInWei = ethers.utils.parseEther(totalPrice)
-      const buyNFT = await NftMarketplace.purchaseItem(itemId, {
+      const gasEstimate = await NftMarketplace.estimateGas.purchaseItem(
+        itemId,
+        {
+          value: priceInWei,
+        }
+      )
+
+      const txParams = {
         value: priceInWei,
-      })
+        ...(isLastTrade && { gasLimit: gasEstimate.add(20000) }),
+      }
+      const buyNFT = await NftMarketplace.purchaseItem(itemId, txParams)
       setIsApproved(true)
       console.log('Listing Transaction Hash:', buyNFT.hash)
       setTxn(buyNFT.hash)
@@ -101,18 +121,31 @@ const BuyModal: React.FC<Props> = ({
       setIsApproved(false)
       setIsSuccess(true)
       setIsLoading(false)
+      setToast({
+        kind: 'complete',
+        message: '',
+        title: 'Purchase Complete',
+      })
     } catch (error) {
       setIsLoading(false)
       console.log(error)
       setError('Oops, something went wrong. Please try again')
+      setToast({
+        kind: 'error',
+        message: 'The transaction was not completed.',
+        title: 'Could not buy token',
+      })
     }
   }
 
   const onClose = () => {
     setError(null)
     setIsSuccess(false)
-    if (mutate) {
-      mutate()
+    if (mutateToken) {
+      mutateToken()
+    }
+    if (address) {
+      mutate(['latestPot', address])
     }
   }
 

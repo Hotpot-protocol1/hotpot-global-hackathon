@@ -1,52 +1,97 @@
 import React, { FC, Fragment } from 'react'
 import { Transition } from '@headlessui/react'
-import toast, { Toast } from 'react-hot-toast'
 import {
+  HiCheckCircle,
   HiOutlineCheckCircle,
   HiOutlineExclamationCircle,
   HiOutlineInformationCircle,
   HiOutlineXCircle,
+  HiStar,
   HiX,
 } from 'react-icons/hi'
+import toast, { Toast } from 'react-hot-toast'
 
 type Props = {
   t: Toast
   toast: typeof toast
   data: {
-    kind: 'error' | 'success' | 'warning' | 'info'
+    kind: 'error' | 'success' | 'warning' | 'info' | 'tickets' | 'complete'
     title: string
     message: string
   }
 }
 
+const toastStyles = {
+  error: {
+    bgColor: 'bg-white',
+    borderColor: 'ring-black',
+    textColor: 'text-gray-900',
+    messageColor: 'text-gray-500',
+  },
+  success: {
+    bgColor: 'bg-white',
+    borderColor: 'ring-green-500',
+    textColor: 'text-gray-900',
+    messageColor: 'text-gray-500',
+  },
+  warning: {
+    bgColor: 'bg-white',
+    borderColor: 'ring-yellow-500',
+    textColor: 'text-gray-900',
+    messageColor: 'text-gray-500',
+  },
+  info: {
+    bgColor: 'bg-white',
+    borderColor: 'ring-blue-500',
+    textColor: 'text-gray-900',
+    messageColor: 'text-gray-600',
+  },
+  tickets: {
+    bgColor: 'bg-[#FFF3C9]',
+    borderColor: 'ring-[#FFC700;]',
+    textColor: 'text-[#FF991C]',
+    messageColor: 'text-white',
+  },
+  complete: {
+    bgColor: 'bg-[#B5E3E3]',
+    borderColor: 'ring-[#0FA4A4]',
+    textColor: 'text-[#0C8383]',
+    messageColor: 'text-white',
+  },
+}
+
 const Toast: FC<Props> = ({ t, toast, data: { kind, message, title } }) => {
+  const { bgColor, borderColor, textColor, messageColor } =
+    toastStyles[kind] || {}
   return (
-    <div className="flex w-full max-w-sm flex-col items-center space-y-4 sm:items-end">
+    <div
+      className={`mx-4 flex w-full max-w-sm flex-col items-center space-y-4 rounded-lg sm:items-end ${bgColor}`}
+    >
       <Transition
         show={t.visible}
         as={Fragment}
         enter="transform ease-out duration-300 transition"
-        enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+        enterFrom="translate-y-4 opacity-0 sm:translate-y-0 sm:translate-x-2"
         enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-        leave="transition ease-in duration-100"
+        leave="transition ease-in duration-200"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-black dark:ring-neutral-600">
+        <div
+          className={`pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg shadow-lg ring-1 ${borderColor} ring-opacity-5 dark:bg-black dark:ring-neutral-600 ${bgColor}`}
+        >
           <div className="p-4">
             <div className="flex items-start">
               <div className="flex-shrink-0">{icons[kind]}</div>
-              <div className="ml-3 w-0 flex-1 pt-0.5">
-                <p className="font-medium text-gray-900 dark:text-white">
+              <div className="ml-3 w-0 flex-1">
+                <p className={`reservoir-p font-medium ${textColor} `}>
                   {title}
                 </p>
-                <p className="mt-1 text-gray-500 dark:text-neutral-300">
-                  {message}
-                </p>
+                <p className={`reservoir-p mt-1 ${messageColor}`}>{message}</p>
               </div>
-              <div className="ml-4 flex flex-shrink-0">
+              <div className="ml-4 flex items-center">
                 <button
-                  className="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-black dark:text-white"
+                  className={`focus:offset-2 inline-flex rounded-full bg-white bg-opacity-30 p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:outline-none `}
                   onClick={() => toast.dismiss(t.id)}
                 >
                   <span className="sr-only">Close</span>
@@ -74,4 +119,6 @@ const icons = {
   info: (
     <HiOutlineInformationCircle className="h-6 w-6 rounded-full text-blue-400" />
   ),
+  tickets: <HiStar className="h-6 w-6 rounded-full text-[#FFA800]" />,
+  complete: <HiCheckCircle className="h-6 w-6 rounded-full text-[#0FA4A4]" />,
 }

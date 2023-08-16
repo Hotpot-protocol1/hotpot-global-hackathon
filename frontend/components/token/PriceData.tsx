@@ -1,4 +1,3 @@
-import BuyNow from 'components/BuyNow'
 import { TokenDetails } from 'types/reservoir'
 import {
   ListModal,
@@ -20,22 +19,23 @@ import recoilCartTokens, {
   getPricingPools,
   getTokensMap,
 } from 'recoil/cart'
-import FormatCrypto from 'components/FormatCrypto'
 import { Collection } from 'types/reservoir'
-import { formatDollar } from 'lib/numbers'
-import useCoinConversion from 'hooks/useCoinConversion'
-import SwapCartModal from 'components/SwapCartModal'
 import { FaShoppingCart } from 'react-icons/fa'
-import ConnectWalletButton from 'components/ConnectWalletButton'
-import useMounted from 'hooks/useMounted'
+import { formatDollar } from 'lib/numbers'
 import { useRouter } from 'next/router'
 import { getPricing } from 'lib/token/pricing'
 import { CgSpinner } from 'react-icons/cg'
+import { useHotpotContext } from 'context/HotpotContext'
+import BuyNow from 'components/BuyNow'
+import FormatCrypto from 'components/FormatCrypto'
+import useCoinConversion from 'hooks/useCoinConversion'
+import SwapCartModal from 'components/SwapCartModal'
+import ConnectWalletButton from 'components/ConnectWalletButton'
+import getCartTotalPriceHotpot from 'recoil/cart/getCartTotalPriceHotpot'
+import useMounted from 'hooks/useMounted'
 import BuyModal from 'components/modal/BuyModal'
 import ListModalCustom from '../../components/modal/ListModal'
 import useTix from 'lib/tix'
-import { useHotpotContext } from 'context/HotpotContext'
-import getCartTotalPriceHotpot from 'recoil/cart/getCartTotalPriceHotpot'
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID
 const SOURCE_ID = process.env.NEXT_PUBLIC_SOURCE_ID
@@ -350,7 +350,7 @@ const PriceData: FC<Props> = ({
                   itemId={currentNFT?.itemId}
                   price={currentNFT?.price}
                   tokenDetails={tokenDetails}
-                  mutate={details.mutate}
+                  mutateToken={details.mutate}
                 />
               )}
 

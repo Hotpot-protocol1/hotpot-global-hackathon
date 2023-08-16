@@ -6,16 +6,17 @@ import ResultsModal from './modal/ResultsModal'
 
 const PotResultBanner = () => {
   const { isConnected, address } = useAccount()
-  const [isRaffleDrawn, setIsRaffleDrawn] = useState(false);
+  const [isRaffleDrawn, setIsRaffleDrawn] = useState(false)
 
   useEffect(() => {
     if (isConnected && address) {
-      getRafflePot(address)
-        .then((res) => {
-          setIsRaffleDrawn(!res);
-        })
+      getRafflePot(address).then((res) => {
+        if (res !== null) {
+          setIsRaffleDrawn(true)
+        }
+      })
     }
-  }, [isConnected, address]);
+  }, [isConnected, address])
 
   if (isRaffleDrawn) {
     return (
