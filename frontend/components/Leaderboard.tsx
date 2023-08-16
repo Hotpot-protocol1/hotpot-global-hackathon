@@ -1,4 +1,5 @@
-import { FC } from 'react'
+import useLeaderboardData from 'hooks/useLeaderboardData'
+import { FC, useMemo } from 'react'
 import { FiAlertCircle } from 'react-icons/fi'
 
 interface LeaderboardItem {
@@ -10,21 +11,19 @@ interface LeaderboardItem {
 }
 
 const Leaderboard: FC = () => {
-  const generateData = (): LeaderboardItem[] => {
-    const Data: LeaderboardItem[] = []
-    for (let i = 1; i <= 15; i++) {
-      Data.push({
-        rank: i,
-        name: 'Mochi',
-        boost: '1x',
-        tickets24h: 628,
-        totalTickets: 8080,
-      })
-    }
-    return Data
-  }
+  const { data } = useLeaderboardData({ potId: 2, chain: "goerli" });
 
-  const data = generateData()
+  const leaderboardItems: Array<LeaderboardItem> = useMemo(() => {
+    return data
+      ?.sort((prev, next) => next.num_of_tickets - prev.num_of_tickets)
+      .map((item, item_idx) => ({
+        rank: item_idx + 1,
+        name: item.wallet_address as string,
+        boost: "1x",
+        tickets24h: NaN,
+        totalTickets: item.num_of_tickets,
+      })) || [];
+  }, [data]);
 
   return (
     <div className="m-4 mt-11">
@@ -46,14 +45,7 @@ const Leaderboard: FC = () => {
             </tr>
           </thead>
           <tbody>
-            <tr className="rounded-lg border-b bg-[#F0EBFE] text-center text-sm">
-              <td className="p-2">133</td>
-              <td className="p-2 text-left">You</td>
-              <td className="p-2 text-right text-[#0FA46E]">1x</td>
-              <td className="p-2 text-right">628</td>
-              <td className="p-2 text-right">8080</td>
-            </tr>
-            {data.map((item) => (
+            {leaderboardItems.map((item) => (
               <tr key={item.rank} className="m-2 border-b text-center text-sm">
                 <td className="p-2">{item.rank}</td>
                 <td className="w-1/3 p-2 text-left">{item.name}</td>
