@@ -11,7 +11,7 @@ const PotResultBanner = () => {
   useEffect(() => {
     if (isConnected && address) {
       getRafflePot(address).then((res) => {
-        if (res !== null) {
+        if (!res) {
           setIsRaffleDrawn(true)
         }
       })
