@@ -31,6 +31,7 @@
     "@reservoir0x/sdk": "^0.0.123",
     "@stitches/react": "^1.2.8",
     "add": "^2.0.6",
+    "dayjs": "^1.11.9",
     "downshift": "^6.1.7",
     "ethers": "^5.7.1",
     "lodash.debounce": "^4.0.8",

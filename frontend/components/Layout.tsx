@@ -13,7 +13,7 @@ const Layout: FC<Props> = ({ children, navbar }) => {
     <>
       {' '}
       <Toaster
-        position={'top-right'}
+        position={'bottom-right'}
         containerStyle={{ zIndex: 100000000000, marginTop: 86 }}
       />
       <NetworkWarning />

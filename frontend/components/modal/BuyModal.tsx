@@ -132,6 +132,13 @@ const BuyModal: React.FC<Props> = ({
         message: '',
         title: 'Purchase Complete',
       })
+      if (mutateToken) {
+        mutateToken()
+      }
+
+      if (address) {
+        mutate(['latestPot', address])
+      }
     } catch (error) {
       setIsLoading(false)
       console.log(error)
@@ -147,12 +154,6 @@ const BuyModal: React.FC<Props> = ({
   const onClose = () => {
     setError(null)
     setIsSuccess(false)
-    if (mutateToken) {
-      mutateToken()
-    }
-    if (address) {
-      mutate(['latestPot', address])
-    }
   }
 
   if (!isMounted) {
