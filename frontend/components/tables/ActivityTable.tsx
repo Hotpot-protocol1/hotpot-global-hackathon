@@ -383,11 +383,12 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({
               <a className="flex items-center">
                 <Image
                   className="rounded object-cover"
-                  loader={({ src }) => src}
+                  loader={({ src, width }) => `${src}?w=${width}`}
                   src={imageSrc}
                   alt={`${activity.token?.tokenName} Token Image`}
                   width={48}
                   height={48}
+                  priority={true}
                 />
                 <div className="ml-2 grid truncate">
                   <div className="reservoir-h6 dark:text-white">
@@ -492,11 +493,12 @@ const ActivityTableRow: FC<ActivityTableRowProps> = ({
           <a className="mr-2.5 flex items-center">
             <Image
               className="rounded object-cover"
-              loader={({ src }) => src}
+              loader={({ src, width }) => `${src}?w=${width}`}
               src={imageSrc}
               alt={`${activity.token?.tokenName} Token Image`}
               width={48}
               height={48}
+              priority={true}
             />
             <div className="ml-2 grid truncate">
               <div className="reservoir-h6 dark:text-white">

@@ -490,7 +490,7 @@ const ListModal: React.FC<Props> = ({
   }
 
   if (step === STEPS.ListItem) {
-    ;(mainContent = (
+    ; (mainContent = (
       <div>
         {' '}
         <div>
@@ -516,12 +516,13 @@ const ListModal: React.FC<Props> = ({
               {tokenDetails?.image ? (
                 <div className="w-14 rounded-sm object-fill">
                   <Image
-                    loader={({ src }) => src}
+                    loader={({ src, width }) => `${src}?w=${width}`}
                     src={optimizeImage(tokenDetails?.image, imageSize)}
                     alt={`${tokenDetails?.name}`}
                     className="w-full"
                     width={imageSize}
                     height={imageSize}
+                    priority={true}
                     objectFit="cover"
                     layout="responsive"
                   />
@@ -561,7 +562,7 @@ const ListModal: React.FC<Props> = ({
   }
 
   if (step === STEPS.Complete) {
-    ;(mainContent = (
+    ; (mainContent = (
       <div>
         {' '}
         <div>
@@ -617,10 +618,8 @@ const ListModal: React.FC<Props> = ({
       <Dialog.Content className="fixed top-[50%] left-[50%] mt-10 w-[90vw] max-w-[750px] translate-x-[-50%] translate-y-[-50%] rounded-lg bg-white pb-4 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none data-[state=open]:animate-contentShow">
         <div className="flex flex-row justify-between rounded bg-[#F8F8F8] p-4">
           {' '}
-          <Dialog.Title>
-            <h2 className="text-md m-0 font-semibold text-gray-900">
-              List Item for sale
-            </h2>
+          <Dialog.Title className='text-md m-0 font-semibold text-gray-900'>
+            List Item for sale
           </Dialog.Title>
           <Dialog.Close asChild>
             <button
@@ -639,12 +638,13 @@ const ListModal: React.FC<Props> = ({
             {tokenDetails?.image ? (
               <div className="w-[180px] rounded-sm object-fill">
                 <Image
-                  loader={({ src }) => src}
+                  loader={({ src, width }) => `${src}?w=${width}`}
                   src={optimizeImage(tokenDetails?.image, imageSize)}
                   alt={`${tokenDetails?.name}`}
                   className="w-full"
                   width={imageSize}
                   height={imageSize}
+                  priority={true}
                   objectFit="cover"
                   layout="responsive"
                 />
@@ -686,11 +686,10 @@ const ListModal: React.FC<Props> = ({
                   disabled={
                     isLoading || (step === STEPS.SetPrice && priceValue <= 0)
                   }
-                  className={`w-full rounded py-2 text-white ${
-                    isLoading || (step === STEPS.SetPrice && priceValue <= 0)
+                  className={`w-full rounded py-2 text-white ${isLoading || (step === STEPS.SetPrice && priceValue <= 0)
                       ? 'cursor-not-allowed bg-gray-400'
                       : 'cursor-pointer bg-[#7000FF] hover:bg-[#430099]'
-                  }`}
+                    }`}
                 >
                   {isLoading ? (
                     <>
