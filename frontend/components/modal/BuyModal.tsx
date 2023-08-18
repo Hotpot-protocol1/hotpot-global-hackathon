@@ -230,12 +230,13 @@ const BuyModal: React.FC<Props> = ({
                       {tokenDetails?.image ? (
                         <div className="w-[50px] rounded-sm object-fill">
                           <Image
-                            loader={({ src }) => src}
+                            loader={({ src, width }) => `${src}?w=${width}`}
                             src={optimizeImage(tokenDetails?.image, imageSize)}
                             alt={`${tokenDetails?.name}`}
                             className="w-full"
                             width={imageSize}
                             height={imageSize}
+                            priority={true}
                             objectFit="cover"
                             layout="responsive"
                           />

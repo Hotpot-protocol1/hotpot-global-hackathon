@@ -163,13 +163,14 @@ const TokenCard: FC<Props> = ({
                 </div>
               )}
               <Image
-                loader={({ src }) => src}
+                loader={({ src, width }) => `${src}?w=${width}`}
                 src={optimizeImage(token?.token?.image, imageSize)}
                 alt={`${token?.token?.name}`}
                 className="w-full"
                 width={imageSize}
                 height={imageSize}
                 objectFit="cover"
+                priority={true}
                 layout="responsive"
               />
             </div>
