@@ -7,8 +7,9 @@ import (
 
 	"github.com/Hotpot-protocol1/hotpot-global/config"
 	"github.com/Hotpot-protocol1/hotpot-global/db"
-	user "github.com/Hotpot-protocol1/hotpot-global/server/handlers/tickets"
-	eventservice "github.com/Hotpot-protocol1/hotpot-global/services/event"
+	"github.com/Hotpot-protocol1/hotpot-global/server/handlers/orders"
+	userTickets "github.com/Hotpot-protocol1/hotpot-global/server/handlers/tickets"
+	eventservice "github.com/Hotpot-protocol1/hotpot-global/services/contract"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -42,10 +43,11 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 	)
 
 	log := cfg.Log.New()
-	infura := eventservice.InitializeInfura(cfg.ProxyContract, cfg.Infura.BaseURL, cfg.Infura.BaseURLWS, cfg.Infura.APIKey, cfg.OperatorPrivKey)
+	infura := eventservice.InitializeInfura(cfg.ProxyContract, cfg.MarketplaceContract, cfg.Infura.BaseURL, cfg.Infura.BaseURLWS, cfg.Infura.APIKey, cfg.OperatorPrivKey)
 	infura.Start(db.UserTickets(), log)
 
-	userHandler := user.New(db, log, infura)
+	userTicketsHandler := userTickets.New(db, log, infura)
+	ordersHandler := orders.New(db, log, infura)
 
 	// buyer := "0xB838b0b5Ff5f856b6defb75e843fd7D8d606f856"
 	// seller := "0xB203a89D86B6B0F8fa65b278A97D835DF1C58c96"
@@ -55,13 +57,16 @@ func Router(cfg config.Conf, db db.DBHandler) (*echo.Echo, error) {
 	// 	fmt.Println("Error is ", err)
 	// }
 
+	router.POST("/order", ordersHandler.CreateOrder)
+	router.PUT("/order", ordersHandler.FulFillOrder)
+
 	// USER endpoints
-	router.GET("/user/:wallet_address/pot/:pot_id", userHandler.GetUserTicketsForPot)
-	router.GET("/user/:wallet_address/pot/current", userHandler.GetUserTicketsForCurrentPot)
-	router.GET("/user/:wallet_address/pot", userHandler.GetPotsWithRaffleTimestamp)
-	router.GET("/pot/:pot_id/leaderboard", userHandler.GetPotTicketLeaderboard)
-	router.GET("/pot/latest_raffle", userHandler.GetLatestRafflePotID)
-	router.GET("/pot/latest_raffle/test", userHandler.GetLatestRafflePotIDSeconds)
+	router.GET("/user/:wallet_address/pot/:pot_id", userTicketsHandler.GetUserTicketsForPot)
+	router.GET("/user/:wallet_address/pot/current", userTicketsHandler.GetUserTicketsForCurrentPot)
+	router.GET("/user/:wallet_address/pot", userTicketsHandler.GetPotsWithRaffleTimestamp)
+	router.GET("/pot/:pot_id/leaderboard", userTicketsHandler.GetPotTicketLeaderboard)
+	router.GET("/pot/latest_raffle", userTicketsHandler.GetLatestRafflePotID)
+	router.GET("/pot/latest_raffle/test", userTicketsHandler.GetLatestRafflePotIDSeconds)
 
 	// DEBUG endpoints
 	router.GET("/status", func(c echo.Context) error {

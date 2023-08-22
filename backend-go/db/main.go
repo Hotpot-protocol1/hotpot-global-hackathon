@@ -17,6 +17,7 @@ import (
 type DBHandler interface {
 	DB() *sqlx.DB
 	UserTickets() UserTickets
+	Orders() Orders
 }
 
 // DB wraps dbx interface.

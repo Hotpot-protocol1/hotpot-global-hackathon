@@ -14,6 +14,7 @@ import (
 	"github.com/Hotpot-protocol1/hotpot-global/db"
 	"github.com/Hotpot-protocol1/hotpot-global/db/models"
 	"github.com/Hotpot-protocol1/hotpot-global/hotpot"
+	"github.com/Hotpot-protocol1/hotpot-global/marketplace"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -25,12 +26,13 @@ import (
 )
 
 type Infura struct {
-	wsBaseURL    string
-	httpsBaseURL string
-	apiKey       string
-	proxyAddress string
-	potID        uint16
-	privateKey   string
+	wsBaseURL          string
+	httpsBaseURL       string
+	apiKey             string
+	proxyAddress       string
+	marketplaceAddress string
+	potID              uint16
+	privateKey         string
 }
 
 const (
@@ -55,23 +57,11 @@ func getChainIDForChain(chain int) int64 {
 	return 1
 }
 
-func InitializeInfura(proxyAddress, rpcHttpsBaseURL, rpcWsBaseURL, rpcApiKey, privateKey string) *Infura {
-	return &Infura{proxyAddress: proxyAddress, httpsBaseURL: rpcHttpsBaseURL, wsBaseURL: rpcWsBaseURL, apiKey: rpcApiKey, potID: 1, privateKey: privateKey}
+func InitializeInfura(proxyAddress, marketplaceAddress, rpcHttpsBaseURL, rpcWsBaseURL, rpcApiKey, privateKey string) *Infura {
+	return &Infura{proxyAddress: proxyAddress, marketplaceAddress: marketplaceAddress, httpsBaseURL: rpcHttpsBaseURL, wsBaseURL: rpcWsBaseURL, apiKey: rpcApiKey, potID: 1, privateKey: privateKey}
 }
 
 func (i *Infura) TestFulfilled(userDBHandle db.UserTickets) error {
-	dialURL := i.wsBaseURL + i.apiKey
-	client, err := ethclient.Dial(dialURL)
-	if err != nil {
-		return fmt.Errorf("dial problem: %v", err)
-	}
-
-	addr := common.HexToAddress(i.proxyAddress)
-	instance, err := hotpot.NewHotpot(addr, client)
-	if err != nil {
-		return fmt.Errorf("instance error: %v", err)
-	}
-
 	marketplaceAbiFile, err := os.Open("config/hotpot-abi.json")
 	if err != nil {
 		return fmt.Errorf("open file problem: %v", err)
@@ -89,32 +79,14 @@ func (i *Infura) TestFulfilled(userDBHandle db.UserTickets) error {
 		return err
 	}
 
-	limit, err := instance.PotLimit(nil)
-	if err != nil {
-		return err
-	}
-
-	numOfWinners, err := instance.NumberOfWinners(nil)
-	if err != nil {
-		return err
-	}
-
-	amountPerWin := limit.Int64() / int64(numOfWinners)
-
 	winnerMap := make(map[string]int)
 	winnerAddresses := make([]common.Address, 0)
-	winnerAmounts := make([]*big.Int, 0)
 	for _, win := range winners {
-		if i, ok := winnerMap[win.WalletAddress]; ok {
-			winnerAmounts[i].Add(winnerAmounts[i], big.NewInt(amountPerWin))
-		}
-
 		winnerAddresses = append(winnerAddresses, common.HexToAddress(win.WalletAddress))
-		winnerAmounts = append(winnerAmounts, big.NewInt(amountPerWin))
 		winnerMap[win.WalletAddress] = len(winnerAddresses) - 1
 	}
 
-	return executeRaffle(ChainGoerli, i.httpsBaseURL+i.apiKey, i.privateKey, i.proxyAddress, winnerAddresses, winnerAmounts, contractAbi)
+	return executeRaffle(ChainGoerli, i.httpsBaseURL+i.apiKey, i.privateKey, i.proxyAddress, winnerAddresses, contractAbi)
 }
 
 func (i *Infura) Start(userDBHandle db.UserTickets, log *logrus.Entry) {
@@ -190,7 +162,7 @@ func (i *Infura) init(userDBHandle db.UserTickets) error {
 			}
 		case logRandomWordFulSigHash.Hex():
 			fmt.Println("RANDOM WORD FUL")
-			err = i.tryRandomWordFulfilledCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog)
+			err = i.tryRandomWordFulfilledCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog, true)
 			if err != nil {
 				fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
 			}
@@ -267,7 +239,7 @@ func (i *Infura) listen(userDBHandle db.UserTickets) error {
 				}
 			case logRandomWordFulSigHash.Hex():
 				fmt.Println("RANDOM WORD FUL")
-				err = i.tryRandomWordFulfilledCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog)
+				err = i.tryRandomWordFulfilledCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog, false)
 				if err != nil {
 					fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
 				}
@@ -314,7 +286,51 @@ func (i *Infura) GetCurrentPot() (uint16, error) {
 	return potID, nil
 }
 
-func (infura *Infura) tryRandomWordFulfilledCatch(chain int, hotpot *hotpot.Hotpot, userDBHandle db.UserTickets, contractAbi abi.ABI, vLog types.Log) error {
+func (i *Infura) GetDomain() (string, string, *big.Int, common.Address, error) {
+	dialURL := i.wsBaseURL + i.apiKey
+	client, err := ethclient.Dial(dialURL)
+	if err != nil {
+		return "", "", nil, common.Address{}, fmt.Errorf("dial problem: %v", err)
+	}
+
+	addr := common.HexToAddress(i.marketplaceAddress)
+
+	instance, err := marketplace.NewMarketplace(addr, client)
+	if err != nil {
+		return "", "", nil, common.Address{}, fmt.Errorf("instance error: %v", err)
+	}
+
+	eip712Domain, err := instance.Eip712Domain(nil)
+	if err != nil {
+		return "", "", nil, common.Address{}, err
+	}
+
+	return eip712Domain.Name, eip712Domain.Version, eip712Domain.ChainId, eip712Domain.VerifyingContract, nil
+}
+
+func (i *Infura) GetDomainSeparator() ([]byte, error) {
+	dialURL := i.wsBaseURL + i.apiKey
+	client, err := ethclient.Dial(dialURL)
+	if err != nil {
+		return nil, fmt.Errorf("dial problem: %v", err)
+	}
+
+	addr := common.HexToAddress(i.marketplaceAddress)
+
+	instance, err := marketplace.NewMarketplace(addr, client)
+	if err != nil {
+		return nil, fmt.Errorf("instance error: %v", err)
+	}
+
+	domainSep, err := instance.DOMAINSEPARATOR(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return domainSep[:], nil
+}
+
+func (infura *Infura) tryRandomWordFulfilledCatch(chain int, hotpot *hotpot.Hotpot, userDBHandle db.UserTickets, contractAbi abi.ABI, vLog types.Log, isInit bool) error {
 	m := make(map[string]interface{})
 	err := contractAbi.UnpackIntoMap(m, "RandomnessFulfilled", vLog.Data)
 	if err != nil {
@@ -350,43 +366,26 @@ func (infura *Infura) tryRandomWordFulfilledCatch(chain int, hotpot *hotpot.Hotp
 		}
 	}
 
+	if isInit {
+		return nil
+	}
+
 	winners, err := userDBHandle.GetWinnersForPot(chain, potID)
 	if err != nil {
 		fmt.Println("Error while setting winner for pot ", potID, " and chain ", chain, " error ", err)
 		return err
 	}
 
-	limit, err := hotpot.PotLimit(nil)
-	if err != nil {
-		return err
-	}
-
-	numOfWinners, err := hotpot.NumberOfWinners(nil)
-	if err != nil {
-		return err
-	}
-
-	amountPerWin := limit.Int64() / int64(numOfWinners)
-
-	winnerMap := make(map[string]int)
-	winnerAddresses := make([]common.Address, 0)
-	winnerAmounts := make([]*big.Int, 0)
+	winnerAddresses := make([]common.Address, len(winners))
 	for _, win := range winners {
-		if i, ok := winnerMap[win.WalletAddress]; ok {
-			winnerAmounts[i].Add(winnerAmounts[i], big.NewInt(amountPerWin))
-		}
-
 		winnerAddresses = append(winnerAddresses, common.HexToAddress(win.WalletAddress))
-		winnerAmounts = append(winnerAmounts, big.NewInt(amountPerWin))
-		winnerMap[win.WalletAddress] = len(winnerAddresses) - 1
 	}
 
-	return executeRaffle(chain, infura.httpsBaseURL+infura.apiKey, infura.privateKey, infura.proxyAddress, winnerAddresses, winnerAmounts, contractAbi)
+	return executeRaffle(chain, infura.httpsBaseURL+infura.apiKey, infura.privateKey, infura.proxyAddress, winnerAddresses, contractAbi)
 }
 
-func executeRaffle(chain int, dialString, pvtKey, proxyAddress string, winningAddresses []common.Address, amounts []*big.Int, contractAbi abi.ABI) error {
+func executeRaffle(chain int, dialString, pvtKey, proxyAddress string, winningAddresses []common.Address, contractAbi abi.ABI) error {
 	fmt.Println("Addresses: ", winningAddresses)
-	fmt.Println("Amounts: ", amounts)
 	client, err := ethclient.Dial(dialString)
 	if err != nil {
 		return fmt.Errorf("dial error: %v", err)
@@ -414,7 +413,7 @@ func executeRaffle(chain int, dialString, pvtKey, proxyAddress string, winningAd
 		return fmt.Errorf("gas error: %v", err)
 	}
 
-	data, err := contractAbi.Pack("executeRaffle", winningAddresses, amounts)
+	data, err := contractAbi.Pack("executeRaffle", winningAddresses)
 	if err != nil {
 		return fmt.Errorf("pack error: %v", err)
 	}
@@ -443,7 +442,7 @@ func executeRaffle(chain int, dialString, pvtKey, proxyAddress string, winningAd
 		return fmt.Errorf("instance error: %v", err)
 	}
 
-	tx, err := instance.ExecuteRaffle(auth, winningAddresses, amounts)
+	tx, err := instance.ExecuteRaffle(auth, winningAddresses)
 	if err != nil {
 		return fmt.Errorf("execute error: %v", err)
 	}
@@ -500,6 +499,20 @@ func (infura *Infura) tryRaffleTicketsCatch(chain int, hotpot *hotpot.Hotpot, us
 			if err != nil {
 				fmt.Printf("insert buyer tickets problem: %v \n", err)
 			}
+		}
+	}
+
+	if event.NewBuyerPendingAmount.Int64() > 0 {
+		err = userDBHandle.Insert(chain, models.UserTickets{WalletAddress: event.Buyer, TicketID: 0, PotID: infura.potID, PendingAmount: event.NewBuyerPendingAmount.String()})
+		if err != nil {
+			fmt.Printf("insert buyer pending amount problem: %v \n", err)
+		}
+	}
+
+	if event.NewSellerPendingAmount.Int64() > 0 {
+		err = userDBHandle.Insert(chain, models.UserTickets{WalletAddress: event.Seller, TicketID: 0, PotID: infura.potID, PendingAmount: event.NewSellerPendingAmount.String()})
+		if err != nil {
+			fmt.Printf("insert seller pending amount problem: %v \n", err)
 		}
 	}
 

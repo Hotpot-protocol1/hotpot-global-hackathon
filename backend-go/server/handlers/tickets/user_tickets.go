@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/Hotpot-protocol1/hotpot-global/server/errs"
-	eventservice "github.com/Hotpot-protocol1/hotpot-global/services/event"
+	eventservice "github.com/Hotpot-protocol1/hotpot-global/services/contract"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 )
@@ -44,7 +44,7 @@ func (h *Handler) GetUserTicketsForPot(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errs.IncorrectBodyErr)
 	}
 
-	userTickets, err := h.userDB.GetUserTicketsForPot(chain, walletAddr, uint16(potID))
+	userTickets, err := h.userTicketsDB.GetUserTicketsForPot(chain, walletAddr, uint16(potID))
 	if err != nil {
 		h.log.WithError(err).WithFields(logrus.Fields{"potID": potID, "wallet": walletAddr}).Error("Failed to get user tickets for pot")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
@@ -66,7 +66,7 @@ func (h *Handler) GetUserTicketsForCurrentPot(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
 	}
 
-	userTickets, err := h.userDB.GetUserTicketsForPot(chain, walletAddr, uint16(potID))
+	userTickets, err := h.userTicketsDB.GetUserTicketsForPot(chain, walletAddr, uint16(potID))
 	if err != nil {
 		h.log.WithError(err).WithFields(logrus.Fields{"potID": potID, "wallet": walletAddr}).Error("Failed to get user tickets for pot")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
@@ -82,7 +82,7 @@ func (h *Handler) GetPotsWithRaffleTimestamp(c echo.Context) error {
 	}
 	walletAddr := c.Param(paramWalletAddress)
 
-	pots, err := h.userDB.GetUserPotsWithRaffleTimestamp(chain, walletAddr)
+	pots, err := h.userTicketsDB.GetUserPotsWithRaffleTimestamp(chain, walletAddr)
 	if err != nil && err != sql.ErrNoRows {
 		h.log.WithError(err).Error("Failed to get pots with raffle timestamp")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
@@ -101,7 +101,7 @@ func (h *Handler) GetLatestRafflePotID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errs.IncorrectChainErr)
 	}
 
-	potInfo, err := h.userDB.GetLatestRafflePotInfo(chain)
+	potInfo, err := h.userTicketsDB.GetLatestRafflePotInfo(chain)
 	if err != nil {
 		h.log.WithError(err).Error("Failed to get pots with raffle timestamp")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
@@ -126,7 +126,7 @@ func (h *Handler) GetPotTicketLeaderboard(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errs.IncorrectBodyErr)
 	}
 
-	leaderboard, err := h.userDB.GetPotTicketLeaderboard(chain, potID)
+	leaderboard, err := h.userTicketsDB.GetPotTicketLeaderboard(chain, potID)
 	if err != nil {
 		h.log.WithError(err).Error("Failed to get pots with raffle timestamp")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)
@@ -142,7 +142,7 @@ func (h *Handler) GetLatestRafflePotIDSeconds(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errs.IncorrectChainErr)
 	}
 
-	potInfo, err := h.userDB.GetLatestRafflePotInfoSeconds(chain)
+	potInfo, err := h.userTicketsDB.GetLatestRafflePotInfoSeconds(chain)
 	if err != nil && err != sql.ErrNoRows {
 		h.log.WithError(err).Error("Failed to get pots with raffle timestamp")
 		return c.JSON(http.StatusInternalServerError, errs.InternalServerErr)

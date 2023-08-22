@@ -8,7 +8,6 @@ import (
 )
 
 type UserTickets interface {
-	GetUser(chain int, id int) (models.UserTickets, error)
 	GetLatestRafflePotInfo(chain int) (models.PotWithRaffleTimestamp, error)
 	GetLatestRafflePotInfoSeconds(chain int) (models.PotWithRaffleTimestamp, error)
 	GetPotTicketLeaderboard(chain, potID int) ([]models.UserLeaderboard, error)
@@ -18,6 +17,7 @@ type UserTickets interface {
 	SetPotRaffleTimestamp(chain int, potID uint16) error
 	GetUserTicketsForPot(chain int, walletAddress string, potID uint16) (models.UserPotTickets, error)
 	GetUserPotsWithRaffleTimestamp(chain int, walletAddress string) ([]models.PotWithRaffleTimestamp, error)
+	GetUserPendingAmount(chain int, walletAddress string, potID uint16) (models.PendingAmount, error)
 }
 
 type UserTicketsWrapper struct {
@@ -28,13 +28,6 @@ func (d *DB) UserTickets() UserTickets {
 	return &UserTicketsWrapper{
 		handler: d.db,
 	}
-}
-
-func (w *UserTicketsWrapper) GetUser(chain int, id int) (models.UserTickets, error) {
-	var user models.UserTickets
-
-	err := w.handler.Get(&user, `SELECT * FROM user_ticket WHERE id = $1 and chain = $2`, id, chain)
-	return user, err
 }
 
 func (w *UserTicketsWrapper) GetLatestRafflePotInfo(chain int) (models.PotWithRaffleTimestamp, error) {
@@ -53,7 +46,7 @@ func (w *UserTicketsWrapper) GetLatestRafflePotInfoSeconds(chain int) (models.Po
 }
 
 func (w *UserTicketsWrapper) GetPotTicketLeaderboard(chain, potID int) ([]models.UserLeaderboard, error) {
-	sqlStatement := `SELECT wallet_address, pot_id, COUNT(*) as num_of_tickets FROM user_ticket WHERE chain = $1 AND pot_id = $2 GROUP BY pot_id, wallet_address`
+	sqlStatement := `SELECT wallet_address, pot_id, COUNT(*) as num_of_tickets FROM user_ticket WHERE chain = $1 AND pot_id = $2 AND ticket_id != 0 GROUP BY pot_id, wallet_address`
 
 	rows, err := w.handler.Query(sqlStatement, chain, potID)
 	if err != nil {
@@ -79,8 +72,8 @@ func (w *UserTicketsWrapper) GetPotTicketLeaderboard(chain, potID int) ([]models
 
 func (w *UserTicketsWrapper) Insert(chain int, user models.UserTickets) error {
 	user.Chain = chain
-	_, err := w.handler.NamedExec(`INSERT INTO user_ticket (wallet_address, ticket_id, pot_id, raffle_timestamp, chain)
-	VALUES (:wallet_address, :ticket_id, :pot_id, :raffle_timestamp, :chain) ON CONFLICT (ticket_id, pot_id) DO NOTHING`, user)
+	_, err := w.handler.NamedExec(`INSERT INTO user_ticket (wallet_address, ticket_id, pot_id, raffle_timestamp, chain, pending_amount)
+	VALUES (lower(:wallet_address), :ticket_id, :pot_id, :raffle_timestamp, :chain, :pending_amount) ON CONFLICT (wallet_address, ticket_id, pot_id) DO UPDATE SET pending_amount = excluded.pending_amount`, user)
 
 	return err
 }
@@ -106,7 +99,7 @@ func (w *UserTicketsWrapper) GetWinnersForPot(chain int, potID uint16) ([]models
 }
 
 func (w *UserTicketsWrapper) SetPotRaffleTimestamp(chain int, potID uint16) error {
-	r, err := w.handler.Exec(`UPDATE user_ticket SET raffle_timestamp = now() WHERE pot_id = $1 and chain = $2 and raffle_timestamp is null`, potID, chain)
+	r, err := w.handler.Exec(`UPDATE user_ticket SET raffle_timestamp = now() WHERE pot_id = $1 and chain = $2 and ticket_id != 0 and raffle_timestamp is null`, potID, chain)
 	if err != nil {
 		return err
 	}
@@ -119,7 +112,7 @@ func (w *UserTicketsWrapper) SetPotRaffleTimestamp(chain int, potID uint16) erro
 }
 
 func (w *UserTicketsWrapper) GetUserTicketsForPot(chain int, walletAddress string, potID uint16) (models.UserPotTickets, error) {
-	sqlStatement := `SELECT ut.wallet_address, ut.pot_id, ut.ticket_id, ut.is_winner, COUNT(*) OVER() FROM user_ticket as ut WHERE chain = $1 AND LOWER(wallet_address) = LOWER($2) and pot_id = $3`
+	sqlStatement := `SELECT ut.wallet_address, ut.pot_id, ut.ticket_id, ut.is_winner, ut.pending_amount, COUNT(*) OVER() FROM user_ticket as ut WHERE chain = $1 AND LOWER(wallet_address) = LOWER($2) and pot_id = $3`
 
 	rows, err := w.handler.Query(sqlStatement, chain, walletAddress, potID)
 	if err != nil {
@@ -134,7 +127,7 @@ func (w *UserTicketsWrapper) GetUserTicketsForPot(chain int, walletAddress strin
 	for rows.Next() {
 		var potTicket models.UserPotTicket
 
-		err := rows.Scan(&potTickets.WalletAddress, &potTickets.PotID, &potTicket.TicketID, &potTicket.IsWinner, &potTickets.NumOfTickets)
+		err := rows.Scan(&potTickets.WalletAddress, &potTickets.PotID, &potTicket.TicketID, &potTicket.IsWinner, &potTicket.PendingAmount, &potTickets.NumOfTickets)
 		if err != nil {
 			return models.UserPotTickets{}, err
 		}
@@ -151,4 +144,11 @@ func (w *UserTicketsWrapper) GetUserPotsWithRaffleTimestamp(chain int, walletAdd
 	FROM user_ticket WHERE chain = $1 AND lower(wallet_address) = lower($2) GROUP BY pot_id`, chain, walletAddress)
 
 	return pots, err
+}
+
+func (w *UserTicketsWrapper) GetUserPendingAmount(chain int, walletAddress string, potID uint16) (models.PendingAmount, error) {
+	var pendingAmount models.PendingAmount
+	err := w.handler.Get(&pendingAmount, "SELECT pot_id, wallet_address, pending_amount FROM user_ticket WHERE lower(wallet_address) = lower($1) AND pot_id = $2 AND chain = $3 AND ticket_id = 0", walletAddress, potID, chain)
+
+	return pendingAmount, err
 }

@@ -43,7 +43,7 @@ type IHotpotInitializeParams struct {
 
 // HotpotMetaData contains all meta data concerning the Hotpot contract.
 var HotpotMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_link\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_vrfV2Wrapper\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Claim\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_buyer\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_seller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"_buyerTicketIdStart\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"_buyerTicketIdEnd\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"_sellerTicketIdStart\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"_sellerTicketIdEnd\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_buyerPendingAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_sellerPendingAmount\",\"type\":\"uint256\"}],\"name\":\"GenerateRaffleTickets\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"version\",\"type\":\"uint8\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newMarketplace\",\"type\":\"address\"}],\"name\":\"MarketplaceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newOperator\",\"type\":\"address\"}],\"name\":\"OperatorUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"requestId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"fromTicketId\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"toTicketId\",\"type\":\"uint32\"}],\"name\":\"RandomWordRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint16\",\"name\":\"potId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"randomWord\",\"type\":\"uint256\"}],\"name\":\"RandomnessFulfilled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"_winners\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"uint128[]\",\"name\":\"_amounts\",\"type\":\"uint128[]\"}],\"name\":\"WinnersAssigned\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"chainlinkRequests\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"fullfilled\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"randomWord\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claim\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"claimablePrizes\",\"outputs\":[{\"internalType\":\"uint128\",\"name\":\"amount\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"deadline\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentPotId\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentPotSize\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"_winners\",\"type\":\"address[]\"},{\"internalType\":\"uint128[]\",\"name\":\"_amounts\",\"type\":\"uint128[]\"}],\"name\":\"executeRaffle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amountInWei\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_buyer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_seller\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_buyerPendingAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_sellerPendingAmount\",\"type\":\"uint256\"}],\"name\":\"executeTrade\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fee\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_potId\",\"type\":\"uint16\"}],\"name\":\"getWinningTicketIds\",\"outputs\":[{\"internalType\":\"uint32[]\",\"name\":\"\",\"type\":\"uint32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"potLimit\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"raffleTicketCost\",\"type\":\"uint256\"},{\"internalType\":\"uint128\",\"name\":\"claimWindow\",\"type\":\"uint128\"},{\"internalType\":\"uint16\",\"name\":\"numberOfWinners\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"fee\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"tradeFee\",\"type\":\"uint16\"},{\"internalType\":\"address\",\"name\":\"marketplace\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"internalType\":\"structIHotpot.InitializeParams\",\"name\":\"params\",\"type\":\"tuple\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lastRaffleTicketId\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lastRequestId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nextPotTicketIdStart\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"numberOfWinners\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potLimit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potTicketIdEnd\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potTicketIdStart\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"raffleTicketCost\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_requestId\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"_randomWords\",\"type\":\"uint256[]\"}],\"name\":\"rawFulfillRandomWords\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"requestIds\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newMarketplace\",\"type\":\"address\"}],\"name\":\"setMarketplace\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newOperator\",\"type\":\"address\"}],\"name\":\"setOperator\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newPotLimit\",\"type\":\"uint256\"}],\"name\":\"setPotLimit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newRaffleTicketCost\",\"type\":\"uint256\"}],\"name\":\"setRaffleTicketCost\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tradeFee\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"winningTicketIds\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_link\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_vrfV2Wrapper\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Claim\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_buyer\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_seller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"_buyerTicketIdStart\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"_buyerTicketIdEnd\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"_sellerTicketIdStart\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"_sellerTicketIdEnd\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_buyerPendingAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_sellerPendingAmount\",\"type\":\"uint256\"}],\"name\":\"GenerateRaffleTickets\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"version\",\"type\":\"uint8\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newMarketplace\",\"type\":\"address\"}],\"name\":\"MarketplaceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint16\",\"name\":\"_nOfWinners\",\"type\":\"uint16\"}],\"name\":\"NumberOfWinnersUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newOperator\",\"type\":\"address\"}],\"name\":\"OperatorUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint128[]\",\"name\":\"_newPrizeAmounts\",\"type\":\"uint128[]\"}],\"name\":\"PrizeAmountsUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"requestId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"fromTicketId\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"toTicketId\",\"type\":\"uint32\"}],\"name\":\"RandomWordRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint16\",\"name\":\"potId\",\"type\":\"uint16\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"randomWord\",\"type\":\"uint256\"}],\"name\":\"RandomnessFulfilled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"_winners\",\"type\":\"address[]\"}],\"name\":\"WinnersAssigned\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"canClaim\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"chainlinkRequests\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"fullfilled\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"randomWord\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claim\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"claimablePrizes\",\"outputs\":[{\"internalType\":\"uint128\",\"name\":\"amount\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"deadline\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentPotId\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentPotSize\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"_winners\",\"type\":\"address[]\"}],\"name\":\"executeRaffle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amountInWei\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_buyer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_seller\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_buyerPendingAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_sellerPendingAmount\",\"type\":\"uint256\"}],\"name\":\"executeTrade\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fee\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_potId\",\"type\":\"uint16\"}],\"name\":\"getWinningTicketIds\",\"outputs\":[{\"internalType\":\"uint32[]\",\"name\":\"\",\"type\":\"uint32[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"potLimit\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"raffleTicketCost\",\"type\":\"uint256\"},{\"internalType\":\"uint128\",\"name\":\"claimWindow\",\"type\":\"uint128\"},{\"internalType\":\"uint16\",\"name\":\"numberOfWinners\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"fee\",\"type\":\"uint16\"},{\"internalType\":\"uint16\",\"name\":\"tradeFee\",\"type\":\"uint16\"},{\"internalType\":\"address\",\"name\":\"marketplace\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"internalType\":\"structIHotpot.InitializeParams\",\"name\":\"params\",\"type\":\"tuple\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lastRaffleTicketId\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"lastRequestId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"marketplace\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nextPotTicketIdStart\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"numberOfWinners\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"operator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potLimit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potTicketIdEnd\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"potTicketIdStart\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"name\":\"prizeAmounts\",\"outputs\":[{\"internalType\":\"uint128\",\"name\":\"\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"raffleTicketCost\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_requestId\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"_randomWords\",\"type\":\"uint256[]\"}],\"name\":\"rawFulfillRandomWords\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"requestIds\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newMarketplace\",\"type\":\"address\"}],\"name\":\"setMarketplace\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newOperator\",\"type\":\"address\"}],\"name\":\"setOperator\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newPotLimit\",\"type\":\"uint256\"}],\"name\":\"setPotLimit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newRaffleTicketCost\",\"type\":\"uint256\"}],\"name\":\"setRaffleTicketCost\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_newTradeFee\",\"type\":\"uint16\"}],\"name\":\"setTradeFee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tradeFee\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"_nOfWinners\",\"type\":\"uint16\"}],\"name\":\"updateNumberOfWinners\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint128[]\",\"name\":\"_newPrizeAmounts\",\"type\":\"uint128[]\"}],\"name\":\"updatePrizeAmounts\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"winningTicketIds\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 // HotpotABI is the input ABI used to generate the binding from.
@@ -190,6 +190,37 @@ func (_Hotpot *HotpotTransactorRaw) Transfer(opts *bind.TransactOpts) (*types.Tr
 // Transact invokes the (paid) contract method with params as input values.
 func (_Hotpot *HotpotTransactorRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
 	return _Hotpot.Contract.contract.Transact(opts, method, params...)
+}
+
+// CanClaim is a free data retrieval call binding the contract method 0xbf3506c1.
+//
+// Solidity: function canClaim(address user) view returns(bool)
+func (_Hotpot *HotpotCaller) CanClaim(opts *bind.CallOpts, user common.Address) (bool, error) {
+	var out []interface{}
+	err := _Hotpot.contract.Call(opts, &out, "canClaim", user)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// CanClaim is a free data retrieval call binding the contract method 0xbf3506c1.
+//
+// Solidity: function canClaim(address user) view returns(bool)
+func (_Hotpot *HotpotSession) CanClaim(user common.Address) (bool, error) {
+	return _Hotpot.Contract.CanClaim(&_Hotpot.CallOpts, user)
+}
+
+// CanClaim is a free data retrieval call binding the contract method 0xbf3506c1.
+//
+// Solidity: function canClaim(address user) view returns(bool)
+func (_Hotpot *HotpotCallerSession) CanClaim(user common.Address) (bool, error) {
+	return _Hotpot.Contract.CanClaim(&_Hotpot.CallOpts, user)
 }
 
 // ChainlinkRequests is a free data retrieval call binding the contract method 0x3f663fb0.
@@ -473,6 +504,37 @@ func (_Hotpot *HotpotCallerSession) LastRequestId() (*big.Int, error) {
 	return _Hotpot.Contract.LastRequestId(&_Hotpot.CallOpts)
 }
 
+// Marketplace is a free data retrieval call binding the contract method 0xabc8c7af.
+//
+// Solidity: function marketplace() view returns(address)
+func (_Hotpot *HotpotCaller) Marketplace(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _Hotpot.contract.Call(opts, &out, "marketplace")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// Marketplace is a free data retrieval call binding the contract method 0xabc8c7af.
+//
+// Solidity: function marketplace() view returns(address)
+func (_Hotpot *HotpotSession) Marketplace() (common.Address, error) {
+	return _Hotpot.Contract.Marketplace(&_Hotpot.CallOpts)
+}
+
+// Marketplace is a free data retrieval call binding the contract method 0xabc8c7af.
+//
+// Solidity: function marketplace() view returns(address)
+func (_Hotpot *HotpotCallerSession) Marketplace() (common.Address, error) {
+	return _Hotpot.Contract.Marketplace(&_Hotpot.CallOpts)
+}
+
 // NextPotTicketIdStart is a free data retrieval call binding the contract method 0x82d6f929.
 //
 // Solidity: function nextPotTicketIdStart() view returns(uint32)
@@ -533,6 +595,37 @@ func (_Hotpot *HotpotSession) NumberOfWinners() (uint16, error) {
 // Solidity: function numberOfWinners() view returns(uint16)
 func (_Hotpot *HotpotCallerSession) NumberOfWinners() (uint16, error) {
 	return _Hotpot.Contract.NumberOfWinners(&_Hotpot.CallOpts)
+}
+
+// Operator is a free data retrieval call binding the contract method 0x570ca735.
+//
+// Solidity: function operator() view returns(address)
+func (_Hotpot *HotpotCaller) Operator(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _Hotpot.contract.Call(opts, &out, "operator")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// Operator is a free data retrieval call binding the contract method 0x570ca735.
+//
+// Solidity: function operator() view returns(address)
+func (_Hotpot *HotpotSession) Operator() (common.Address, error) {
+	return _Hotpot.Contract.Operator(&_Hotpot.CallOpts)
+}
+
+// Operator is a free data retrieval call binding the contract method 0x570ca735.
+//
+// Solidity: function operator() view returns(address)
+func (_Hotpot *HotpotCallerSession) Operator() (common.Address, error) {
+	return _Hotpot.Contract.Operator(&_Hotpot.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
@@ -690,6 +783,37 @@ func (_Hotpot *HotpotCallerSession) PotTicketIdStart() (uint32, error) {
 	return _Hotpot.Contract.PotTicketIdStart(&_Hotpot.CallOpts)
 }
 
+// PrizeAmounts is a free data retrieval call binding the contract method 0x21cb5b99.
+//
+// Solidity: function prizeAmounts(uint16 ) view returns(uint128)
+func (_Hotpot *HotpotCaller) PrizeAmounts(opts *bind.CallOpts, arg0 uint16) (*big.Int, error) {
+	var out []interface{}
+	err := _Hotpot.contract.Call(opts, &out, "prizeAmounts", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// PrizeAmounts is a free data retrieval call binding the contract method 0x21cb5b99.
+//
+// Solidity: function prizeAmounts(uint16 ) view returns(uint128)
+func (_Hotpot *HotpotSession) PrizeAmounts(arg0 uint16) (*big.Int, error) {
+	return _Hotpot.Contract.PrizeAmounts(&_Hotpot.CallOpts, arg0)
+}
+
+// PrizeAmounts is a free data retrieval call binding the contract method 0x21cb5b99.
+//
+// Solidity: function prizeAmounts(uint16 ) view returns(uint128)
+func (_Hotpot *HotpotCallerSession) PrizeAmounts(arg0 uint16) (*big.Int, error) {
+	return _Hotpot.Contract.PrizeAmounts(&_Hotpot.CallOpts, arg0)
+}
+
 // RaffleTicketCost is a free data retrieval call binding the contract method 0x898b7dc7.
 //
 // Solidity: function raffleTicketCost() view returns(uint256)
@@ -835,25 +959,25 @@ func (_Hotpot *HotpotTransactorSession) Claim() (*types.Transaction, error) {
 	return _Hotpot.Contract.Claim(&_Hotpot.TransactOpts)
 }
 
-// ExecuteRaffle is a paid mutator transaction binding the contract method 0x90c178e7.
+// ExecuteRaffle is a paid mutator transaction binding the contract method 0xce4b7633.
 //
-// Solidity: function executeRaffle(address[] _winners, uint128[] _amounts) returns()
-func (_Hotpot *HotpotTransactor) ExecuteRaffle(opts *bind.TransactOpts, _winners []common.Address, _amounts []*big.Int) (*types.Transaction, error) {
-	return _Hotpot.contract.Transact(opts, "executeRaffle", _winners, _amounts)
+// Solidity: function executeRaffle(address[] _winners) returns()
+func (_Hotpot *HotpotTransactor) ExecuteRaffle(opts *bind.TransactOpts, _winners []common.Address) (*types.Transaction, error) {
+	return _Hotpot.contract.Transact(opts, "executeRaffle", _winners)
 }
 
-// ExecuteRaffle is a paid mutator transaction binding the contract method 0x90c178e7.
+// ExecuteRaffle is a paid mutator transaction binding the contract method 0xce4b7633.
 //
-// Solidity: function executeRaffle(address[] _winners, uint128[] _amounts) returns()
-func (_Hotpot *HotpotSession) ExecuteRaffle(_winners []common.Address, _amounts []*big.Int) (*types.Transaction, error) {
-	return _Hotpot.Contract.ExecuteRaffle(&_Hotpot.TransactOpts, _winners, _amounts)
+// Solidity: function executeRaffle(address[] _winners) returns()
+func (_Hotpot *HotpotSession) ExecuteRaffle(_winners []common.Address) (*types.Transaction, error) {
+	return _Hotpot.Contract.ExecuteRaffle(&_Hotpot.TransactOpts, _winners)
 }
 
-// ExecuteRaffle is a paid mutator transaction binding the contract method 0x90c178e7.
+// ExecuteRaffle is a paid mutator transaction binding the contract method 0xce4b7633.
 //
-// Solidity: function executeRaffle(address[] _winners, uint128[] _amounts) returns()
-func (_Hotpot *HotpotTransactorSession) ExecuteRaffle(_winners []common.Address, _amounts []*big.Int) (*types.Transaction, error) {
-	return _Hotpot.Contract.ExecuteRaffle(&_Hotpot.TransactOpts, _winners, _amounts)
+// Solidity: function executeRaffle(address[] _winners) returns()
+func (_Hotpot *HotpotTransactorSession) ExecuteRaffle(_winners []common.Address) (*types.Transaction, error) {
+	return _Hotpot.Contract.ExecuteRaffle(&_Hotpot.TransactOpts, _winners)
 }
 
 // ExecuteTrade is a paid mutator transaction binding the contract method 0xa449781b.
@@ -1024,6 +1148,27 @@ func (_Hotpot *HotpotTransactorSession) SetRaffleTicketCost(_newRaffleTicketCost
 	return _Hotpot.Contract.SetRaffleTicketCost(&_Hotpot.TransactOpts, _newRaffleTicketCost)
 }
 
+// SetTradeFee is a paid mutator transaction binding the contract method 0x9fdccfb8.
+//
+// Solidity: function setTradeFee(uint16 _newTradeFee) returns()
+func (_Hotpot *HotpotTransactor) SetTradeFee(opts *bind.TransactOpts, _newTradeFee uint16) (*types.Transaction, error) {
+	return _Hotpot.contract.Transact(opts, "setTradeFee", _newTradeFee)
+}
+
+// SetTradeFee is a paid mutator transaction binding the contract method 0x9fdccfb8.
+//
+// Solidity: function setTradeFee(uint16 _newTradeFee) returns()
+func (_Hotpot *HotpotSession) SetTradeFee(_newTradeFee uint16) (*types.Transaction, error) {
+	return _Hotpot.Contract.SetTradeFee(&_Hotpot.TransactOpts, _newTradeFee)
+}
+
+// SetTradeFee is a paid mutator transaction binding the contract method 0x9fdccfb8.
+//
+// Solidity: function setTradeFee(uint16 _newTradeFee) returns()
+func (_Hotpot *HotpotTransactorSession) SetTradeFee(_newTradeFee uint16) (*types.Transaction, error) {
+	return _Hotpot.Contract.SetTradeFee(&_Hotpot.TransactOpts, _newTradeFee)
+}
+
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
 //
 // Solidity: function transferOwnership(address newOwner) returns()
@@ -1043,6 +1188,48 @@ func (_Hotpot *HotpotSession) TransferOwnership(newOwner common.Address) (*types
 // Solidity: function transferOwnership(address newOwner) returns()
 func (_Hotpot *HotpotTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _Hotpot.Contract.TransferOwnership(&_Hotpot.TransactOpts, newOwner)
+}
+
+// UpdateNumberOfWinners is a paid mutator transaction binding the contract method 0x94d09761.
+//
+// Solidity: function updateNumberOfWinners(uint16 _nOfWinners) returns()
+func (_Hotpot *HotpotTransactor) UpdateNumberOfWinners(opts *bind.TransactOpts, _nOfWinners uint16) (*types.Transaction, error) {
+	return _Hotpot.contract.Transact(opts, "updateNumberOfWinners", _nOfWinners)
+}
+
+// UpdateNumberOfWinners is a paid mutator transaction binding the contract method 0x94d09761.
+//
+// Solidity: function updateNumberOfWinners(uint16 _nOfWinners) returns()
+func (_Hotpot *HotpotSession) UpdateNumberOfWinners(_nOfWinners uint16) (*types.Transaction, error) {
+	return _Hotpot.Contract.UpdateNumberOfWinners(&_Hotpot.TransactOpts, _nOfWinners)
+}
+
+// UpdateNumberOfWinners is a paid mutator transaction binding the contract method 0x94d09761.
+//
+// Solidity: function updateNumberOfWinners(uint16 _nOfWinners) returns()
+func (_Hotpot *HotpotTransactorSession) UpdateNumberOfWinners(_nOfWinners uint16) (*types.Transaction, error) {
+	return _Hotpot.Contract.UpdateNumberOfWinners(&_Hotpot.TransactOpts, _nOfWinners)
+}
+
+// UpdatePrizeAmounts is a paid mutator transaction binding the contract method 0x550da497.
+//
+// Solidity: function updatePrizeAmounts(uint128[] _newPrizeAmounts) returns()
+func (_Hotpot *HotpotTransactor) UpdatePrizeAmounts(opts *bind.TransactOpts, _newPrizeAmounts []*big.Int) (*types.Transaction, error) {
+	return _Hotpot.contract.Transact(opts, "updatePrizeAmounts", _newPrizeAmounts)
+}
+
+// UpdatePrizeAmounts is a paid mutator transaction binding the contract method 0x550da497.
+//
+// Solidity: function updatePrizeAmounts(uint128[] _newPrizeAmounts) returns()
+func (_Hotpot *HotpotSession) UpdatePrizeAmounts(_newPrizeAmounts []*big.Int) (*types.Transaction, error) {
+	return _Hotpot.Contract.UpdatePrizeAmounts(&_Hotpot.TransactOpts, _newPrizeAmounts)
+}
+
+// UpdatePrizeAmounts is a paid mutator transaction binding the contract method 0x550da497.
+//
+// Solidity: function updatePrizeAmounts(uint128[] _newPrizeAmounts) returns()
+func (_Hotpot *HotpotTransactorSession) UpdatePrizeAmounts(_newPrizeAmounts []*big.Int) (*types.Transaction, error) {
+	return _Hotpot.Contract.UpdatePrizeAmounts(&_Hotpot.TransactOpts, _newPrizeAmounts)
 }
 
 // HotpotClaimIterator is returned from FilterClaim and is used to iterate over the raw logs and unpacked data for Claim events raised by the Hotpot contract.
@@ -1617,6 +1804,140 @@ func (_Hotpot *HotpotFilterer) ParseMarketplaceUpdated(log types.Log) (*HotpotMa
 	return event, nil
 }
 
+// HotpotNumberOfWinnersUpdatedIterator is returned from FilterNumberOfWinnersUpdated and is used to iterate over the raw logs and unpacked data for NumberOfWinnersUpdated events raised by the Hotpot contract.
+type HotpotNumberOfWinnersUpdatedIterator struct {
+	Event *HotpotNumberOfWinnersUpdated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *HotpotNumberOfWinnersUpdatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(HotpotNumberOfWinnersUpdated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(HotpotNumberOfWinnersUpdated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *HotpotNumberOfWinnersUpdatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *HotpotNumberOfWinnersUpdatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// HotpotNumberOfWinnersUpdated represents a NumberOfWinnersUpdated event raised by the Hotpot contract.
+type HotpotNumberOfWinnersUpdated struct {
+	NOfWinners uint16
+	Raw        types.Log // Blockchain specific contextual infos
+}
+
+// FilterNumberOfWinnersUpdated is a free log retrieval operation binding the contract event 0xaf655bb590a9a783519c5319a7f42e07720e729de4a0e85c3f92165bc2ffef83.
+//
+// Solidity: event NumberOfWinnersUpdated(uint16 _nOfWinners)
+func (_Hotpot *HotpotFilterer) FilterNumberOfWinnersUpdated(opts *bind.FilterOpts) (*HotpotNumberOfWinnersUpdatedIterator, error) {
+
+	logs, sub, err := _Hotpot.contract.FilterLogs(opts, "NumberOfWinnersUpdated")
+	if err != nil {
+		return nil, err
+	}
+	return &HotpotNumberOfWinnersUpdatedIterator{contract: _Hotpot.contract, event: "NumberOfWinnersUpdated", logs: logs, sub: sub}, nil
+}
+
+// WatchNumberOfWinnersUpdated is a free log subscription operation binding the contract event 0xaf655bb590a9a783519c5319a7f42e07720e729de4a0e85c3f92165bc2ffef83.
+//
+// Solidity: event NumberOfWinnersUpdated(uint16 _nOfWinners)
+func (_Hotpot *HotpotFilterer) WatchNumberOfWinnersUpdated(opts *bind.WatchOpts, sink chan<- *HotpotNumberOfWinnersUpdated) (event.Subscription, error) {
+
+	logs, sub, err := _Hotpot.contract.WatchLogs(opts, "NumberOfWinnersUpdated")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(HotpotNumberOfWinnersUpdated)
+				if err := _Hotpot.contract.UnpackLog(event, "NumberOfWinnersUpdated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseNumberOfWinnersUpdated is a log parse operation binding the contract event 0xaf655bb590a9a783519c5319a7f42e07720e729de4a0e85c3f92165bc2ffef83.
+//
+// Solidity: event NumberOfWinnersUpdated(uint16 _nOfWinners)
+func (_Hotpot *HotpotFilterer) ParseNumberOfWinnersUpdated(log types.Log) (*HotpotNumberOfWinnersUpdated, error) {
+	event := new(HotpotNumberOfWinnersUpdated)
+	if err := _Hotpot.contract.UnpackLog(event, "NumberOfWinnersUpdated", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
 // HotpotOperatorUpdatedIterator is returned from FilterOperatorUpdated and is used to iterate over the raw logs and unpacked data for OperatorUpdated events raised by the Hotpot contract.
 type HotpotOperatorUpdatedIterator struct {
 	Event *HotpotOperatorUpdated // Event containing the contract specifics and raw log
@@ -2032,6 +2353,140 @@ func (_Hotpot *HotpotFilterer) WatchPaused(opts *bind.WatchOpts, sink chan<- *Ho
 func (_Hotpot *HotpotFilterer) ParsePaused(log types.Log) (*HotpotPaused, error) {
 	event := new(HotpotPaused)
 	if err := _Hotpot.contract.UnpackLog(event, "Paused", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// HotpotPrizeAmountsUpdatedIterator is returned from FilterPrizeAmountsUpdated and is used to iterate over the raw logs and unpacked data for PrizeAmountsUpdated events raised by the Hotpot contract.
+type HotpotPrizeAmountsUpdatedIterator struct {
+	Event *HotpotPrizeAmountsUpdated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *HotpotPrizeAmountsUpdatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(HotpotPrizeAmountsUpdated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(HotpotPrizeAmountsUpdated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *HotpotPrizeAmountsUpdatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *HotpotPrizeAmountsUpdatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// HotpotPrizeAmountsUpdated represents a PrizeAmountsUpdated event raised by the Hotpot contract.
+type HotpotPrizeAmountsUpdated struct {
+	NewPrizeAmounts []*big.Int
+	Raw             types.Log // Blockchain specific contextual infos
+}
+
+// FilterPrizeAmountsUpdated is a free log retrieval operation binding the contract event 0x7b448bf1cdbff04f2b0fa7bda6c864f8670ce866f64332d09288e209bb9aa4c8.
+//
+// Solidity: event PrizeAmountsUpdated(uint128[] _newPrizeAmounts)
+func (_Hotpot *HotpotFilterer) FilterPrizeAmountsUpdated(opts *bind.FilterOpts) (*HotpotPrizeAmountsUpdatedIterator, error) {
+
+	logs, sub, err := _Hotpot.contract.FilterLogs(opts, "PrizeAmountsUpdated")
+	if err != nil {
+		return nil, err
+	}
+	return &HotpotPrizeAmountsUpdatedIterator{contract: _Hotpot.contract, event: "PrizeAmountsUpdated", logs: logs, sub: sub}, nil
+}
+
+// WatchPrizeAmountsUpdated is a free log subscription operation binding the contract event 0x7b448bf1cdbff04f2b0fa7bda6c864f8670ce866f64332d09288e209bb9aa4c8.
+//
+// Solidity: event PrizeAmountsUpdated(uint128[] _newPrizeAmounts)
+func (_Hotpot *HotpotFilterer) WatchPrizeAmountsUpdated(opts *bind.WatchOpts, sink chan<- *HotpotPrizeAmountsUpdated) (event.Subscription, error) {
+
+	logs, sub, err := _Hotpot.contract.WatchLogs(opts, "PrizeAmountsUpdated")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(HotpotPrizeAmountsUpdated)
+				if err := _Hotpot.contract.UnpackLog(event, "PrizeAmountsUpdated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParsePrizeAmountsUpdated is a log parse operation binding the contract event 0x7b448bf1cdbff04f2b0fa7bda6c864f8670ce866f64332d09288e209bb9aa4c8.
+//
+// Solidity: event PrizeAmountsUpdated(uint128[] _newPrizeAmounts)
+func (_Hotpot *HotpotFilterer) ParsePrizeAmountsUpdated(log types.Log) (*HotpotPrizeAmountsUpdated, error) {
+	event := new(HotpotPrizeAmountsUpdated)
+	if err := _Hotpot.contract.UnpackLog(event, "PrizeAmountsUpdated", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
@@ -2523,13 +2978,12 @@ func (it *HotpotWinnersAssignedIterator) Close() error {
 // HotpotWinnersAssigned represents a WinnersAssigned event raised by the Hotpot contract.
 type HotpotWinnersAssigned struct {
 	Winners []common.Address
-	Amounts []*big.Int
 	Raw     types.Log // Blockchain specific contextual infos
 }
 
-// FilterWinnersAssigned is a free log retrieval operation binding the contract event 0x75053669dc1ce2795ce27b2eb912132a78356fc886bbfb6d9ede02b6d221e68b.
+// FilterWinnersAssigned is a free log retrieval operation binding the contract event 0x6e4b5e113e3c80149f0005be76d3eeafe668dba9e5de7fa8bb935d283bccd2a7.
 //
-// Solidity: event WinnersAssigned(address[] _winners, uint128[] _amounts)
+// Solidity: event WinnersAssigned(address[] _winners)
 func (_Hotpot *HotpotFilterer) FilterWinnersAssigned(opts *bind.FilterOpts) (*HotpotWinnersAssignedIterator, error) {
 
 	logs, sub, err := _Hotpot.contract.FilterLogs(opts, "WinnersAssigned")
@@ -2539,9 +2993,9 @@ func (_Hotpot *HotpotFilterer) FilterWinnersAssigned(opts *bind.FilterOpts) (*Ho
 	return &HotpotWinnersAssignedIterator{contract: _Hotpot.contract, event: "WinnersAssigned", logs: logs, sub: sub}, nil
 }
 
-// WatchWinnersAssigned is a free log subscription operation binding the contract event 0x75053669dc1ce2795ce27b2eb912132a78356fc886bbfb6d9ede02b6d221e68b.
+// WatchWinnersAssigned is a free log subscription operation binding the contract event 0x6e4b5e113e3c80149f0005be76d3eeafe668dba9e5de7fa8bb935d283bccd2a7.
 //
-// Solidity: event WinnersAssigned(address[] _winners, uint128[] _amounts)
+// Solidity: event WinnersAssigned(address[] _winners)
 func (_Hotpot *HotpotFilterer) WatchWinnersAssigned(opts *bind.WatchOpts, sink chan<- *HotpotWinnersAssigned) (event.Subscription, error) {
 
 	logs, sub, err := _Hotpot.contract.WatchLogs(opts, "WinnersAssigned")
@@ -2576,9 +3030,9 @@ func (_Hotpot *HotpotFilterer) WatchWinnersAssigned(opts *bind.WatchOpts, sink c
 	}), nil
 }
 
-// ParseWinnersAssigned is a log parse operation binding the contract event 0x75053669dc1ce2795ce27b2eb912132a78356fc886bbfb6d9ede02b6d221e68b.
+// ParseWinnersAssigned is a log parse operation binding the contract event 0x6e4b5e113e3c80149f0005be76d3eeafe668dba9e5de7fa8bb935d283bccd2a7.
 //
-// Solidity: event WinnersAssigned(address[] _winners, uint128[] _amounts)
+// Solidity: event WinnersAssigned(address[] _winners)
 func (_Hotpot *HotpotFilterer) ParseWinnersAssigned(log types.Log) (*HotpotWinnersAssigned, error) {
 	event := new(HotpotWinnersAssigned)
 	if err := _Hotpot.contract.UnpackLog(event, "WinnersAssigned", log); err != nil {

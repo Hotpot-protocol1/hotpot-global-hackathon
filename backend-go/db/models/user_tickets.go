@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type UserTickets struct {
 	ID              string     `db:"id" json:"id"`
@@ -11,6 +13,7 @@ type UserTickets struct {
 	UpdatedAt       time.Time  `db:"updated_at" json:"updated_at"`
 	IsWinner        bool       `db:"is_winner" json:"is_winner"`
 	RaffleTimestamp *time.Time `db:"raffle_timestamp" json:"raffle_timestamp"`
+	PendingAmount   string     `db:"pending_amount" json:"pending_amount"`
 	Chain           int        `db:"chain" json:"chain"`
 }
 
@@ -28,8 +31,9 @@ type UserPotTickets struct {
 }
 
 type UserPotTicket struct {
-	TicketID uint32 `db:"ticket_id" json:"ticket_id"`
-	IsWinner bool   `db:"is_winner" json:"is_winner"`
+	TicketID      uint32 `db:"ticket_id" json:"ticket_id"`
+	IsWinner      bool   `db:"is_winner" json:"is_winner"`
+	PendingAmount string `db:"pending_amount" json:"pending_amount"`
 }
 
 type PotWithRaffleTimestamp struct {
@@ -40,4 +44,10 @@ type PotWithRaffleTimestamp struct {
 type Winner struct {
 	WalletAddress string `db:"wallet_address" json:"wallet_address"`
 	TicketID      uint32 `db:"ticket_id" json:"ticket_id"`
+}
+
+type PendingAmount struct {
+	PotId         uint16 `db:"pot_id" json:"pot_id"`
+	WalletAddress string `db:"wallet_address" json:"wallet_address"`
+	PendingAmount string `db:"pending_amount" json:"pending_amount"`
 }

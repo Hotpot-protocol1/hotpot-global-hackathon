@@ -16,7 +16,9 @@ func (e ErrResp) ToError() error {
 
 var (
 	InternalServerErr = ErrResp{"INTERNAL_SERVER_ERROR", http.StatusInternalServerError}
+	BadSignature      = ErrResp{"BAD_SIGNATURE", http.StatusForbidden}
 	IncorrectBodyErr  = ErrResp{"INCORRECT_BODY", http.StatusBadRequest}
 	IncorrectChainErr = ErrResp{"INCORRECT_CHAIN", http.StatusBadRequest}
 	NoRaffle          = ErrResp{"NO_RAFFLE", http.StatusNotFound}
+	NoOrder           = ErrResp{"NO_ORDER", http.StatusNotFound}
 )
