@@ -38,6 +38,7 @@ const (
 	ChainSepolia
 	ChainXDC
 	ChainGoerli
+	ChainBaseGoerli
 )
 
 func getChainIDForChain(chain int) int64 {
@@ -50,6 +51,8 @@ func getChainIDForChain(chain int) int64 {
 		return 50
 	case ChainGoerli:
 		return 5
+	case ChainBaseGoerli:
+		return 84531
 	}
 
 	return 1
@@ -83,9 +86,9 @@ func (i *Infura) TestFulfilled(userDBHandle db.UserTickets) error {
 	}
 
 	potID := uint16(1)
-	winners, err := userDBHandle.GetWinnersForPot(ChainGoerli, potID)
+	winners, err := userDBHandle.GetWinnersForPot(ChainBaseGoerli, potID)
 	if err != nil {
-		fmt.Println("Error while setting winner for pot ", potID, " and chain ", ChainGoerli, " error ", err)
+		fmt.Println("Error while setting winner for pot ", potID, " and chain ", ChainBaseGoerli, " error ", err)
 		return err
 	}
 
@@ -114,7 +117,7 @@ func (i *Infura) TestFulfilled(userDBHandle db.UserTickets) error {
 		winnerMap[win.WalletAddress] = len(winnerAddresses) - 1
 	}
 
-	return executeRaffle(ChainGoerli, i.httpsBaseURL+i.apiKey, i.privateKey, i.proxyAddress, winnerAddresses, winnerAmounts, contractAbi)
+	return executeRaffle(ChainBaseGoerli, i.httpsBaseURL+i.apiKey, i.privateKey, i.proxyAddress, winnerAddresses, winnerAmounts, contractAbi)
 }
 
 func (i *Infura) Start(userDBHandle db.UserTickets, log *logrus.Entry) {
@@ -142,9 +145,15 @@ func (i *Infura) init(userDBHandle db.UserTickets) error {
 		return fmt.Errorf("dial problem: %v", err)
 	}
 
+	latestBlock, err := client.BlockNumber(context.TODO())
+	if err != nil {
+		return fmt.Errorf("latest block problem: %v", err)
+	}
+
 	addr := common.HexToAddress(i.proxyAddress)
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{addr},
+		FromBlock: big.NewInt(int64(latestBlock - 9000)),
 	}
 
 	logs, err := client.FilterLogs(context.Background(), query)
@@ -178,19 +187,19 @@ func (i *Infura) init(userDBHandle db.UserTickets) error {
 		switch vLog.Topics[0].Hex() {
 		case logGenerateTicketsSigHash.Hex():
 			fmt.Println("GENERATE TICKETS")
-			err = i.tryRaffleTicketsCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog)
+			err = i.tryRaffleTicketsCatch(ChainBaseGoerli, instance, userDBHandle, contractAbi, vLog)
 			if err != nil {
 				fmt.Printf("unpack raffle tickets catch problem: %v \n", err)
 			}
 		case logRandomWordReqSigHash.Hex():
 			fmt.Println("RANDOM WORD REQ")
-			err = i.tryRandomWordRequestedCatch(ChainGoerli, instance, contractAbi, vLog)
+			err = i.tryRandomWordRequestedCatch(ChainBaseGoerli, instance, contractAbi, vLog)
 			if err != nil {
 				fmt.Printf("unpack random word requested catch problem: %v \n", err)
 			}
 		case logRandomWordFulSigHash.Hex():
 			fmt.Println("RANDOM WORD FUL")
-			err = i.tryRandomWordFulfilledCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog)
+			err = i.tryRandomWordFulfilledCatch(ChainBaseGoerli, instance, userDBHandle, contractAbi, vLog)
 			if err != nil {
 				fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
 			}
@@ -255,19 +264,19 @@ func (i *Infura) listen(userDBHandle db.UserTickets) error {
 			switch vLog.Topics[0].Hex() {
 			case logGenerateTicketsSigHash.Hex():
 				fmt.Println("GENERATE TICKETS")
-				err = i.tryRaffleTicketsCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog)
+				err = i.tryRaffleTicketsCatch(ChainBaseGoerli, instance, userDBHandle, contractAbi, vLog)
 				if err != nil {
 					fmt.Printf("unpack raffle tickets catch problem: %v \n", err)
 				}
 			case logRandomWordReqSigHash.Hex():
 				fmt.Println("RANDOM WORD REQ")
-				err = i.tryRandomWordRequestedCatch(ChainGoerli, instance, contractAbi, vLog)
+				err = i.tryRandomWordRequestedCatch(ChainBaseGoerli, instance, contractAbi, vLog)
 				if err != nil {
 					fmt.Printf("unpack random word requested catch problem: %v \n", err)
 				}
 			case logRandomWordFulSigHash.Hex():
 				fmt.Println("RANDOM WORD FUL")
-				err = i.tryRandomWordFulfilledCatch(ChainGoerli, instance, userDBHandle, contractAbi, vLog)
+				err = i.tryRandomWordFulfilledCatch(ChainBaseGoerli, instance, userDBHandle, contractAbi, vLog)
 				if err != nil {
 					fmt.Printf("unpack random word fulfilled catch problem: %v \n", err)
 				}

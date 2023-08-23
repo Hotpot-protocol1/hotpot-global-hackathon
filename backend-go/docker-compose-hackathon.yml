@@ -1,0 +1,39 @@
+version: "3"
+
+networks:
+  hotpot:
+
+services:
+  hotpot-backend:
+    container_name: hotpot-backend
+    image: 226144105235.dkr.ecr.ap-southeast-1.amazonaws.com/hotpot-hackathon:latest
+
+    restart: always
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-region: "ap-southeast-1"
+        awslogs-group: "debugging-hack"
+        awslogs-stream-prefix: "ecs"
+    environment:
+      - HOTPOT_API_HOST=
+      - HOTPOT_API_PORT=8089
+      - HOTPOT_API_READ_TIMEOUT=120s
+      - HOTPOT_API_WRITE_TIMEOUT=120s
+      - HOTPOT_API_IDLE_TIMEOUT=120s
+      - HOTPOT_API_LOG_LEVEL=debug
+      - HOTPOT_API_INFURA_BASE_URL_WS=wss://empty-stylish-sheet.base-goerli.quiknode.pro/
+      - HOTPOT_API_INFURA_BASE_URL=https://empty-stylish-sheet.base-goerli.quiknode.pro/
+      - HOTPOT_API_INFURA_KEY=8ff4595625394722031f952d303c1c5c3195d2f3
+      - HOTPOT_API_OPERATOR_PRIV_KEY=8b24e2c2aa28508ad234a2928f989f95d62b5530c486849dc9f2da18c919475d
+      - HOTPOT_API_PROXY_CONTRACT_ADDRESS=0xEA02960F9162FA4b521a75511E9d9D256bd12031
+      - HOTPOT_API_MARKETPLACE_CONTRACT_ADDRESS=0x5AB54B696216deF02811B04700A4d23a8a0a3793
+      - HOTPOT_API_DATABASE_NAME=hotpot
+      - HOTPOT_API_DATABASE_HOST=hotpot-hackathon.clfopfxkucgt.ap-southeast-1.rds.amazonaws.com
+      - HOTPOT_API_DATABASE_PORT=5432
+      - HOTPOT_API_DATABASE_USER=postgres
+      - HOTPOT_API_DATABASE_PASSWORD=joblNDvnCOo0DZs2Jphr
+      - HOTPOT_API_DATABASE_SSL=disable
+    ports:
+      - 80:8089
+    command: bash -c "./hotpot-backend run"
